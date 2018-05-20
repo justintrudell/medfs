@@ -1,0 +1,7 @@
+node_modules
+out
+.eslintcache
+.DS_Store
+dist/
+node_modules/
+thumbs.db
