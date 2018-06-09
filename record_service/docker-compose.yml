@@ -1,0 +1,23 @@
+version: '3'
+services:
+  app:
+    restart: always
+    links:
+    - db
+    build: .
+    ports:
+      - 5000:5000
+    volumes:
+      - .:/app
+#    entrypoint: ["python", "app.py"]
+  db:
+    restart: always
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=local_record_service
+    volumes:
+      - ./postgres-data/postgres:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
