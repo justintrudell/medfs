@@ -9,7 +9,6 @@ services:
       - 5000:5000
     volumes:
       - .:/app
-#    entrypoint: ["python", "app.py"]
   db:
     restart: always
     image: postgres:latest
