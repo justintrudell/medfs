@@ -1,5 +1,7 @@
 from os import environ
 
+APP_PORT = environ.get('RECORD_SVC_PORT')
+
 # Database parameters
 DB_USER = environ.get('RECORD_SVC_DB_USER')
 DB_PASS = environ.get('RECORD_SVC_DB_PASS')

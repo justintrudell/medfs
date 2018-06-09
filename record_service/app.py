@@ -29,7 +29,7 @@ configure_logging()
 
 
 def run():
-  port = int(os.environ.get('RECORD_SVC_PORT', 5000))
+  port = int(config.APP_PORT or 5000)
   app.run(host='0.0.0.0', port=port)
 
 
