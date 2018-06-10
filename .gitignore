@@ -102,3 +102,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# grpc stuff
+acl/service/acl_pb2*.py
