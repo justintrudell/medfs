@@ -1,12 +1,11 @@
-import logging.config 
-import os
+import logging.config
 import pathlib
 
 from flask import Flask
 
 import config
 from record_service.database.database import db
-from record_service.endpoints.user import user_api 
+from record_service.endpoints.user import user_api
 
 app = Flask(__name__)
 
@@ -19,7 +18,7 @@ db.init_app(app)
 
 def configure_logging():
   """Configures app-wide logging functionality."""
-  pathlib.Path('log').mkdir(parents=True, exist_ok=True) 
+  pathlib.Path('log').mkdir(parents=True, exist_ok=True)
   logging.config.dictConfig(config.logging_config)
   logger = logging.getLogger('record_service.root')
   logger.info("Starting application...")

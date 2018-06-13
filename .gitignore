@@ -107,3 +107,6 @@ venv.bak/
 acl/service/acl_pb2*.py
 node_modules/
 out/
+
+.vscode/
+
