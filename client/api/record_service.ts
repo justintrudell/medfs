@@ -1,4 +1,3 @@
-let path = require("path");
 let request = require("request");
 let config = require("../config");
 let url = require("url");
