@@ -1,0 +1,8 @@
+{
+    "compilerOptions":{
+        "lib": ["es6", "dom"],
+        "jsx": "react",
+        "typeRoots": ["./node_modules/@types"],
+        "outDir": "out"
+    }
+}
