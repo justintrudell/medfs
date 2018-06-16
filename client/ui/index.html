@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>medFS</title>
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+    <!-- All of the Node.js APIs are available in this renderer process. -->
+    Node version: <script>document.write(process.versions.node)</script>,
+    Chrome version: <script>document.write(process.versions.chrome)</script>,
+    Electron version: <script>document.write(process.versions.electron)</script>
+  </body>
+
+  <script>
+    // You can also require other files to run in this process
+    require('./out/ui/renderer.js')
+  </script>
+</html>
