@@ -1,5 +1,5 @@
-let record_svc = require("./record_service")
+const recordService = require("./record_service");
 
-export function get_user(user_id: number) {
-    return record_svc.get(`/users/${user_id}`);
+export function getUser(userId: number) {
+return recordService.get(`/users/${userId}`);
 }
