@@ -1,7 +1,6 @@
 import requests
 
 from app import app
-import config
 
 
 def get_user_info(id: int) -> str:
