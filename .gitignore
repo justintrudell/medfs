@@ -104,6 +104,9 @@ venv.bak/
 .mypy_cache/
 
 # grpc stuff
-acl/service/acl_pb2*.py
+*_pb2*.py
 node_modules/
 out/
+
+.vscode/
+
