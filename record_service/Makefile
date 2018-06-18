@@ -1,7 +1,10 @@
-run: build up
+run: grpc build up
 
 ssh:
 	docker exec -ti record_service_app_1 /bin/bash
+
+grpc:
+	python -m grpc_tools.protoc -I../acl/protos --python_out=record_service/api/acl --grpc_python_out=record_service/api/acl ../acl/protos/acl.proto
 
 # ------------------DOCKER-COMPOSE------------------
 
