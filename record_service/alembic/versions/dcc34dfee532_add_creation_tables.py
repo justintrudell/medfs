@@ -1,8 +1,8 @@
 """Add creation tables
 
-Revision ID: 7f8101daeb3d
+Revision ID: dcc34dfee532
 Revises: 
-Create Date: 2018-06-19 15:58:29.416265
+Create Date: 2018-06-19 16:00:07.202452
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '7f8101daeb3d'
+revision = 'dcc34dfee532'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,7 +28,7 @@ def upgrade():
     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('user_id', sa.Text(), nullable=False),
     sa.Column('archived', sa.Boolean(), nullable=False),
-    sa.Column('hash', sa.Text(), nullable=False),
+    sa.Column('record_hash', sa.Text(), nullable=False),
     sa.Column('created', sa.DateTime(), nullable=False),
     sa.Column('acl_id', sa.Text(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
