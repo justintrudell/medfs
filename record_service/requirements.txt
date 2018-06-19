@@ -10,3 +10,5 @@ protobuf==3.6.0
 six==1.11.0
 SQLAlchemy==1.2.8
 Werkzeug==0.14.1
+alembic==0.9.9
+psycopg2-binary==2.7.5
