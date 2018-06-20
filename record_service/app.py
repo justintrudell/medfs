@@ -12,7 +12,9 @@ from record_service.endpoints.users.user_api import user_api
 app = Flask(__name__)
 
 app.config[
-    "SQLALCHEMY_DATABASE_URI"] = f"postgresql+pg8000://tesuser:password@db:5432/local_record_service"
+    "SQLALCHEMY_DATABASE_URI"
+] = f"postgresql+pg8000://tesuser:password@db:5432/local_record_service"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.register_blueprint(permission_api)
 app.register_blueprint(record_api)
 app.register_blueprint(user_api)
@@ -23,8 +25,6 @@ def configure_logging():
     """Configures app-wide logging functionality."""
     pathlib.Path("log").mkdir(parents=True, exist_ok=True)
     logging.config.dictConfig(config.logging_config)
-    logger = logging.getLogger("record_service.root")
-    logger.info("Starting application...")
 
 
 configure_logging()

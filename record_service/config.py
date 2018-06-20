@@ -9,6 +9,10 @@ DB_URL = environ.get("RECORD_SVC_DB_URL")
 DB_NAME = environ.get("RECORD_SVC_DB_NAME")
 DB_PORT = environ.get("RECORD_SVC_DB_PORT")
 
+# We'll configure this in the future
+ENVIRONMENT = "DEV"
+
+
 logging_config = {
     "version": 1,
     "formatters": {"default": {"format": "%(asctime)s - %(levelname)s: %(message)s"}},
