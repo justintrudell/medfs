@@ -6,5 +6,4 @@ class User(Base):
     __tablename__ = "users"
 
     id = db.Column(db.Text, primary_key=True)
-    password_hash = db.Column(db.Text, nullable=False)
-    password_salt = db.Column(db.Text, nullable=False)
+    hashed_password = db.Column(db.Text, nullable=False)
