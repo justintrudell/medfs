@@ -4,21 +4,54 @@ import pathlib
 from flask import Flask
 
 import config
+
 from record_service.database.database import db
+from record_service.endpoints.authentication.auth_api import login_manager
+from record_service.constants import SECRET_KEY
+
+# DB Models - import required to create tables
+from record_service.models.base import Base
+from record_service.models.user import User
+from record_service.models.record import Record
+
+# API Endpoints
 from record_service.endpoints.permissions.permission_api import permission_api
 from record_service.endpoints.records.record_api import record_api
 from record_service.endpoints.users.user_api import user_api
+from record_service.endpoints.authentication.auth_api import auth_api
 
 app = Flask(__name__)
 
 app.config[
     "SQLALCHEMY_DATABASE_URI"
-] = f"postgresql+pg8000://tesuser:password@db:5432/local_record_service"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+] = f"postgresql://testuser:password@db:5432/local_record_service"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+
+# TODO put real secret key
+app.secret_key = SECRET_KEY
+
 app.register_blueprint(permission_api)
 app.register_blueprint(record_api)
 app.register_blueprint(user_api)
+app.register_blueprint(auth_api)
+
 db.init_app(app)
+login_manager.init_app(app)
+
+
+@app.before_first_request
+def setup_db():
+    # recreate tables on start up for tests
+    Base.metadata.drop_all(bind=db.engine)
+    Base.metadata.create_all(bind=db.engine)
+
+    # test data
+    db.session.add(User(
+        id='test@test.com',
+        hashed_password=User.hash_password('hunter2')
+    ))
+
+    db.session.commit()
 
 
 def configure_logging():
