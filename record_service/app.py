@@ -40,6 +40,13 @@ login_manager.init_app(app)
 def setup_db():
     # create tables if not exists
     Base.metadata.create_all(bind=db.engine)
+
+    # test data
+    db.session.add(User(
+        id='test@test.com',
+        hashed_password=User.hash_password('hunter2')
+    ))
+
     db.session.commit()
 
 
