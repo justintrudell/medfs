@@ -34,10 +34,10 @@ def login():
     u = db.session.query(User).get(data["username"])
 
     if not u:
-        return "No user found", 400
+        return "No user found", 401
 
     if not User.check_password(u.hashed_password, data["password"]):
-        return "Invalid password", 400
+        return "Invalid password", 401
 
     # sets the token in the response header, alternatively we can also return
     # the token in the response body
