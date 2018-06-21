@@ -27,13 +27,10 @@ app.config[
 ] = f"postgresql://testuser:password@db:5432/local_record_service"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
-# TODO put real secret key
 app.secret_key = SECRET_KEY
 
-app.register_blueprint(permission_api)
-app.register_blueprint(record_api)
-app.register_blueprint(user_api)
-app.register_blueprint(auth_api)
+apis = [auth_api, permission_api, record_api, user_api]
+[app.register_blueprint(api) for api in apis]
 
 db.init_app(app)
 login_manager.init_app(app)
@@ -41,16 +38,8 @@ login_manager.init_app(app)
 
 @app.before_first_request
 def setup_db():
-    # recreate tables on start up for tests
-    Base.metadata.drop_all(bind=db.engine)
+    # create tables if not exists
     Base.metadata.create_all(bind=db.engine)
-
-    # test data
-    db.session.add(User(
-        id='test@test.com',
-        hashed_password=User.hash_password('hunter2')
-    ))
-
     db.session.commit()
 
 
