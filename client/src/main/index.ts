@@ -13,14 +13,14 @@ function createMainWindow() {
   const window = new BrowserWindow()
 
   // Set url for `win`
-    // points to `webpack-dev-server` in development
-    // points to `index.html` in production
+  // points to `webpack-dev-server` in development
+  // points to `index.html` in production
   const url = isDevelopment
     ? `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
     : `file://${__dirname}/index.html`
 
   if (isDevelopment) {
-    // window.webContents.openDevTools()
+    window.webContents.openDevTools()
   }
 
   window.loadURL(url)

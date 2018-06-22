@@ -8,6 +8,10 @@ export function get(endpoint: string, callback: Function) {
     request(fullPath.toString(), callback);
 }
 
-export function post(endpoint: string, data: any, callback: Function) {
-    // TODO
+export function post(endpoint: string, data: any, callback: any) {
+    const fullPath = resolve(constants.RECORD_SERVICE_ENDPOINT, endpoint);
+    request.post({
+        url: fullPath,
+        json: data
+    }, callback);
 }
