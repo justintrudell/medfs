@@ -38,7 +38,7 @@ class AclServicer(acl_pb2_grpc.AclServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     acl_pb2_grpc.add_AclServicer_to_server(AclServicer(), server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port('[::]:5001')
     server.start()
     try:
         while True:
