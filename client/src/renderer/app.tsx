@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 import Main from "./main";
 import Header from "./header";
 
