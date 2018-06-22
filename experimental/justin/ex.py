@@ -1,1 +1,1 @@
-print("setting up git hook 3")
+print("setting up git hook 4")
