@@ -6,4 +6,4 @@ export default class extends React.Component {
       <p> Login page </p>
     );
   }
-};
+}

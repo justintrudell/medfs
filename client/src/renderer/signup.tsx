@@ -3,10 +3,10 @@ import * as _ from "lodash";
 const userAPI = require("../api/users");
 
 type State = {
-  email?: string,
-  password?: string,
-  confirmPassword?: string
-}
+  email: string,
+  password: string,
+  confirmPassword: string
+};
 
 export default class extends React.Component<any, State> {
 
@@ -23,22 +23,15 @@ export default class extends React.Component<any, State> {
   }
 
   handleChange(event: any) {
-    let toAdd = {
+    const toAdd = {
       [event.target.id]: event.target.value
-    } as State
+    } as State;
     this.setState(toAdd);
   }
 
   validInput(): boolean {
-    if (this.state.password != this.state.confirmPassword) {
-      return false;
-    }
-
-    if (_.isEmpty(this.state.email)) {
-      return false;
-    }
-
-    return true;
+    return this.state.password === this.state.confirmPassword
+      && !_.isEmpty(this.state.email);
   }
 
   handleSubmit(event: any) {
@@ -46,10 +39,11 @@ export default class extends React.Component<any, State> {
     if (!this.validInput()) {
       // TODO: make this reflect in the UI
       console.log("Invalid input");
+      return;
     }
 
     userAPI.createUser(this.state.email, this.state.password,
-      function (error: any, response: any, body: any) {
+      (error: any, response: any, body: any) => {
         console.log(error);
         console.log(response);
         console.log(body);
@@ -92,4 +86,4 @@ export default class extends React.Component<any, State> {
       </form>
     );
   }
-};
+}

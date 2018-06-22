@@ -5,6 +5,6 @@ export function getUser(userId: number) {
 }
 
 export function createUser(username: string, password: string, callback: any) {
-    const data = { username: username, password: password };
+    const data = { username, password };
     return recordService.post(`/users/create`, data, callback);
 }
