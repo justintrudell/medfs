@@ -4,6 +4,7 @@ ssh:
 	docker exec -ti record_service_app_1 /bin/bash
 
 grpc:
+	rm -f service/acl_pb2*.py
 	python -m grpc_tools.protoc -Iprotos --python_out=service --grpc_python_out=service protos/acl.proto
 
 # ------------------DOCKER-COMPOSE------------------
