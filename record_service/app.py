@@ -11,8 +11,8 @@ from record_service.constants import SECRET_KEY
 
 # DB Models - import required to create tables
 from record_service.models.base import Base
-from record_service.models.user import User
-from record_service.models.record import Record
+from record_service.models.user import User  # noqa F401
+from record_service.models.record import Record  # noqa F401
 
 # API Endpoints
 from record_service.endpoints.permissions.permission_api import permission_api
