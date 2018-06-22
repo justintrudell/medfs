@@ -8,28 +8,31 @@ import acl_pb2_grpc
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
+
 # To be implemented
 class AclServicer(acl_pb2_grpc.AclServicer):
-    def __init__(self):
-        pass
 
     def IsPermissionedForRead(self, request, context):
-        pass
+        return acl_pb2.PermissionResponse(result=True)
 
     def IsPermissionedForWrite(self, request, context):
-        pass
+        return acl_pb2.PermissionResponse(result=True)
 
     def ModifyPermission(self, request, context):
-        pass
+        return acl_pb2.ModifyPermissionResponse(result=True)
 
     def AddFile(self, request, context):
-        pass
+        return acl_pb2.AddFileResponse(result=True)
 
     def GetAllFilesForUser(self, request, context):
-        pass
+        listOfFiles = acl_pb2.ListOfFiles()
+        listOfFiles.files.append("hello")
+        return listOfFiles
 
     def GetAllUsersForFile(self, request, context):
-        pass
+        listOfUsers = acl_pb2.ListOfUsers()
+        listOfUsers.users.add().id = 1337
+        return listOfUsers
 
 
 def serve():
