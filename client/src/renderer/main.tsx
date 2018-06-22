@@ -1,9 +1,15 @@
 import * as React from 'react';
+import { Switch, Route } from 'react-router-dom';
+import Home from "./home";
+import Login from "./login";
 
 export default class extends React.Component {
   render() {
     return (
-      <p> hello </p>
+      <Switch>
+        <Route exact path="/" component={Home}/>
+        <Route exact path="/login" component={Login}/>
+      </Switch>
     );
   }
 };
