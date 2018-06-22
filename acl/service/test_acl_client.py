@@ -7,7 +7,7 @@ import acl_pb2_grpc
 
 
 def run():
-    channel = grpc.insecure_channel('localhost:50051')
+    channel = grpc.insecure_channel('localhost:5001')
     stub = acl_pb2_grpc.AclStub(channel)
     response = stub.IsPermissionedForRead(acl_pb2.PermissionRequest(
         user=acl_pb2.UserId(id=0), fileId="randomFile.txt")
