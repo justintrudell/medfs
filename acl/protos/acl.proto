@@ -1,21 +1,21 @@
 syntax = "proto3";
 
 service Acl {
-	rpc IsPermissionedForRead (PermissionRequest) returns (PermissionResponse) {}
-	rpc IsPermissionedForWrite (PermissionRequest) returns (PermissionResponse) {}
-	rpc ModifyPermission (ModifyPermissionRequest) returns (ModifyPermissionResponse) {}
-	rpc AddFile (AddFileRequest) returns (AddFileResponse) {}
-	rpc GetAllFilesForUser (GetFilesRequest) returns (ListOfFiles) {}
-	rpc GetAllUsersForFile (GetUsersRequest) returns (ListOfUsers) {}
+    rpc IsPermissionedForRead (PermissionRequest) returns (PermissionResponse) {}
+    rpc IsPermissionedForWrite (PermissionRequest) returns (PermissionResponse) {}
+    rpc ModifyPermission (ModifyPermissionRequest) returns (ModifyPermissionResponse) {}
+    rpc AddFile (AddFileRequest) returns (AddFileResponse) {}
+    rpc GetAllFilesForUser (GetFilesRequest) returns (ListOfFiles) {}
+    rpc GetAllUsersForFile (GetUsersRequest) returns (ListOfUsers) {}
 }
 
 message UserId {
-	int64 id = 1;
+    int64 id = 1;
 }
 
 message PermissionRequest {
-	UserId user = 1;
-	string fileId = 2;
+    UserId user = 1;
+    string fileId = 2;
 }
 
 message PermissionResponse {
@@ -23,19 +23,19 @@ message PermissionResponse {
 }
 
 message ModifyPermissionRequest {
-	UserId grantor = 1;
-	UserId grantee = 2;
-	string fileId = 3;
-	enum Modification {
-		GRANT = 0;
-		REVOKE = 1;
+    UserId grantor = 1;
+    UserId grantee = 2;
+    string fileId = 3;
+    enum Modification {
+        GRANT = 0;
+        REVOKE = 1;
     }
     Modification mod = 4;
-	enum Permission {
-		READ = 0;
-		WRITE = 1;
-	}
-	Permission permission = 5;
+    enum Permission {
+        READ = 0;
+        WRITE = 1;
+    }
+    Permission permission = 5;
 }
 
 message ModifyPermissionResponse {
@@ -43,8 +43,8 @@ message ModifyPermissionResponse {
 }
 
 message AddFileRequest {
-	UserId creator = 1;
-	string fileId = 2;
+    UserId creator = 1;
+    string fileId = 2;
 }
 
 message AddFileResponse {
@@ -52,27 +52,27 @@ message AddFileResponse {
 }
 
 message GetFilesRequest {
-	UserId requestor = 1;
-	enum Permission {
-		READ = 0;
-		WRITE = 1;
-	}
-	Permission permission = 2;
+    UserId requestor = 1;
+    enum Permission {
+        READ = 0;
+        WRITE = 1;
+    }
+    Permission permission = 2;
 }
 
 message ListOfFiles {
-	repeated string fileId = 1;
+    repeated string files = 1;
 }
 
 message GetUsersRequest {
-	string fileId = 1;
-	enum Permission {
-		READ = 0;
-		WRITE = 1;
-	}
-	Permission permission = 2;
+    string fileId = 1;
+    enum Permission {
+        READ = 0;
+        WRITE = 1;
+    }
+    Permission permission = 2;
 }
 
 message ListOfUsers {
-	repeated string UserId = 1;
+    repeated UserId users = 1;
 }

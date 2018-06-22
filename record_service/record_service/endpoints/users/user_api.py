@@ -1,7 +1,6 @@
 from json import loads
-from flask import (Blueprint, request)
-from flask_login import (login_required, current_user,
-                         login_user, logout_user)
+from flask import Blueprint, request
+from flask_login import login_required, current_user, login_user, logout_user
 
 from record_service.database.database import db
 from record_service.models.user import User
