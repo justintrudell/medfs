@@ -1,13 +1,12 @@
 from json import loads
 
-from flask import (Blueprint, request)
-from flask_login import (LoginManager, login_required,
-                         login_user, logout_user)
+from flask import Blueprint, request
+from flask_login import LoginManager, login_required, login_user, logout_user
 from itsdangerous import URLSafeTimedSerializer
 
 from record_service.database.database import db
 from record_service.models.user import User
-from record_service.constants import (SECRET_KEY, COOKIE_AGE)
+from record_service.constants import SECRET_KEY, COOKIE_AGE
 
 
 auth_api = Blueprint("auth_api", __name__)
