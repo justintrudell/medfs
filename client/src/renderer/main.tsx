@@ -5,13 +5,15 @@ import Login from "./login";
 import Signup from "./signup";
 
 export default class extends React.Component {
-    render() {
-        return (
-            <Switch>
-                <Route exact path="/" component={Home} />
-                <Route exact path="/login" component={Login} />
-                <Route exact path="/signup" component={Signup} />
-            </Switch>
-        );
-    }
+  render() {
+    return (
+      <div>
+        <Switch>
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/" component={Home} />
+          <Route exact path="/signup" component={Signup} />
+        </Switch>
+      </div>
+    );
+  }
 }
