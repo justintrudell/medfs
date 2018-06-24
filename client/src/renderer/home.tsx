@@ -6,7 +6,7 @@ import { testEndpoint } from "../api/users";
 
 type HomeState = {
   userData: string
-}
+};
 
 export default class extends React.Component<any, HomeState> {
 
@@ -18,7 +18,7 @@ export default class extends React.Component<any, HomeState> {
   }
 
   isLoggedOut(): boolean {
-    return _.isEmpty(sessionStorage.getItem(constants.LOGIN_KEY))
+    return _.isEmpty(sessionStorage.getItem(constants.LOGIN_KEY));
   }
 
   componentDidMount() {
@@ -27,8 +27,8 @@ export default class extends React.Component<any, HomeState> {
     }
 
     testEndpoint((error: any, response: any, body: any) => {
-      console.log(error)
-      console.log(response)
+      console.log(error);
+      console.log(response);
       console.log(body);
 
       this.setState({ userData: body });
