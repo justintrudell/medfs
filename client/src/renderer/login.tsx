@@ -1,8 +1,6 @@
 import * as React from "react";
 const authAPI = require("../api/auth");
-const { remote } = require("electron");
-const cookieParser = require("set-cookie-parser");
-const { config } = require("../config");
+const { constants } = require("../config");
 
 type LoginState = {
   email: string,
@@ -33,24 +31,10 @@ export default class extends React.Component<any, LoginState> {
     event.preventDefault();
 
     authAPI.login(this.state.email, this.state.password,
-      (error: any, response: any, body: any) => {
-        const cookies = cookieParser.parse(response);
-        if (remote.session.defaultSession) {
-          const sessionCookie = cookies.find((element: any) => element["name"] === "session");
-          const toAdd = {
-            url: config.RECORD_SERVICE_ENDPOINT,
-            name: sessionCookie["name"],
-            value: sessionCookie["value"]
-          };
-          remote.session.defaultSession.cookies.set(toAdd, (error) => {
-            console.log(error);
-          });
-        } else {
-          // TODO: propagate errors to client
-          console.log("Unable to access default session");
-        }
-      }
-    );
+      (_error: any, _response: Response, _body: any) => {
+        sessionStorage.setItem(constants.LOGIN_KEY, "true");
+        this.props.history.push("/");
+      });
   }
 
   render() {
