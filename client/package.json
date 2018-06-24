@@ -16,7 +16,8 @@
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-router-dom": "^4.3.1",
-    "request": "2.87.0"
+    "request": "2.87.0",
+    "set-cookie-parser": "^2.2.0"
   },
   "devDependencies": {
     "@types/jest": "^20.0.2",
