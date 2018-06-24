@@ -9,7 +9,6 @@ type HomeState = {
 };
 
 export default class extends React.Component<any, HomeState> {
-
   constructor(props: any) {
     super(props);
     this.state = {
