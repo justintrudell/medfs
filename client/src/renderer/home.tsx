@@ -1,15 +1,15 @@
 import * as React from "react";
-const { constants } = require("../config");
+import { constants } from "../config";
 import * as _ from "lodash";
 import { Link } from "react-router-dom";
 import { testEndpoint } from "../api/users";
 
 type HomeState = {
-  userData: string
+  userData: string;
 };
 
-export default class extends React.Component<any, HomeState> {
-  constructor(props: any) {
+export class Home extends React.Component<{}, HomeState> {
+  constructor(props: {}) {
     super(props);
     this.state = {
       userData: ""
@@ -25,23 +25,26 @@ export default class extends React.Component<any, HomeState> {
       return;
     }
 
-    testEndpoint((error: any, response: any, body: any) => {
-      console.log(error);
-      console.log(response);
-      console.log(body);
-
-      this.setState({ userData: body });
-    });
-
+    testEndpoint()
+      .then(response => {
+        console.log(response);
+        this.setState({ userData: response.body });
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   render() {
     if (this.isLoggedOut()) {
-      return (<p> Please <Link to="/login">login</Link> </p >);
+      return (
+        <p>
+          {" "}
+          Please <Link to="/login">login</Link>{" "}
+        </p>
+      );
     }
 
-    return (
-      <p> {this.state.userData} </p>
-    );
+    return <p> {this.state.userData} </p>;
   }
 }

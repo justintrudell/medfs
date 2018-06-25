@@ -1,14 +1,17 @@
-const recordService = require("./record_service");
+import * as recordService from "./record_service";
 
-export function getUser(userId: number, callback: any) {
-    return recordService.get(`/users/${userId}`, callback);
+export function getUser(userId: number): recordService.RecordServiceResponse {
+  return recordService.get(`/users/${userId}`);
 }
 
-export function createUser(username: string, password: string, callback: any) {
-    const data = { username, password };
-    return recordService.post(`/users/create`, data, callback);
+export function createUser(
+  username: string,
+  password: string
+): recordService.RecordServiceResponse {
+  const data = { username, password };
+  return recordService.post(`/users/create`, data);
 }
 
-export function testEndpoint(callback: any) {
-    return recordService.get(`/users/test`, callback);
+export function testEndpoint(): recordService.RecordServiceResponse {
+  return recordService.get(`/users/test`);
 }

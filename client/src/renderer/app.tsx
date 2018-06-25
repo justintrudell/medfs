@@ -1,8 +1,8 @@
 import * as React from "react";
-import Main from "./main";
-import Header from "./header";
+import { Main } from "./main";
+import { Header } from "./header";
 
-export default class extends React.Component {
+export class App extends React.Component {
   render() {
     return (
       <div>
