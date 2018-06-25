@@ -1,7 +1,7 @@
 run: grpc build up
 
 ssh:
-	docker exec -ti record_service_app_1 /bin/bash
+	docker exec -ti acl_app_1 /bin/bash
 
 grpc:
 	rm -f service/acl_pb2*.py
@@ -13,15 +13,15 @@ build:
 	docker-compose build
 
 up:
-	docker-compose -p acl_service up -d
+	docker-compose -p acl up -d
 
 stop:
-	docker-compose -p acl_service stop
+	docker-compose -p acl stop
 
 logs:
-	docker-compose -p acl_service logs
+	docker-compose -p acl logs
 
 kill: stop
-	docker-compose -p acl_service rm
+	docker-compose -p acl rm
 
 # ----------------END DOCKER-COMPOSE----------------
