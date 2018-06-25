@@ -1,16 +1,15 @@
-import * as React from 'react';
+import * as React from "react";
 import * as _ from "lodash";
-const userAPI = require("../api/users");
+import * as userAPI from "../api/users";
 
 type State = {
-  email: string,
-  password: string,
-  confirmPassword: string
+  email: string;
+  password: string;
+  confirmPassword: string;
 };
 
-export default class extends React.Component<any, State> {
-
-  constructor(props: any) {
+export class Signup extends React.Component<{}, State> {
+  constructor(props: {}) {
     super(props);
     this.state = {
       email: "",
@@ -22,19 +21,20 @@ export default class extends React.Component<any, State> {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(event: any) {
-    const toAdd = {
-      [event.target.id]: event.target.value
-    } as State;
+  handleChange(event: React.FormEvent<EventTarget>) {
+    const target = event.target as HTMLInputElement;
+    const toAdd = { [target.id]: target.value } as State;
     this.setState(toAdd);
   }
 
   validInput(): boolean {
-    return this.state.password === this.state.confirmPassword
-      && !_.isEmpty(this.state.email);
+    return (
+      this.state.password === this.state.confirmPassword &&
+      !_.isEmpty(this.state.email)
+    );
   }
 
-  handleSubmit(event: any) {
+  handleSubmit(event: React.FormEvent<EventTarget>) {
     event.preventDefault();
     if (!this.validInput()) {
       // TODO: make this reflect in the UI
@@ -42,11 +42,13 @@ export default class extends React.Component<any, State> {
       return;
     }
 
-    userAPI.createUser(this.state.email, this.state.password,
-      (error: any, response: any, body: any) => {
-        console.log(error);
+    userAPI
+      .createUser(this.state.email, this.state.password)
+      .then(response => {
         console.log(response);
-        console.log(body);
+      })
+      .catch(error => {
+        console.log(error);
       });
   }
 
@@ -55,32 +57,41 @@ export default class extends React.Component<any, State> {
       <form onSubmit={this.handleSubmit}>
         <h1>Register</h1>
 
-        <label ><b>Email</b></label>
+        <label>
+          <b>Email</b>
+        </label>
         <input
           type="text"
           placeholder="Enter Email"
           id="email"
           required
           value={this.state.email}
-          onChange={this.handleChange} />
+          onChange={this.handleChange}
+        />
 
-        <label><b>Password</b></label>
+        <label>
+          <b>Password</b>
+        </label>
         <input
           type="password"
           placeholder="Enter Password"
           id="password"
           required
           value={this.state.password}
-          onChange={this.handleChange} />
+          onChange={this.handleChange}
+        />
 
-        <label><b>Repeat Password</b></label>
+        <label>
+          <b>Repeat Password</b>
+        </label>
         <input
           type="password"
           placeholder="Repeat Password"
           id="confirmPassword"
           required
           value={this.state.confirmPassword}
-          onChange={this.handleChange} />
+          onChange={this.handleChange}
+        />
 
         <input type="submit" value="Submit" />
       </form>

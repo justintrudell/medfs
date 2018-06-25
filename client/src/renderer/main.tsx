@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Switch, Route } from "react-router-dom";
-import Home from "./home";
-import Login from "./login";
-import Signup from "./signup";
+import { Home } from "./home";
+import { Login } from "./login";
+import { Signup } from "./signup";
 
-export default class extends React.Component {
+export class Main extends React.Component {
   render() {
     return (
       <div>

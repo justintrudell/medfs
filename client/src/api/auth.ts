@@ -1,6 +1,9 @@
-const recordService = require("./record_service");
+import * as recordService from "./record_service";
 
-export function login(username: string, password: string, callback: any) {
-    const data = { username, password };
-    return recordService.post(`/login`, data, callback);
+export function login(
+  username: string,
+  password: string
+): recordService.MiddlewareResponse {
+  const data = { username, password };
+  return recordService.post(`/login`, data);
 }
