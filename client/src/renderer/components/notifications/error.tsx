@@ -1,8 +1,8 @@
 import * as React from "react";
 
-interface ErrorProps {
-  errorMessage?: string;
-}
+type ErrorProps = {
+  errorMessage: string;
+};
 
 const errorStyle = {
   color: "red"

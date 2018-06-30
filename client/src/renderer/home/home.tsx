@@ -5,7 +5,7 @@ import { RecordList } from "./recordList";
 
 type HomeState = {
   userData: string;
-  errorMessage?: string;
+  errorMessage: string;
   userInternal?: UserInternal;
 };
 
