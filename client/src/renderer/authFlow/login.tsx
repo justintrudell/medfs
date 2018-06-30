@@ -6,7 +6,7 @@ import { Error } from "../components/notifications/error";
 type LoginState = {
   email: string;
   password: string;
-  errorMessage?: string;
+  errorMessage: string;
 };
 
 interface LoginProps {

@@ -5,7 +5,7 @@ import { Error } from "../components/notifications/error";
 
 type HomeState = {
   userData: string;
-  errorMessage?: string;
+  errorMessage: string;
   isLoggedIn: boolean;
 };
 

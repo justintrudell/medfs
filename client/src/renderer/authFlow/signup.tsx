@@ -7,7 +7,7 @@ type State = {
   email: string;
   password: string;
   confirmPassword: string;
-  errorMsg?: string;
+  errorMessage: string;
 };
 
 export class Signup extends React.Component<{}, State> {
@@ -17,7 +17,7 @@ export class Signup extends React.Component<{}, State> {
       email: "",
       password: "",
       confirmPassword: "",
-      errorMsg: ""
+      errorMessage: ""
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -32,12 +32,12 @@ export class Signup extends React.Component<{}, State> {
 
   validInput(): boolean {
     if (this.state.password !== this.state.confirmPassword) {
-      this.setState({ errorMsg: "Passwords don't match" });
+      this.setState({ errorMessage: "Passwords don't match" });
       return false;
     }
 
     if (_.isEmpty(this.state.email) || _.isEmpty(this.state.password)) {
-      this.setState({ errorMsg: "Please fill out all fields" });
+      this.setState({ errorMessage: "Please fill out all fields" });
       return false;
     }
 
@@ -104,7 +104,7 @@ export class Signup extends React.Component<{}, State> {
 
           <input type="submit" value="Submit" />
         </form>
-        <Error errorMessage={this.state.errorMsg} />
+        <Error errorMessage={this.state.errorMessage} />
       </div>
     );
   }
