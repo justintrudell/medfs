@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as authAPI from "../../api/auth";
-import { constants } from "../../config";
 import { Error } from "../components/notifications/error";
 
 type LoginState = {
@@ -11,7 +10,7 @@ type LoginState = {
 
 interface LoginProps {
   history?: string[];
-  loginCallback: (isLoggedIn: boolean) => void;
+  loginCallback: (userInternal: UserInternal) => void;
 }
 
 export class Login extends React.Component<LoginProps, LoginState> {
@@ -39,12 +38,16 @@ export class Login extends React.Component<LoginProps, LoginState> {
     authAPI
       .login(this.state.email, this.state.password)
       .then(response => {
-        if (response.statusCode == 401) {
+        if (response.statusCode === 401) {
           this.setState({ errorMessage: "Please try again" });
           return;
-        } else if (response.statusCode == 200) {
-          this.props.loginCallback(true);
-          sessionStorage.setItem(constants.LOGIN_KEY, "true");
+        } else if (response.statusCode === 200) {
+          // TODO: Get ID from record service response
+          const userInternal: UserInternal = {
+            email: this.state.email,
+            userId: "foo"
+          };
+          this.props.loginCallback(userInternal);
         } else {
           console.log(response);
           this.setState({ errorMessage: "Something went wrong" });

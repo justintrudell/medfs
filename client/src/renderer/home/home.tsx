@@ -1,12 +1,12 @@
 import * as React from "react";
-import { testEndpoint } from "../../api/users";
 import { Login } from "../authFlow/login";
 import { Error } from "../components/notifications/error";
+import { RecordList } from "./recordList";
 
 type HomeState = {
   userData: string;
   errorMessage: string;
-  isLoggedIn: boolean;
+  userInternal?: UserInternal;
 };
 
 export class Home extends React.Component<{}, HomeState> {
@@ -14,35 +14,24 @@ export class Home extends React.Component<{}, HomeState> {
     super(props);
     this.state = {
       userData: "",
-      errorMessage: "",
-      isLoggedIn: false
+      errorMessage: ""
     };
   }
 
-  handleLogin = (isLoggedIn: boolean): void => {
-    this.setState({ isLoggedIn });
-    if (isLoggedIn) {
-      this.getUserData();
-    }
+  handleLogin = (userInternal: UserInternal | undefined): void => {
+    this.setState({ userInternal });
   };
 
-  getUserData(): void {
-    testEndpoint()
-      .then(response => {
-        if (response.statusCode == 200) {
-          this.setState({ userData: response.body });
-        } else {
-          this.setState({ errorMessage: response.body });
-        }
-      })
-      .catch(error => {
-        this.setState({ errorMessage: error });
-      });
-  }
+  handleError = (errorMessage: string): void => {
+    this.setState({ errorMessage });
+  };
 
   render() {
-    const mainElem = this.state.isLoggedIn ? (
-      <p> {this.state.userData} </p>
+    const mainElem = this.state.userInternal ? (
+      <RecordList
+        handleError={this.handleError}
+        userId={this.state.userInternal.userId}
+      />
     ) : (
       <Login loginCallback={this.handleLogin} />
     );
