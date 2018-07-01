@@ -1,5 +1,4 @@
 import logging.config
-import pathlib
 
 from flask import Flask
 
@@ -22,9 +21,16 @@ from record_service.endpoints.authentication.auth_api import auth_api
 
 app = Flask(__name__)
 
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = f"postgresql://testuser:password@db:5432/local_record_service"
+# Configure logging, adding gunicorn log handlers to Flask logger
+if __name__ != "__main__":
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    f"postgresql://{config.DB_USER}:{config.DB_PASS}@{config.DB_URL}"
+    f":{config.DB_PORT}/{config.DB_NAME}"
+)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
 app.secret_key = SECRET_KEY
@@ -41,15 +47,6 @@ def setup_db():
     # create tables if not exists
     Base.metadata.create_all(bind=db.engine)
     db.session.commit()
-
-
-def configure_logging():
-    """Configures app-wide logging functionality."""
-    pathlib.Path("log").mkdir(parents=True, exist_ok=True)
-    logging.config.dictConfig(config.logging_config)
-
-
-configure_logging()
 
 
 def run():
