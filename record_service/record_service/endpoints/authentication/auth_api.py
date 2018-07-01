@@ -38,9 +38,11 @@ def login():
     if not User.check_password(u.hashed_password, data["password"]):
         return "Invalid password", 401
 
+    remember_me = data.get("remember_me", False)
+
     # sets the token in the response header, alternatively we can also return
     # the token in the response body
-    login_user(u)
+    login_user(u, remember=remember_me)
     return "Success", 200
 
 

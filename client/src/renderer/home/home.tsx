@@ -2,6 +2,8 @@ import * as React from "react";
 import { Login } from "../authFlow/login";
 import { Error } from "../components/notifications/error";
 import { RecordList } from "./recordList";
+import * as localForage from "localforage";
+import { constants } from "../../config";
 
 type HomeState = {
   userData: string;
@@ -20,11 +22,19 @@ export class Home extends React.Component<{}, HomeState> {
 
   handleLogin = (userInternal: UserInternal | undefined): void => {
     this.setState({ userInternal });
+    localForage.setItem(constants.LOGGEDIN_USER, userInternal);
   };
 
   handleError = (errorMessage: string): void => {
     this.setState({ errorMessage });
   };
+
+  componentWillMount() {
+    localForage.getItem(constants.LOGGEDIN_USER).then(item => {
+      const userInternal = item as UserInternal;
+      this.setState({ userInternal });
+    });
+  }
 
   render() {
     const mainElem = this.state.userInternal ? (
