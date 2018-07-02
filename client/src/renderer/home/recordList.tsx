@@ -24,8 +24,8 @@ export class RecordList extends React.Component<
 
   getAllRecords = () => {
     getAllForUser(this.props.userId)
-      .then((records: RecordItem[]) => {
-        this.setState({ records });
+      .then(response => {
+        this.setState({records: JSON.parse(response.body).data as RecordItem[]});
       })
       .catch((error: string) => {
         this.props.handleError(error);
@@ -40,7 +40,7 @@ export class RecordList extends React.Component<
     const htmlList = this.state.records.map(record => {
       return (
         <li key={record.id}>
-          <a href={record.hash}> {record.name} </a>
+          <a href={"records/" + record.hash}> {record.name} </a>
         </li>
       );
     });

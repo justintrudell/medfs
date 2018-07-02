@@ -17,9 +17,11 @@ login_serializer = URLSafeTimedSerializer(SECRET_KEY)
 @login_manager.user_loader
 def load_user(token: str) -> User:
     user_data = login_serializer.loads(token, max_age=COOKIE_AGE)
-    user = db.session.query(User).get(user_data[0])
-    if user.hashed_password == user_data[1]:
+    user = db.session.query(User).filter(User.email == user_data[0]).first()
+
+    if user and user.hashed_password == user_data[1]:
         return user
+
     return None
 
 
@@ -30,7 +32,7 @@ def login():
     if not all(key in data.keys() for key in ["username", "password"]):
         return "Missing fields", 400
 
-    u = db.session.query(User).get(data["username"])
+    u = db.session.query(User).filter(User.email == data["username"]).first()
 
     if not u:
         return "No user found", 401
