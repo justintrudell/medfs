@@ -1,11 +1,13 @@
-from flask import Blueprint
+from flask import Blueprint, current_app
 from flask_login import login_required, current_user
+
 
 from record_service.database.database import db
 from record_service.models.record import Record
 from record_service.responses import JsonResponse
 
 record_api = Blueprint("record_api", __name__)
+
 
 
 @record_api.route("/records", methods=["GET"])
