@@ -33,7 +33,7 @@ def get_all_records_for_user() -> JsonResponse:
     return JsonResponse(data=data, status=200)
 
 
-@record_api.route("/records/<str:record_id>", methods=["GET"])
+@record_api.route("/records/<string:record_id>", methods=["GET"])
 @login_required
 def get_record_for_user(record_id: str) -> JsonResponse:
     """Get the metadata of the file at record_id."""
