@@ -13,7 +13,8 @@ record_api = Blueprint("record_api", __name__)
 @login_required
 def get_all_records_for_user() -> JsonResponse:
     """Lists all the records the current user owns or has access to."""
-    records = db.session.query(Record).filter_by(creator_id=current_user.id).all()
+    records = db.session.query(Record).filter_by(
+        creator_id=current_user.id).all()
 
     # TODO: query ACL to get list of files user has access to
 
