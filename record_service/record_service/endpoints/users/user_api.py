@@ -1,6 +1,8 @@
 from json import loads
 from flask import Blueprint, request
 from flask_login import login_required, current_user, login_user, logout_user
+from sqlalchemy.sql import exists
+
 
 from record_service.database.database import db
 from record_service.models.user import User
@@ -26,11 +28,11 @@ def create_user():
     user_id = data["username"]
     user_hashpw = User.hash_password(data["password"])
 
-    if db.session.query(User).get(user_id) is not None:
+    if db.session.query(exists().where(User.email == user_id)).scalar():
         return "User already exists", 400
 
     try:
-        db.session.add(User(id=user_id, hashed_password=user_hashpw))
+        db.session.add(User(email=user_id, hashed_password=user_hashpw))
         db.session.commit()
         return "Success", 201
     except Exception:
