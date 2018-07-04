@@ -6,6 +6,12 @@ ssh:
 grpc:
 	python -m grpc_tools.protoc -I../acl/protos --python_out=record_service/api/acl --grpc_python_out=record_service/api/acl ../acl/protos/acl.proto
 
+generate_migrations:
+	alembic revision --autogenerate -m "rename_me"
+
+migrate:
+	alembic upgrade head
+
 # ------------------DOCKER-COMPOSE------------------
 
 build:
