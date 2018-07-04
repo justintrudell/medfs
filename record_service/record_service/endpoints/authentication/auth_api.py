@@ -2,11 +2,12 @@ from json import loads
 
 from flask import Blueprint, request
 from flask_login import LoginManager, login_required, login_user, logout_user
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
 from record_service.database.database import db
 from record_service.models.user import User
 from record_service.constants import SECRET_KEY, COOKIE_AGE
+from record_service.responses import JsonResponse
 
 
 auth_api = Blueprint("auth_api", __name__)
@@ -16,7 +17,11 @@ login_serializer = URLSafeTimedSerializer(SECRET_KEY)
 
 @login_manager.user_loader
 def load_user(token: str) -> User:
-    user_data = login_serializer.loads(token, max_age=COOKIE_AGE)
+    try:
+        user_data = login_serializer.loads(token, max_age=COOKIE_AGE)
+    except SignatureExpired:
+        return None
+
     user = db.session.query(User).filter(User.email == user_data[0]).first()
 
     if user and user.hashed_password == user_data[1]:
@@ -45,7 +50,7 @@ def login():
     # sets the token in the response header, alternatively we can also return
     # the token in the response body
     login_user(u, remember=remember_me)
-    return "Success", 200
+    return JsonResponse(data={"userId": str(u.id)}, message="Success", status=200)
 
 
 @auth_api.route("/logout")
