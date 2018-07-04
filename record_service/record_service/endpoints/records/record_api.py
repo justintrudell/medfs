@@ -13,7 +13,8 @@ record_api = Blueprint("record_api", __name__)
 @login_required
 def get_all_records_for_user() -> JsonResponse:
     """Lists all the records the current user owns or has access to."""
-    records = db.session.query(Record).filter_by(creator_id=current_user.id).all()
+    records = db.session.query(Record).filter_by(
+        creator_id=current_user.id).all()
 
     # TODO: query ACL to get list of files user has access to
 
@@ -33,7 +34,7 @@ def get_all_records_for_user() -> JsonResponse:
     return JsonResponse(data=data, status=200)
 
 
-@record_api.route("/records/<str:record_id>", methods=["GET"])
+@record_api.route("/records/<string:record_id>", methods=["GET"])
 @login_required
 def get_record_for_user(record_id: str) -> JsonResponse:
     """Get the metadata of the file at record_id."""
