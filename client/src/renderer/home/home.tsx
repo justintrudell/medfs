@@ -1,9 +1,10 @@
 import * as React from "react";
 import { Login } from "../authFlow/login";
 import { Error } from "../components/notifications/error";
-import { RecordList } from "./recordList";
 import * as localForage from "localforage";
 import { constants } from "../../config";
+import { Switch, Route, Redirect } from "react-router";
+import { getLogin } from "../../utils/loginUtils";
 
 type HomeState = {
   userData: string;
@@ -30,24 +31,30 @@ export class Home extends React.Component<{}, HomeState> {
   };
 
   componentWillMount() {
-    localForage.getItem(constants.LOGGEDIN_USER).then(item => {
-      const userInternal = item as UserInternal;
-      this.setState({ userInternal });
+    getLogin().then(userInternal => {
+      if (userInternal) {
+        this.setState({ userInternal });
+      }
     });
   }
 
   render() {
-    const mainElem = this.state.userInternal ? (
-      <RecordList
-        handleError={this.handleError}
-        userId={this.state.userInternal.userId}
-      />
-    ) : (
-      <Login loginCallback={this.handleLogin} />
-    );
     return (
       <div>
-        {mainElem}
+        <Switch>
+          <Route
+            exact
+            path="/"
+            render={() =>
+              this.state.userInternal ? (
+                <Redirect to="/records" />
+              ) : (
+                <Login loginCallback={this.handleLogin} />
+              )
+            }
+          />
+          )} />
+        </Switch>
         <Error errorMessage={this.state.errorMessage} />
       </div>
     );
