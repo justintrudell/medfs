@@ -12,6 +12,9 @@ generate_migrations:
 migrate:
 	alembic upgrade head
 
+db:
+	docker run -it --rm --net record_service_default --link record_service_db_1:postgres postgres sh -c 'PGPASSWORD=password exec psql -h postgres -U testuser -d local_record_service'
+
 # ------------------DOCKER-COMPOSE------------------
 
 build:
