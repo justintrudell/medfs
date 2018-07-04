@@ -38,8 +38,8 @@ def get_all_records_for_user() -> JsonResponse:
 def get_record_for_user(record_id: str) -> JsonResponse:
     """Get the metadata of the file at record_id."""
 
-    record = db.session.query(Record).get(record_id).first()
-    if not record:
+    record = db.session.query(Record).get(record_id)
+    if record is None:
         return JsonResponse(
             message=f"No record with record_id={record_id} found.", status=204
         )
