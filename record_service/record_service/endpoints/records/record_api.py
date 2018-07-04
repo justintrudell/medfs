@@ -48,7 +48,9 @@ def get_record_for_user(record_id: str) -> JsonResponse:
     # if not user_has_read_access:
     #     return JsonResponse(message="Access denied.", status=401)
 
-    return JsonResponse(data=record.__dict__, status=200)
+    return JsonResponse(
+        data=record.to_dict(uuid_as_str=True, datetime_as_str=True), status=200
+    )
 
 
 @record_api.route("/records/<int:user_id>/<int:record_id>", methods=["POST"])
