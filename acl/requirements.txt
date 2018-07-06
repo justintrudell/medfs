@@ -1,3 +1,8 @@
+black==18.6b2
+flake8==3.5.0
 grpcio==1.12.1
 grpcio-tools==1.12.1
+mypy==0.610
 protobuf==3.6.0
+psycopg2-binary==2.7.5
+SQLAlchemy==1.2.8

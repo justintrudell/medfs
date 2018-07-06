@@ -1,8 +1,13 @@
 from concurrent import futures
 import time
 
-import grpc
+from database.database import db
+from database.models.base import Base
+from database.models.role import Role  # noqa
+from database.models.subject import Subject  # noqa
+from database.models.subject_assignment import SubjectAssignment  # noqa
 
+import grpc
 import acl_pb2
 import acl_pb2_grpc
 
@@ -11,6 +16,11 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 # To be implemented
 class AclServicer(acl_pb2_grpc.AclServicer):
+    def __init__(self):
+        self.db = db
+        base = Base()
+        base.metadata.create_all(db)
+
     def IsPermissionedForRead(self, request, context):
         return acl_pb2.PermissionResponse(result=True)
 
@@ -38,6 +48,7 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     acl_pb2_grpc.add_AclServicer_to_server(AclServicer(), server)
     server.add_insecure_port("[::]:5001")
+    print("Starting acl service")
     server.start()
     try:
         while True:

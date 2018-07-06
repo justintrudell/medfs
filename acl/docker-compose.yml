@@ -9,6 +9,10 @@ services:
       - 5001:5001
     volumes:
       - .:/app
+    env_file:
+      - dev.env
+    environment:
+      - PYTHONUNBUFFERED=0  # Causes print statements to be logged
   db:
     restart: always
     image: postgres:latest
