@@ -6,7 +6,7 @@ import config
 
 from record_service.database.database import db
 from record_service.endpoints.authentication.auth_api import login_manager
-from record_service.constants import SECRET_KEY
+from record_service.utils.constants import SECRET_KEY
 
 # DB Models - import required to create tables
 from record_service.models.base import Base

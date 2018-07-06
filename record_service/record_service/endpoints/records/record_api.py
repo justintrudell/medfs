@@ -1,12 +1,15 @@
-from flask import Blueprint
+from flask import Blueprint, request
 from flask_login import login_required, current_user
-
+from uuid import UUID
 
 from record_service.database.database import db
 from record_service.models.record import Record
-from record_service.responses import JsonResponse
+from record_service.utils.responses import JsonResponse
+from record_service.utils.file_uploader import FileUploader, SoftWriter
+
 
 record_api = Blueprint("record_api", __name__)
+UPLOADER = FileUploader(SoftWriter())
 
 
 @record_api.route("/records", methods=["GET"])
@@ -37,7 +40,6 @@ def get_all_records_for_user() -> JsonResponse:
 @login_required
 def get_record_for_user(record_id: str) -> JsonResponse:
     """Get the metadata of the file at record_id."""
-
     record = db.session.query(Record).get(record_id)
     if record is None:
         return JsonResponse(
@@ -53,11 +55,35 @@ def get_record_for_user(record_id: str) -> JsonResponse:
     )
 
 
-@record_api.route("/records/<int:user_id>/<int:record_id>", methods=["POST"])
-def update_record(user_id: int, record_id: int) -> None:
-    pass
+@record_api.route("/records", methods=["POST"])
+@login_required
+def upload_file():
+    """Upload file to distributed file store.
 
+    Expects client to pass the following:
+    - file: set by multipart
+    - data:
+      - extension: file extension (i.e. .pdf files = "pdf")
+      - aclId: acl group for the file
+    """
+    if "file" not in request.files:
+        return "No file.", 400
 
-@record_api.route("/records/<int:user_id>/<int:record_id>", methods=["DELETE"])
-def soft_delete_record(user_id: int, record_id: int) -> None:
-    pass
+    data = request.form
+    if not all(key in data.keys() for key in ["extension", "aclId"]):
+        return "Missing data", 400
+
+    new_record = UPLOADER.upload(request.files["file"], data["extension"])
+
+    # TODO validate
+    new_record.creator_id = current_user.get_id()
+    new_record.acl_id = UUID(request.form["aclId"])
+
+    db.session.add(new_record)
+    db.session.commit()
+
+    # TODO
+    # for user in acl_group:
+    #    push key
+
+    return "Success", 200
