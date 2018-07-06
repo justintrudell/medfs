@@ -19,7 +19,7 @@ def get_all_records_for_user() -> JsonResponse:
 
     if records is None:
         # no records for user
-        return JsonResponse(message="No records found.", status=204)
+        return JsonResponse(message="No records found.", data=[], status=204)
 
     data = [
         {
