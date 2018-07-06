@@ -9,11 +9,10 @@ import { withRouter } from "react-router-dom";
 export interface AppState {
   isLoggedIn: boolean;
   updateIsLoggedIn: (isLoggedIn: boolean) => void;
-  history?: any;
 }
 
-class AppInner extends React.Component<RouteComponentProps<any>, AppState> {
-  constructor(props: RouteComponentProps<any>) {
+class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
+  constructor(props: RouteComponentProps<{}>) {
     super(props);
 
     this.state = {
@@ -24,7 +23,7 @@ class AppInner extends React.Component<RouteComponentProps<any>, AppState> {
 
   updateLogin = (isLoggedIn: boolean): void => {
     this.setState({ isLoggedIn }, () => {
-      if (this.props.history.location.pathname != "/") {
+      if (this.props.history.location.pathname !== "/") {
         this.props.history.push("/");
       }
     });
@@ -48,4 +47,4 @@ class AppInner extends React.Component<RouteComponentProps<any>, AppState> {
   }
 }
 
-export const App = withRouter(AppInner);
+export const app = withRouter(AppInner);

@@ -1,14 +1,12 @@
 import * as React from "react";
-import { HashRouter, RouteComponentProps } from "react-router-dom";
-import { App } from "./app";
+import { HashRouter } from "react-router-dom";
+import * as App from "./app";
 
-interface RouterProps extends RouteComponentProps<any> {}
-
-export class Router extends React.Component<RouterProps, {}> {
+export class Router extends React.Component {
   render() {
     return (
       <HashRouter>
-        <App {...this.props} />
+        <App.app />
       </HashRouter>
     );
   }
