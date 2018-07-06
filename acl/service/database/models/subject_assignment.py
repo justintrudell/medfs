@@ -4,6 +4,7 @@ from database.models.subject import Subject
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 
+
 # Many-to-many relationship between subject and role
 class SubjectAssignment(Base):
     __tablename__ = "subject_assignment"
