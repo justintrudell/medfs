@@ -20,7 +20,7 @@ export class Records extends React.Component<{}, RecordListState> {
   getAllRecords = () => {
     getAllForUser()
       .then(response => {
-        if (response.statusCode == 200) {
+        if (response.statusCode === 200) {
           this.setState({
             records: JSON.parse(response.body).data as RecordItem[]
           });

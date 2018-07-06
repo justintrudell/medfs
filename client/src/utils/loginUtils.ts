@@ -17,9 +17,8 @@ export function getLogin(): Promise<UserInternal | null> {
 
 export function executeLogout(): Promise<boolean> {
   const logoutPromise = logout()
-    .then(_response => {
-      console.log(_response);
-      return true;
+    .then(response => {
+      return response.statusCode === 200;
     })
     .catch(error => {
       console.log(error);
@@ -28,7 +27,6 @@ export function executeLogout(): Promise<boolean> {
   const clearPromise = localForage
     .clear()
     .then(() => {
-      console.log("cleared");
       return true;
     })
     .catch(error => {

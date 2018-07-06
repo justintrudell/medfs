@@ -9,5 +9,5 @@ export function login(
 }
 
 export function logout(): recordService.RecordServiceResponse {
-  return recordService.post(`logout`, {});
+  return recordService.post(`/logout`, {});
 }
