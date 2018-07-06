@@ -5,7 +5,7 @@ from uuid import UUID
 from database.database import db
 from database.models.base import Base
 from database.models.acl import Acl
-from database.models.permission import Permission  # noqa
+from database.models.permission import Permission
 from sqlalchemy.orm import sessionmaker
 
 import grpc
@@ -37,7 +37,21 @@ class AclServicer(acl_pb2_grpc.AclServicer):
         return acl_pb2.PermissionResponse(result=permission_exists)
 
     def IsPermissionedForWrite(self, request, context):
-        return acl_pb2.PermissionResponse(result=True)
+        user_id = UUID(request.user.id)
+        record_id = UUID(request.record.id)
+        Session = sessionmaker(self.db)
+        session = Session()
+        permission_exists = (
+            session.query(Acl)
+            .join(Permission)
+            .filter(Acl.user_id == user_id)
+            .filter(Acl.record_id == record_id)
+            .filter(Permission.is_readonly is False)
+            .one_or_none()
+            is not None
+        )
+        session.close()
+        return acl_pb2.PermissionResponse(result=permission_exists)
 
     def ModifyPermission(self, request, context):
         return acl_pb2.ModifyPermissionResponse(result=True)

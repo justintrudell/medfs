@@ -17,12 +17,13 @@ def run():
     )
     print("Greeter client received: {}".format(response.result))
 
-    # response = stub.GetAllUsersForFile(
-    #     acl_pb2.GetUsersRequest(
-    #         record=acl_pb2.UserId(id="aaaa"), permission=acl_pb2.GetUsersRequest.READ
-    #     )
-    # )
-    # print("Greeter client received: {}".format(response.users[0].id))
+    response = stub.IsPermissionedForWrite(
+        acl_pb2.PermissionRequest(
+            user=acl_pb2.UserId(id="d1227778-23dd-4435-a239-a2132bd3d814"),
+            record=acl_pb2.RecordId(id="a54eb2bb-6988-4ace-8648-2f816f7291bb"),
+        )
+    )
+    print("Greeter client received: {}".format(response.result))
 
 
 if __name__ == "__main__":
