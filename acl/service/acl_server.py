@@ -46,7 +46,7 @@ class AclServicer(acl_pb2_grpc.AclServicer):
             .join(Permission)
             .filter(Acl.user_id == user_id)
             .filter(Acl.record_id == record_id)
-            .filter(Permission.is_readonly is False)
+            .filter(Permission.is_readonly == False)  # noqa
             .one_or_none()
             is not None
         )
