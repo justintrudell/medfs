@@ -4,18 +4,22 @@ service Acl {
     rpc IsPermissionedForRead (PermissionRequest) returns (PermissionResponse) {}
     rpc IsPermissionedForWrite (PermissionRequest) returns (PermissionResponse) {}
     rpc ModifyPermission (ModifyPermissionRequest) returns (ModifyPermissionResponse) {}
-    rpc AddFile (AddFileRequest) returns (AddFileResponse) {}
-    rpc GetAllFilesForUser (GetFilesRequest) returns (ListOfFiles) {}
-    rpc GetAllUsersForFile (GetUsersRequest) returns (ListOfUsers) {}
+    rpc AddRecord (AddRecordRequest) returns (AddRecordResponse) {}
+    rpc GetAllRecordsForUser (GetRecordsRequest) returns (ListOfRecords) {}
+    rpc GetAllUsersForRecord (GetUsersRequest) returns (ListOfUsers) {}
 }
 
 message UserId {
     string id = 1;
 }
 
+message RecordId {
+    string id = 1;
+}
+
 message PermissionRequest {
     UserId user = 1;
-    string fileId = 2;
+    RecordId record = 2;
 }
 
 message PermissionResponse {
@@ -25,7 +29,7 @@ message PermissionResponse {
 message ModifyPermissionRequest {
     UserId grantor = 1;
     UserId grantee = 2;
-    string fileId = 3;
+    RecordId record = 3;
     enum Modification {
         GRANT = 0;
         REVOKE = 1;
@@ -42,16 +46,16 @@ message ModifyPermissionResponse {
     bool result = 1;
 }
 
-message AddFileRequest {
+message AddRecordRequest {
     UserId creator = 1;
-    string fileId = 2;
+    RecordId record = 2;
 }
 
-message AddFileResponse {
+message AddRecordResponse {
     bool result = 1;
 }
 
-message GetFilesRequest {
+message GetRecordsRequest {
     UserId requestor = 1;
     enum Permission {
         READ = 0;
@@ -60,12 +64,12 @@ message GetFilesRequest {
     Permission permission = 2;
 }
 
-message ListOfFiles {
-    repeated string files = 1;
+message ListOfRecords {
+    repeated RecordId records = 1;
 }
 
 message GetUsersRequest {
-    string fileId = 1;
+    RecordId record = 1;
     enum Permission {
         READ = 0;
         WRITE = 1;

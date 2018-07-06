@@ -1,10 +1,12 @@
 from concurrent import futures
 import time
+from uuid import UUID
 
 from database.database import db
 from database.models.base import Base
-from database.models.acl import Acl  # noqa
+from database.models.acl import Acl
 from database.models.permission import Permission  # noqa
+from sqlalchemy.orm import sessionmaker
 
 import grpc
 import acl_pb2
@@ -21,7 +23,18 @@ class AclServicer(acl_pb2_grpc.AclServicer):
         base.metadata.create_all(db)
 
     def IsPermissionedForRead(self, request, context):
-        return acl_pb2.PermissionResponse(result=True)
+        user_id = UUID(request.user.id)
+        record_id = UUID(request.record.id)
+        Session = sessionmaker(self.db)
+        session = Session()
+        permission_exists = (
+            session.query(Acl)
+            .filter_by(user_id=user_id, record_id=record_id)
+            .one_or_none()
+            is not None
+        )
+        session.close()
+        return acl_pb2.PermissionResponse(result=permission_exists)
 
     def IsPermissionedForWrite(self, request, context):
         return acl_pb2.PermissionResponse(result=True)
@@ -29,17 +42,17 @@ class AclServicer(acl_pb2_grpc.AclServicer):
     def ModifyPermission(self, request, context):
         return acl_pb2.ModifyPermissionResponse(result=True)
 
-    def AddFile(self, request, context):
-        return acl_pb2.AddFileResponse(result=True)
+    def AddRecord(self, request, context):
+        return acl_pb2.AddRecordResponse(result=True)
 
-    def GetAllFilesForUser(self, request, context):
-        listOfFiles = acl_pb2.ListOfFiles()
-        listOfFiles.files.append("hello")
-        return listOfFiles
+    def GetAllRecordsForUser(self, request, context):
+        listOfRecords = acl_pb2.ListOfRecords()
+        listOfRecords.records.add().id = "abc"
+        return listOfRecords
 
-    def GetAllUsersForFile(self, request, context):
+    def GetAllUsersForRecord(self, request, context):
         listOfUsers = acl_pb2.ListOfUsers()
-        listOfUsers.users.add().id = 1337
+        listOfUsers.users.add().id = "abc"
         return listOfUsers
 
 
