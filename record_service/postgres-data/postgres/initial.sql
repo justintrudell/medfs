@@ -57,7 +57,7 @@ ALTER TABLE public.records OWNER TO testuser;
 CREATE TABLE public.users (
     id uuid NOT NULL,
     email text NOT NULL,
-    hashed_password text NOT NULL
+    password text NOT NULL
 );
 
 
@@ -77,7 +77,7 @@ a54eb2bb-6988-4ace-8648-2f816f7291bb	d1227778-23dd-4435-a239-a2132bd3d814	e0a9e0
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: testuser
 --
 
-COPY public.users (id, email, hashed_password) FROM stdin;
+COPY public.users (id, email, password) FROM stdin;
 d1227778-23dd-4435-a239-a2132bd3d814	test@medfs.com	pbkdf2:sha256:50000$pKERsF80$236c3f68775bfb8b2ffd474289b293a7220fcc0ef3d38369182ee084a127571d
 \.
 
