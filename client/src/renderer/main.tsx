@@ -35,7 +35,7 @@ export class Main extends React.Component<AppState, MainState> {
             path="/"
             render={() =>
               this.props.isLoggedIn ? (
-                <Records />
+                <Records {...this.props} />
               ) : (
                 <Login loginCallback={this.handleLogin} />
               )

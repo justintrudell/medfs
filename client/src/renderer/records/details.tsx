@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router";
 import { get } from "../../api/records";
 
 interface MatchParams {
-  acl_id: string;
+  record_id: string;
 }
 
 interface DetailProps extends RouteComponentProps<MatchParams> {}
@@ -14,7 +14,7 @@ export class DetailView extends React.Component<DetailProps, {}> {
   }
 
   componentWillMount() {
-    get(this.props.match.params.acl_id)
+    get(this.props.match.params.record_id)
       .then(result => {
         console.log(result);
       })
@@ -26,7 +26,7 @@ export class DetailView extends React.Component<DetailProps, {}> {
   render() {
     return (
       <div>
-        <p> {this.props.match.params.acl_id} </p>
+        <p> {this.props.match.params.record_id} </p>
         <button> Download </button>
       </div>
     );
