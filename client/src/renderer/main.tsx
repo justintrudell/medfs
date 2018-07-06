@@ -1,20 +1,50 @@
 import * as React from "react";
 import { Switch, Route } from "react-router-dom";
-import { Home } from "./home/home";
 import { Login } from "./authFlow/login";
 import { Signup } from "./authFlow/signup";
 import { Records } from "./records/records";
+import { AppState } from "./app";
+import * as localForage from "localforage";
+import { constants } from "../config";
+import { Error } from "./components/notifications/error";
+import * as _ from "lodash";
 
-export class Main extends React.Component {
+interface MainState {
+  errorMessage: string;
+}
+
+export class Main extends React.Component<AppState, MainState> {
+  constructor(props: AppState) {
+    super(props);
+
+    this.state = {
+      errorMessage: ""
+    };
+  }
+
+  handleLogin = (userInternal: UserInternal | undefined): void => {
+    localForage.setItem(constants.LOGGEDIN_USER, userInternal);
+    this.props.updateIsLoggedIn(!_.isEmpty(userInternal));
+  };
+
   render() {
     return (
       <div>
         <Switch>
-          <Route exact path="/" component={Home} />
-          <Route exact path="/login" component={Login} />
+          <Route
+            path="/"
+            render={() =>
+              this.props.isLoggedIn ? (
+                <Records />
+              ) : (
+                <Login loginCallback={this.handleLogin} />
+              )
+            }
+          />
           <Route exact path="/signup" component={Signup} />
-          <Route path="/records" component={Records} />
+          <Route exact path="/records" component={Records} />
         </Switch>
+        <Error errorMessage={this.state.errorMessage} />
       </div>
     );
   }

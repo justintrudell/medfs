@@ -7,3 +7,7 @@ export function login(
   const data = { username, password, remember_me: true };
   return recordService.post(`/login`, data);
 }
+
+export function logout(): recordService.RecordServiceResponse {
+  return recordService.post(`/logout`, {});
+}

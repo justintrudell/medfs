@@ -53,7 +53,7 @@ def login():
     return JsonResponse(data={"userId": str(u.id)}, message="Success", status=200)
 
 
-@auth_api.route("/logout")
+@auth_api.route("/logout", methods=["POST"])
 @login_required
 def logout():
     logout_user()

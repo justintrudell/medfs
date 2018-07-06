@@ -1,7 +1,7 @@
 import * as requestMaster from "request";
 import { constants } from "../config";
 import { resolve } from "url";
-const fileCookieStore = require("tough-cookie-filestore");
+const fileCookieStore = require("tough-cookie-file-store");
 
 export type RecordServiceResponse = Promise<requestMaster.Response>;
 
