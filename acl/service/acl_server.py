@@ -3,6 +3,9 @@ import time
 
 from database.database import db
 from database.models.base import Base
+from database.models.role import Role  # noqa
+from database.models.subject import Subject  # noqa
+from database.models.subject_assignment import SubjectAssignment  # noqa
 
 import grpc
 import acl_pb2
