@@ -17,7 +17,7 @@ def get_all_records_for_user() -> JsonResponse:
 
     # TODO: query ACL to get list of files user has access to
 
-    if not records:
+    if records is None:
         # no records for user
         return JsonResponse(message="No records found.", status=204)
 

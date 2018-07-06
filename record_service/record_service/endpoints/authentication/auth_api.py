@@ -2,32 +2,19 @@ from json import loads
 
 from flask import Blueprint, request
 from flask_login import LoginManager, login_required, login_user, logout_user
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
 from record_service.database.database import db
 from record_service.models.user import User
-from record_service.constants import SECRET_KEY, COOKIE_AGE
 from record_service.responses import JsonResponse
 
 
 auth_api = Blueprint("auth_api", __name__)
 login_manager = LoginManager()
-login_serializer = URLSafeTimedSerializer(SECRET_KEY)
 
 
 @login_manager.user_loader
-def load_user(token: str) -> User:
-    try:
-        user_data = login_serializer.loads(token, max_age=COOKIE_AGE)
-    except SignatureExpired:
-        return None
-
-    user = db.session.query(User).filter(User.email == user_data[0]).first()
-
-    if user and user.hashed_password == user_data[1]:
-        return user
-
-    return None
+def load_user(user_id: str) -> User:
+    return db.session.query(User).get(user_id)
 
 
 @auth_api.route("/login", methods=["POST"])
@@ -42,7 +29,7 @@ def login():
     if not u:
         return "No user found", 401
 
-    if not User.check_password(u.hashed_password, data["password"]):
+    if not User.check_password(u.password, data["password"]):
         return "Invalid password", 401
 
     remember_me = data.get("remember_me", False)
