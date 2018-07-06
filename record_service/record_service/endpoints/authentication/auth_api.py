@@ -5,7 +5,7 @@ from flask_login import LoginManager, login_required, login_user, logout_user
 
 from record_service.database.database import db
 from record_service.models.user import User
-from record_service.responses import JsonResponse
+from record_service.utils.responses import JsonResponse
 
 
 auth_api = Blueprint("auth_api", __name__)

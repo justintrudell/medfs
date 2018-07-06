@@ -1,2 +1,3 @@
 SECRET_KEY = "random_secret_key"
 COOKIE_AGE = 3600
+RECORD_SEPARATOR = u"\u241E"
