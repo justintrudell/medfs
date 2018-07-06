@@ -30,6 +30,7 @@ export class Main extends React.Component<AppState, MainState> {
   render() {
     return (
       <div>
+        <p> foo </p>
         <Switch>
           <Route
             path="/"
