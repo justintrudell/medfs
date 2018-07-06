@@ -3,6 +3,7 @@ import time
 
 from database.database import db
 from database.models.base import Base
+from database.models.acl import Acl  # noqa
 from database.models.permission import Permission  # noqa
 
 import grpc
