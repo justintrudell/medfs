@@ -14,10 +14,12 @@ from record_service.models.user import User  # noqa F401
 from record_service.models.record import Record  # noqa F401
 
 # API Endpoints
+from record_service.endpoints.authentication.auth_api import auth_api
+from record_service.endpoints.messages.message_api import message_api
 from record_service.endpoints.permissions.permission_api import permission_api
 from record_service.endpoints.records.record_api import record_api
 from record_service.endpoints.users.user_api import user_api
-from record_service.endpoints.authentication.auth_api import auth_api
+
 
 app = Flask(__name__)
 
@@ -35,7 +37,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
 app.secret_key = SECRET_KEY
 
-apis = [auth_api, permission_api, record_api, user_api]
+apis = [auth_api, message_api, permission_api, record_api, user_api]
 [app.register_blueprint(api) for api in apis]
 
 db.init_app(app)

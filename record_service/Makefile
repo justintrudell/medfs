@@ -27,7 +27,10 @@ stop:
 	docker-compose -p record_service stop
 
 logs:
-	docker-compose -p record_service logs
+	docker-compose -p record_service logs app
+
+dblogs:
+	docker-compose -p record_service logs db
 
 kill: stop
 	docker-compose -p record_service rm
