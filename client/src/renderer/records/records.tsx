@@ -50,7 +50,7 @@ export class Records extends React.Component<{}, RecordListState> {
         <Switch>
           <Route
             exact
-            path="/records"
+            path="/"
             render={() => (
               <ListView
                 items={this.state.records}

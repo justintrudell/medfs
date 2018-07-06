@@ -9,7 +9,6 @@ type LoginState = {
 };
 
 interface LoginProps {
-  history?: string[];
   loginCallback: (userInternal: UserInternal) => void;
 }
 

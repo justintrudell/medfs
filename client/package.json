@@ -19,7 +19,7 @@
     "react-router-dom": "^4.3.1",
     "request": "2.87.0",
     "set-cookie-parser": "^2.2.0",
-    "tough-cookie-filestore": "^0.0.1"
+    "tough-cookie-file-store": "^1.2.0"
   },
   "devDependencies": {
     "@types/jest": "^20.0.2",
