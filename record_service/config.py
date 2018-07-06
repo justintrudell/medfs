@@ -11,3 +11,6 @@ DB_NAME = environ.get("RECORD_SVC_DB_NAME")
 
 # We'll configure this in the future
 ENVIRONMENT = environ.get("ENVIRONMENT")
+
+# Interval at which we poll the SQS queues (in seconds)
+SQS_POLLING_INTERVAL_S = environ.get("SQS_POLLING_INTERVAL_S")

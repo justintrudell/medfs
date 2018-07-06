@@ -11,6 +11,7 @@ services:
       - .:/app
     env_file:
       - dev.env
+      - secrets/aws.env
     environment:
       - PYTHONUNBUFFERED=0  # Causes print statements to be logged
   db:
