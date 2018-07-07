@@ -44,7 +44,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
           // TODO: Get ID from record service response
           const userInternal: UserInternal = {
             email: this.state.email,
-            userId: "foo"
+            userId: response.body.userId
           };
           this.props.loginCallback(userInternal);
         } else {

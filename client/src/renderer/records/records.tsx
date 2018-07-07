@@ -4,13 +4,14 @@ import { RecordItem } from "../../models/records";
 import { Switch, Route, Link } from "react-router-dom";
 import { DetailView } from "./details";
 import { ListView } from "../components/lists/listView";
+import { AppState } from "../app";
 
 type RecordListState = {
   records: RecordItem[];
 };
 
-export class Records extends React.Component<{}, RecordListState> {
-  constructor(props: {}) {
+export class Records extends React.Component<AppState, RecordListState> {
+  constructor(props: AppState) {
     super(props);
     this.state = {
       records: []
@@ -25,13 +26,17 @@ export class Records extends React.Component<{}, RecordListState> {
             records: JSON.parse(response.body).data as RecordItem[]
           });
         }
+
+        if (response.statusCode === 401) {
+          this.props.updateIsLoggedIn(false);
+        }
       })
       .catch((error: string) => {
         console.error(error);
       });
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.getAllRecords();
   }
 
@@ -59,7 +64,7 @@ export class Records extends React.Component<{}, RecordListState> {
               />
             )}
           />
-          <Route path="/records/details/:acl_id" component={DetailView} />
+          <Route path="/records/details/:record_id" component={DetailView} />
         </Switch>
       </div>
     );
