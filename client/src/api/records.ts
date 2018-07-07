@@ -5,5 +5,5 @@ export function getAllForUser(): recordService.RecordServiceResponse {
 }
 
 export function get(id: string): recordService.RecordServiceResponse {
-  return recordService.get(`/records/${id}`);
+  return recordService.get(`/records/${id}`, { json: true });
 }
