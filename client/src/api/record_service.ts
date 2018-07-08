@@ -35,7 +35,7 @@ export function post(
     const requestOptions = {
       ...options,
       url: fullPath.toString(),
-      json: true
+      json: data
     };
     request.post(requestOptions, (error, response, _body) => {
       if (error) {
