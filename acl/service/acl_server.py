@@ -1,51 +1,49 @@
 from concurrent import futures
 import time
 from uuid import UUID
+from contextlib import contextmanager
 
 from database.database import db
 from database.models.base import Base
 from database.models.acl import Acl
 from database.models.permission import Permission
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import InvalidRequestError
 
 import grpc
 import acl_pb2
 import acl_pb2_grpc
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
+Session = sessionmaker(db)
 
 
 # To be implemented
 class AclServicer(acl_pb2_grpc.AclServicer):
     def __init__(self):
-        self.db = db
         base = Base()
         base.metadata.create_all(db)
 
     def IsPermissionedForRead(self, request, context):
         user_id = UUID(request.user.id)
         record_id = UUID(request.record.id)
-        Session = sessionmaker(self.db)
-        session = Session()
-        permission_exists = session.query(Acl).get((user_id, record_id)) is not None
-        session.close()
+        with session_scope() as session:
+            permission_exists = session.query(Acl).get((user_id, record_id)) is not None
         return acl_pb2.PermissionResponse(result=permission_exists)
 
     def IsPermissionedForWrite(self, request, context):
         user_id = UUID(request.user.id)
         record_id = UUID(request.record.id)
-        Session = sessionmaker(self.db)
-        session = Session()
-        permission_exists = (
-            session.query(Acl)
-            .join(Permission)
-            .filter(Acl.user_id == user_id)
-            .filter(Acl.record_id == record_id)
-            .filter(Permission.is_readonly == False)  # noqa
-            .one_or_none()
-            is not None
-        )
-        session.close()
+        with session_scope() as session:
+            permission_exists = (
+                session.query(Acl)
+                .join(Permission)
+                .filter(Acl.user_id == user_id)
+                .filter(Acl.record_id == record_id)
+                .filter(Permission.is_readonly == False)  # noqa
+                .one_or_none()
+                is not None
+            )
         return acl_pb2.PermissionResponse(result=permission_exists)
 
     def ModifyPermission(self, request, context):
@@ -63,6 +61,20 @@ class AclServicer(acl_pb2_grpc.AclServicer):
         listOfUsers = acl_pb2.ListOfUsers()
         listOfUsers.users.add().id = "abc"
         return listOfUsers
+
+
+@contextmanager
+def session_scope():
+    """Provide a transactional scope around a series of operations."""
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except InvalidRequestError:
+        session.rollback()
+        raise
+    finally:
+        session.close()
 
 
 def serve():
