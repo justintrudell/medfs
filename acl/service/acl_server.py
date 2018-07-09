@@ -27,12 +27,7 @@ class AclServicer(acl_pb2_grpc.AclServicer):
         record_id = UUID(request.record.id)
         Session = sessionmaker(self.db)
         session = Session()
-        permission_exists = (
-            session.query(Acl)
-            .filter_by(user_id=user_id, record_id=record_id)
-            .one_or_none()
-            is not None
-        )
+        permission_exists = session.query(Acl).get((user_id, record_id)) is not None
         session.close()
         return acl_pb2.PermissionResponse(result=permission_exists)
 
