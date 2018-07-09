@@ -28,7 +28,7 @@ export class Records extends React.Component<AppState, RecordListState> {
         }
 
         if (response.statusCode === 401) {
-          this.props.updateIsLoggedIn(false);
+          this.props.updateIsLoggedIn(undefined);
         }
       })
       .catch((error: string) => {
