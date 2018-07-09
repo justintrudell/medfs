@@ -2,6 +2,7 @@ import * as React from "react";
 import { Main } from "./main";
 import { Header } from "./home/header";
 import { getLogin } from "../utils/loginUtils";
+import { stream } from "../api/record_service";
 import * as _ from "lodash";
 import { RouteComponentProps } from "../../node_modules/@types/react-router";
 import { withRouter } from "react-router-dom";
@@ -33,6 +34,8 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
     getLogin().then(userInternal => {
       if (!_.isEmpty(userInternal)) {
         this.state.updateIsLoggedIn(true);
+        console.log(userInternal);
+        stream("/messages/stream/", userInternal!.userId);
       }
     });
   }
