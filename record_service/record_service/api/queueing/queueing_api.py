@@ -39,8 +39,7 @@ def send_message(uuid: str, message: str):
             },
         )
     result = queue.send_message(
-        MessageBody=SqsMessage(message).serialize(),
-        MessageGroupId="0",
+        MessageBody=SqsMessage(message).serialize(), MessageGroupId="0"
     )
     current_app.logger.debug(f"Message sent - message ID: {result['MessageId']}")
 
