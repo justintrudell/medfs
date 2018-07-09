@@ -41,10 +41,9 @@ export class Login extends React.Component<LoginProps, LoginState> {
           this.setState({ errorMessage: "Please try again" });
           return;
         } else if (response.statusCode === 200) {
-          // TODO: Get ID from record service response
           const userInternal: UserInternal = {
             email: this.state.email,
-            userId: response.body.userId
+            userId: response.body.data.userId
           };
           this.props.loginCallback(userInternal);
         } else {
