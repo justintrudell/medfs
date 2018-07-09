@@ -1,6 +1,7 @@
 import logging.config
 
 from flask import Flask
+from flask_cors import CORS
 
 import config
 
@@ -22,6 +23,7 @@ from record_service.endpoints.users.user_api import user_api
 
 
 app = Flask(__name__)
+CORS(app)
 
 # Configure logging, adding gunicorn log handlers to Flask logger
 if __name__ != "__main__":
