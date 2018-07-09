@@ -29,6 +29,9 @@ stop:
 logs:
 	docker-compose -p record_service logs app
 
+logs-f:
+	docker-compose -p record_service logs -f app 
+
 dblogs:
 	docker-compose -p record_service logs db
 
