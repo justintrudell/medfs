@@ -29,17 +29,13 @@ def stream_messages(user_uuid: int) -> str:
     def eventStream():
         while True:
             # Poll data from SQS to check for messages, deliver if so
-            messages = queueing_api.receive_messages(user_uuid)
-            for message in messages:
+            for message in queueing_api.receive_messages(user_uuid):
                 yield ServerSentEvent(message).encode()
                 # Delete the message from the queue
                 message.delete()
             eventlet.sleep(int(config.SQS_POLLING_INTERVAL_S))
 
     resp = Response(eventStream(), mimetype="text/event-stream")
-    # resp.headers["Access-Control-Allow-Origin"] = "http://localhost:9080"
-    # resp.headers["Access-Control-Expose-Headers"] = "*"
-    # resp.headers["Access-Control-Allow-Headers"] = "true"
     resp.headers["Access-Control-Allow-Credentials"] = "true"
     return resp
 

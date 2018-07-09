@@ -49,8 +49,7 @@ export function post(
   });
 }
 
-export function stream(endpoint: string, uuid: string): void {
-  console.log("UUID: " + uuid);
+export function stream(endpoint: string, uuid: string): EventSource {
   const sessionCookie = cookieStore.idx.localhost["/"]["session"];
   const sessionCookieStr = sessionCookie.key + "=" + sessionCookie.value;
   var rememberCookie = cookieStore.idx.localhost["/"]["remember_token"];
@@ -65,6 +64,8 @@ export function stream(endpoint: string, uuid: string): void {
     eventSourceInitDict
   );
   evtSource.onmessage = function(e: any) {
+    // TODO: Handle incoming messages
     console.log("Received message: " + e.data);
   };
+  return evtSource;
 }

@@ -8,8 +8,10 @@ import { RouteComponentProps } from "../../node_modules/@types/react-router";
 import { withRouter } from "react-router-dom";
 
 export interface AppState {
-  isLoggedIn: boolean;
-  updateIsLoggedIn: (isLoggedIn: boolean) => void;
+  userInternal?: UserInternal;
+  stream?: EventSource;
+  updateIsLoggedIn: (userInternal?: UserInternal) => void;
+  isLoggedIn: () => boolean;
 }
 
 class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
@@ -17,15 +19,30 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
     super(props);
 
     this.state = {
-      isLoggedIn: false,
-      updateIsLoggedIn: this.updateLogin
+      userInternal: undefined,
+      stream: undefined,
+      updateIsLoggedIn: this.updateLogin,
+      isLoggedIn: this.isLoggedIn
     };
   }
 
-  updateLogin = (isLoggedIn: boolean): void => {
-    this.setState({ isLoggedIn }, () => {
+  isLoggedIn = (): boolean => {
+    return !_.isEmpty(this.state.userInternal);
+  };
+
+  updateLogin = (userInternal?: UserInternal): void => {
+    this.setState({ userInternal }, () => {
       if (this.props.history.location.pathname !== "/") {
         this.props.history.push("/");
+      }
+      if (this.isLoggedIn()) {
+        const evtSource = stream(
+          "/messages/stream/",
+          this.state.userInternal!.userId
+        );
+        this.setState({
+          stream: evtSource
+        });
       }
     });
   };
@@ -33,9 +50,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
   componentDidMount() {
     getLogin().then(userInternal => {
       if (!_.isEmpty(userInternal)) {
-        this.state.updateIsLoggedIn(true);
-        console.log(userInternal);
-        stream("/messages/stream/", userInternal!.userId);
+        this.state.updateIsLoggedIn(userInternal!);
       }
     });
   }
