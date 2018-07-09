@@ -1,6 +1,6 @@
 import eventlet
-from flask import Blueprint, Response, stream_with_context, request
-from flask_login import current_user
+from flask import Blueprint, Response, stream_with_context
+from flask_login import login_required
 import json
 from typing import Any
 
@@ -23,10 +23,8 @@ class ServerSentEvent:
 
 
 @message_api.route("/messages/stream/<string:user_uuid>", methods=["GET"])
-# @login_required
+@login_required
 def stream_messages(user_uuid: int) -> str:
-    print("STREAM: ", request.cookies, current_user.is_authenticated)
-
     @stream_with_context
     def eventStream():
         while True:
@@ -39,18 +37,15 @@ def stream_messages(user_uuid: int) -> str:
             eventlet.sleep(int(config.SQS_POLLING_INTERVAL_S))
 
     resp = Response(eventStream(), mimetype="text/event-stream")
-    resp.headers["Access-Control-Allow-Origin"] = "http://localhost:9080"
-    resp.headers["Access-Control-Expose-Headers"] = "*"
-    resp.headers["Access-Control-Allow-Headers"] = "true"
+    # resp.headers["Access-Control-Allow-Origin"] = "http://localhost:9080"
+    # resp.headers["Access-Control-Expose-Headers"] = "*"
+    # resp.headers["Access-Control-Allow-Headers"] = "true"
     resp.headers["Access-Control-Allow-Credentials"] = "true"
     return resp
 
 
 # Client code to test consumption
-# @message_api.route("/messages/send/<string:uuid>/<string:message>", methods=["GET"])
-@message_api.route("/messages/tst", methods=["GET"])
-def send():  # uuid: str, message: str):
-    print("NONSTREAM", request.cookies, current_user.is_authenticated)
-    return "hey"
-    # queueing_api.send_message(uuid, message)
-    # return f"SENT {message} TO {uuid}"
+@message_api.route("/messages/send/<string:uuid>/<string:message>", methods=["GET"])
+def send(uuid: str, message: str):
+    queueing_api.send_message(uuid, message)
+    return f"SENT {message} TO {uuid}"
