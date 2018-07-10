@@ -24,26 +24,36 @@ class AclServicer(acl_pb2_grpc.AclServicer):
         base = Base()
         base.metadata.create_all(db)
 
-    def IsPermissionedForRead(self, request, context):
-        user_id = UUID(request.user.id)
-        record_id = UUID(request.record.id)
+    def _has_read_permissions(self, user_id: str, record_id: str) -> bool:
         with session_scope() as session:
-            permission_exists = session.query(Acl).get((user_id, record_id)) is not None
-        return acl_pb2.PermissionResponse(result=permission_exists)
+            permission_exists = (
+                session.query(Acl).get((UUID(user_id), UUID(record_id))) is not None
+            )
+        return permission_exists
 
-    def IsPermissionedForWrite(self, request, context):
-        user_id = UUID(request.user.id)
-        record_id = UUID(request.record.id)
+    def _has_write_permissions(self, user_id: str, record_id: str) -> bool:
         with session_scope() as session:
             permission_exists = (
                 session.query(Acl)
                 .join(Permission)
-                .filter(Acl.user_id == user_id)
-                .filter(Acl.record_id == record_id)
+                .filter(Acl.user_id == UUID(user_id))
+                .filter(Acl.record_id == UUID(record_id))
                 .filter(Permission.is_readonly == False)  # noqa
                 .one_or_none()
                 is not None
             )
+        return permission_exists
+
+    def IsPermissionedForRead(self, request, context):
+        permission_exists = self._has_read_permissions(
+            request.user.id, request.record.id
+        )
+        return acl_pb2.PermissionResponse(result=permission_exists)
+
+    def IsPermissionedForWrite(self, request, context):
+        permission_exists = self._has_write_permissions(
+            request.user.id, request.record.id
+        )
         return acl_pb2.PermissionResponse(result=permission_exists)
 
     def ModifyPermission(self, request, context):
