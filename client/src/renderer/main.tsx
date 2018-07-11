@@ -7,7 +7,6 @@ import { AppState } from "./app";
 import * as localForage from "localforage";
 import { constants } from "../config";
 import { Error } from "./components/notifications/error";
-import * as _ from "lodash";
 
 interface MainState {
   errorMessage: string;
@@ -24,7 +23,7 @@ export class Main extends React.Component<AppState, MainState> {
 
   handleLogin = (userInternal: UserInternal | undefined): void => {
     localForage.setItem(constants.LOGGEDIN_USER, userInternal);
-    this.props.updateIsLoggedIn(!_.isEmpty(userInternal));
+    this.props.updateIsLoggedIn(userInternal);
   };
 
   render() {
@@ -34,7 +33,7 @@ export class Main extends React.Component<AppState, MainState> {
           <Route
             path="/"
             render={() =>
-              this.props.isLoggedIn ? (
+              this.props.isLoggedIn() ? (
                 <Records {...this.props} />
               ) : (
                 <Login loginCallback={this.handleLogin} />

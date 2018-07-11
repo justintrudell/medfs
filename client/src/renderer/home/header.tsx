@@ -19,7 +19,7 @@ export class Header extends React.Component<AppState, {}> {
             </ul>
           </nav>
         </header>
-        {this.props.isLoggedIn && <Logout {...this.props} />}
+        {this.props.isLoggedIn() && <Logout {...this.props} />}
       </div>
     );
   }
