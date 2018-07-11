@@ -6,12 +6,6 @@ ssh-rec:
 grpc-rec:
 	python -m grpc_tools.protoc -Iacl/protos --python_out=record_service/record_service/api/acl --grpc_python_out=record_service/record_service/api/acl acl/protos/acl.proto
 
-generate_migrations:
-	alembic revision --autogenerate -m "rename_me"
-
-migrate:
-	alembic upgrade head
-
 db:
 	docker run -it --rm --net medfs_default --link medfs_record_service_db_1:postgres postgres sh -c 'PGPASSWORD=password exec psql -h postgres -U testuser -d local_record_service'
 
