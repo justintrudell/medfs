@@ -1,0 +1,43 @@
+version: "3.5"
+services:
+  record_service:
+    restart: always
+    links:
+    - record_service_db
+    - message_service
+    build: ../record_service
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../record_service/:/app
+    env_file:
+      - ../record_service/dev.env
+      - ../record_service/secrets/aws.env
+    environment:
+      - PYTHONUNBUFFERED=0  # Causes print statements to be logged
+
+  record_service_db:
+    restart: always
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=local_record_service
+    volumes:
+      - ../record_service/postgres-data/postgres:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+  
+
+#  message_service:
+#    restart: always
+#    build: ../message_service/ 
+#    ports:
+#      - "5004:5004"
+#    volumes:
+#      - ../message_service/:/app
+#    env_file:
+#      - ../message_service/dev.env
+#      - ../message_service/secrets/aws.env
+#    environment:
+#      - PYTHONUNBUFFERED=0  # Causes print statements to be logged
