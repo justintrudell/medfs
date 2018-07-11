@@ -29,15 +29,15 @@ services:
       - "5432:5432"
   
 
-#  message_service:
-#    restart: always
-#    build: ../message_service/ 
-#    ports:
-#      - "5004:5004"
-#    volumes:
-#      - ../message_service/:/app
-#    env_file:
-#      - ../message_service/dev.env
-#      - ../message_service/secrets/aws.env
-#    environment:
-#      - PYTHONUNBUFFERED=0  # Causes print statements to be logged
+  message_service:
+    restart: always
+    build: ../message_service/ 
+    ports:
+     - "5004:5004"
+    volumes:
+     - ../message_service/:/app
+    env_file:
+     - ../message_service/dev.env
+     - ../message_service/secrets/aws.env
+    environment:
+     - PYTHONUNBUFFERED=0  # Causes print statements to be logged

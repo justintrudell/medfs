@@ -59,7 +59,7 @@ export function stream(endpoint: string, uuid: string): EventSource {
     headers: { Cookie: [sessionCookieStr, rememberCookieStr] }
   };
   var evtSource = new newEventSource(
-    constants.RECORD_SERVICE_ENDPOINT + endpoint + uuid,
+    resolve(constants.MESSAGE_SERVICE_ENDPOINT, endpoint + uuid),
     eventSourceInitDict
   );
   evtSource.onmessage = function(e: any) {

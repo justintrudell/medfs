@@ -45,3 +45,12 @@ def login():
 def logout():
     logout_user()
     return "Success", 200
+
+
+@auth_api.route("/is_logged_in", methods=["GET"])
+@login_required
+def is_logged_in():
+    """Used by the message service to determine if requesting users are logged in
+    given the provided cookies.
+    """
+    return "Success", 200

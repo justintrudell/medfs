@@ -3,6 +3,9 @@ all: build up
 ssh-rec:
 	docker exec -ti medfs_record_service_1 /bin/bash
 
+ssh-msg:
+	docker exec -ti medfs_message_service_1 /bin/bash
+
 grpc-rec:
 	python -m grpc_tools.protoc -Iacl/protos --python_out=record_service/record_service/api/acl --grpc_python_out=record_service/record_service/api/acl acl/protos/acl.proto
 
