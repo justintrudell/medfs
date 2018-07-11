@@ -40,6 +40,12 @@ def stream_messages(user_uuid: str) -> str:
     return resp
 
 
+@message_api.route("/is_logged_in", methods=["GET"])
+@login_required
+def is_logged_in():
+    return "Success", 200
+
+
 # Client code to test consumption
 @message_api.route("/messages/send/<string:uuid>/<string:message>", methods=["GET"])
 def send(uuid: str, message: str):

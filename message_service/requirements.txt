@@ -1,0 +1,16 @@
+aiohttp==3.3.2
+aiohttp-sse==2.0.0
+async-timeout==3.0.0
+black==18.6b2
+boto3==1.7.51
+botocore==1.10.51
+certifi==2018.4.16
+chardet==3.0.4
+idna==2.7
+idna-ssl==1.1.0
+multidict==4.3.1
+mypy==0.610
+requests==2.19.1
+s3transfer==0.1.13
+urllib3==1.23
+yarl==1.2.6
