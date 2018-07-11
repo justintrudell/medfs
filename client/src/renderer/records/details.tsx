@@ -3,6 +3,10 @@ import { RouteComponentProps } from "react-router";
 import { get } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
+import { ipfsNode } from "../../ipfs/ipfsProvider";
+import { writeFile } from "fs";
+import { constants } from "../../config";
+import { join } from "path";
 
 interface MatchParams {
   record_id: string;
@@ -34,6 +38,33 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       });
   }
 
+  downloadRecord = () => {
+    if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
+      return;
+    }
+
+    ipfsNode.files
+      .get(this.state.recordDetails.hash)
+      .then(result => {
+        result.forEach(file => {
+          if (file.content) {
+            const filePath = join(
+              constants.DOWNLOAD_PATH,
+              this.state.recordDetails!.filename
+            );
+            writeFile(filePath, file.content, err => {
+              if (err) {
+                console.log(err);
+              }
+            });
+          }
+        });
+      })
+      .catch(error => {
+        console.log("error", error);
+      });
+  };
+
   getToRender = (): JSX.Element => {
     if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
       return <div />;
@@ -48,7 +79,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
     return (
       <div>
         {pKeys}
-        <button> Download </button>
+        <button onClick={this.downloadRecord}> Download </button>
       </div>
     );
   };

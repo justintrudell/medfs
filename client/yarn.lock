@@ -39,6 +39,10 @@
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/@types/history/-/history-4.6.2.tgz#12cfaba693ba20f114ed5765467ff25fdf67ddb0"
 
+"@types/ipfs@https://github.com/vishalkuo/types-ipfs":
+  version "0.23.6"
+  resolved "https://github.com/vishalkuo/types-ipfs#7319dbb5e5505190126d1dc5ac055d29198f8036"
+
 "@types/jest@^20.0.2":
   version "20.0.8"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-20.0.8.tgz#7f8c97f73d20d3bf5448fbe33661a342002b5954"
