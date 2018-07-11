@@ -1,5 +1,5 @@
 import json
-from typing import Any, List
+from typing import Any
 from uuid import uuid4
 
 import boto3
@@ -42,16 +42,3 @@ def send_message(uuid: str, message: str):
         MessageBody=SqsMessage(message).serialize(), MessageGroupId="0"
     )
     current_app.logger.debug(f"Message sent - message ID: {result['MessageId']}")
-
-
-def receive_messages(uuid: str) -> List[Any]:
-    queue_name = _create_queue_name(uuid)
-    try:
-        queue = sqs.get_queue_by_name(QueueName=queue_name)
-    except sqs.meta.client.exceptions.QueueDoesNotExist as e:
-        current_app.logger.debug(
-            f"The specified queue for UUID {uuid} did not exist when polling "
-            "- assuming no messages have yet been sent"
-        )
-        return []
-    return queue.receive_messages()

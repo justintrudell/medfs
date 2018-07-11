@@ -2,7 +2,7 @@
 import subprocess
 import sys
 
-DIRS_TO_CHECK = ["acl", "record_service", "client"]
+DIRS_TO_CHECK = ["acl", "record_service", "client", "message_service"]
 
 RED_TXT = "\033[91m"
 HEADER = "\033[94m"
