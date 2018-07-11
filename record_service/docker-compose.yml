@@ -14,6 +14,7 @@ services:
       - secrets/aws.env
     environment:
       - PYTHONUNBUFFERED=0  # Causes print statements to be logged
+
   db:
     restart: always
     image: postgres:latest
@@ -25,3 +26,4 @@ services:
       - ./postgres-data/postgres:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
+
