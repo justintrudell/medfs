@@ -4,7 +4,7 @@ import { Header } from "./home/header";
 import { getLogin } from "../utils/loginUtils";
 import { stream } from "../api/record_service";
 import * as _ from "lodash";
-import { RouteComponentProps } from "../../node_modules/@types/react-router";
+import { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router-dom";
 
 export interface AppState {
