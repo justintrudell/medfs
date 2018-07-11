@@ -18,13 +18,13 @@ class ServerSentEvent:
         self.field_map = {"id": self.id, "data": self.data}
 
     def encode(self) -> str:
-        fields = "\n".join(f"{k}: {v}" for k, v in self.field_map.items() if v)
+        fields = json.dumps(self.field_map, indent=4)
         return f"{fields}\n\n"
 
 
 @message_api.route("/messages/stream/<string:user_uuid>", methods=["GET"])
 @login_required
-def stream_messages(user_uuid: int) -> str:
+def stream_messages(user_uuid: str) -> str:
     @stream_with_context
     def eventStream():
         while True:

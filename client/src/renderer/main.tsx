@@ -7,7 +7,6 @@ import { AppState } from "./app";
 import * as localForage from "localforage";
 import { constants } from "../config";
 import { Error } from "./components/notifications/error";
-import * as _ from "lodash";
 
 interface MainState {
   errorMessage: string;

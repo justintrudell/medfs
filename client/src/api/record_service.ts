@@ -56,8 +56,7 @@ export function stream(endpoint: string, uuid: string): EventSource {
   const rememberCookieStr = rememberCookie.key + "=" + rememberCookie.value;
 
   var eventSourceInitDict = {
-    headers: { Cookie: [sessionCookieStr, rememberCookieStr] },
-    withCredentials: true
+    headers: { Cookie: [sessionCookieStr, rememberCookieStr] }
   };
   var evtSource = new newEventSource(
     constants.RECORD_SERVICE_ENDPOINT + endpoint + uuid,
