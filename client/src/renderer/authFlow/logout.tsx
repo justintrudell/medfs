@@ -1,8 +1,8 @@
 import * as React from "react";
 import { executeLogout } from "../../utils/loginUtils";
-import { AppState } from "../app";
+import { DispatchedProps } from "../app";
 
-export class Logout extends React.Component<AppState, {}> {
+export class Logout extends React.Component<DispatchedProps, {}> {
   logoutClick = () => {
     executeLogout().then(_result => {
       this.props.updateIsLoggedIn(undefined);

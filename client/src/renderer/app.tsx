@@ -5,13 +5,18 @@ import { getLogin } from "../utils/loginUtils";
 import { stream } from "../api/record_service";
 import * as _ from "lodash";
 import { RouteComponentProps } from "react-router";
+import { History } from "history";
 import { withRouter } from "react-router-dom";
 
-export interface AppState {
+interface AppState {
   userInternal?: UserInternal;
   stream?: EventSource;
   updateIsLoggedIn: (userInternal?: UserInternal) => void;
   isLoggedIn: () => boolean;
+}
+
+export interface DispatchedProps extends AppState {
+  history: History;
 }
 
 class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
