@@ -16,6 +16,7 @@ greenlet==0.4.13
 grpcio==1.12.1
 grpcio-tools==1.12.1
 gunicorn==19.8.1
+ipfsapi==0.4.3
 itsdangerous==0.24
 Jinja2==2.10
 jmespath==0.9.3

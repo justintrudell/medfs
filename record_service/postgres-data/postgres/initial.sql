@@ -40,7 +40,6 @@ SET default_with_oids = false;
 CREATE TABLE public.records (
     id uuid NOT NULL,
     creator_id uuid NOT NULL,
-    acl_id uuid NOT NULL,
     archived boolean NOT NULL,
     record_hash text NOT NULL,
     filename text NOT NULL,
@@ -67,10 +66,10 @@ ALTER TABLE public.users OWNER TO testuser;
 -- Data for Name: records; Type: TABLE DATA; Schema: public; Owner: testuser
 --
 
-COPY public.records (id, creator_id, acl_id, archived, record_hash, filename, created) FROM stdin;
-a54eb2bb-6988-4ace-8648-2f816f7291bb	d1227778-23dd-4435-a239-a2132bd3d814	e0a9e0c5-f5aa-4a38-bdad-fd2288efcabf	f	bed7b35c-d10e-405e-8e87-0d262e02cf66	Document 1	2018-07-01 20:28:11.793174
-520feaab-b7af-4c80-9868-fa9f0790fc14	d1227778-23dd-4435-a239-a2132bd3d814	1b34bcd4-da1a-475d-90f8-c8078003cddf	f	0c57fda0-0d5a-49ba-a4ce-9264b068f73d	Document 2	2018-07-01 20:28:11.793301
-f274037b-38a9-4111-924b-1c1e8bda618d	72baaa21-0d1b-4408-8576-6c4b23dc59ca	e0a9e0c5-f5aa-4a38-bdad-fd2288efcabf	f	Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z	Document 3	2018-07-01 20:28:11.793174
+COPY public.records (id, creator_id, archived, record_hash, filename, created) FROM stdin;
+a54eb2bb-6988-4ace-8648-2f816f7291bb	d1227778-23dd-4435-a239-a2132bd3d814	f	bed7b35c-d10e-405e-8e87-0d262e02cf66	Document 1	2018-07-01 20:28:11.793174
+520feaab-b7af-4c80-9868-fa9f0790fc14	d1227778-23dd-4435-a239-a2132bd3d814	f	0c57fda0-0d5a-49ba-a4ce-9264b068f73d	Document 2	2018-07-01 20:28:11.793301
+f274037b-38a9-4111-924b-1c1e8bda618d	72baaa21-0d1b-4408-8576-6c4b23dc59ca	f	Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z	Document 3	2018-07-01 20:28:11.793174
 \.
 
 

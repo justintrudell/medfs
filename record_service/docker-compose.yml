@@ -27,3 +27,10 @@ services:
     ports:
       - "5432:5432"
 
+  ipfs:
+    restart: always
+    image: jbenet/go-ipfs:latest
+    ports:
+      - "4001:4001"
+      - "5001:5001"
+      - "8080:8080"
