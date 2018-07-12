@@ -52,17 +52,17 @@ export function post(
 export function stream(endpoint: string, uuid: string): EventSource {
   const sessionCookie = cookieStore.idx.localhost["/"]["session"];
   const sessionCookieStr = sessionCookie.key + "=" + sessionCookie.value;
-  var rememberCookie = cookieStore.idx.localhost["/"]["remember_token"];
+  const rememberCookie = cookieStore.idx.localhost["/"]["remember_token"];
   const rememberCookieStr = rememberCookie.key + "=" + rememberCookie.value;
 
-  var eventSourceInitDict = {
+  const eventSourceInitDict = {
     headers: { Cookie: [sessionCookieStr, rememberCookieStr] }
   };
-  var evtSource = new newEventSource(
+  const evtSource = new newEventSource(
     resolve(constants.MESSAGE_SERVICE_ENDPOINT, endpoint + uuid),
     eventSourceInitDict
   );
-  evtSource.onmessage = function(e: any) {
+  evtSource.onmessage = (e: { data: string }) => {
     // TODO: Handle incoming messages
     console.log("Received message: " + e.data);
   };
