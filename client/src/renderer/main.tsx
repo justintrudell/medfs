@@ -3,7 +3,7 @@ import { Switch, Route } from "react-router-dom";
 import { Login } from "./authFlow/login";
 import { Signup } from "./authFlow/signup";
 import { Records } from "./records/records";
-import { AppState } from "./app";
+import { DispatchedProps } from "./app";
 import * as localForage from "localforage";
 import { constants } from "../config";
 import { Error } from "./components/notifications/error";
@@ -12,8 +12,8 @@ interface MainState {
   errorMessage: string;
 }
 
-export class Main extends React.Component<AppState, MainState> {
-  constructor(props: AppState) {
+export class Main extends React.Component<DispatchedProps, MainState> {
+  constructor(props: DispatchedProps) {
     super(props);
 
     this.state = {

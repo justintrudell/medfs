@@ -4,14 +4,14 @@ import { RecordItem } from "../../models/records";
 import { Switch, Route, Link } from "react-router-dom";
 import { DetailView } from "./details";
 import { ListView } from "../components/lists/listView";
-import { AppState } from "../app";
+import { DispatchedProps } from "../app";
 
 type RecordListState = {
   records: RecordItem[];
 };
 
-export class Records extends React.Component<AppState, RecordListState> {
-  constructor(props: AppState) {
+export class Records extends React.Component<DispatchedProps, RecordListState> {
+  constructor(props: DispatchedProps) {
     super(props);
     this.state = {
       records: []
