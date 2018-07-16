@@ -1,6 +1,6 @@
 import grpc
 
-from record_service.external.acl import acl_pb2_grpc
+from record_service.external import acl_pb2_grpc
 
 
 def build_client(server: str, port: int):
