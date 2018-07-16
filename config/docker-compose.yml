@@ -5,7 +5,7 @@ services:
     links:
       - record_service_db
       - message_service
-      - acl
+      - acl_service
     build: ../record_service
     ports:
       - "5000:5000"
@@ -51,11 +51,11 @@ services:
       - "5001:5001"
       - "8080:8080"
 
-  acl:
+  acl_service:
     restart: always
     build: ../acl/
     links:
-      - acl_db
+      - acl_service_db
     ports:
       - "5002:5002"
     volumes:
@@ -67,7 +67,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=0 # Causes print statements to be logged
 
-  acl_db:
+  acl_service_db:
     restart: always
     image: postgres:latest
     environment:
