@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from record_service.api.queueing import queueing_api
+from record_service.external.queueing import queueing_api
 
 message_api = Blueprint("message_api", __name__)
 

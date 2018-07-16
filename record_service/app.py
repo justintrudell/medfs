@@ -21,6 +21,9 @@ from record_service.endpoints.permissions.permission_api import permission_api
 from record_service.endpoints.records.record_api import record_api
 from record_service.endpoints.users.user_api import user_api
 
+# External APIs
+from record_service.external.acl import acl_api
+
 
 app = Flask(__name__)
 CORS(app)
@@ -44,6 +47,10 @@ apis = [auth_api, message_api, permission_api, record_api, user_api]
 
 db.init_app(app)
 login_manager.init_app(app)
+
+acl_service = acl_api.build_client(
+    config.ACL_URL or "localhost", config.ACL_PORT or 5002
+)
 
 
 @app.before_first_request
