@@ -80,7 +80,7 @@ def session_scope():
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     acl_pb2_grpc.add_AclServicer_to_server(AclServicer(), server)
-    server.add_insecure_port("[::]:5001")
+    server.add_insecure_port("[::]:5002")
     print("Starting acl service")
     server.start()
     try:

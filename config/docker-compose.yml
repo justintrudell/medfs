@@ -3,8 +3,9 @@ services:
   record_service:
     restart: always
     links:
-    - record_service_db
-    - message_service
+      - record_service_db
+      - message_service
+      - acl
     build: ../record_service
     ports:
       - "5000:5000"
@@ -14,7 +15,7 @@ services:
       - ../record_service/dev.env
       - ../record_service/secrets/aws.env
     environment:
-      - PYTHONUNBUFFERED=0  # Causes print statements to be logged
+      - PYTHONUNBUFFERED=0 # Causes print statements to be logged
 
   record_service_db:
     restart: always
@@ -41,3 +42,40 @@ services:
      - ../message_service/secrets/aws.env
     environment:
      - PYTHONUNBUFFERED=0  # Causes print statements to be logged
+
+  ipfs:
+    restart: always
+    image: jbenet/go-ipfs:latest
+    ports:
+      - "4001:4001"
+      - "5001:5001"
+      - "8080:8080"
+
+  acl:
+    restart: always
+    build: ../acl/
+    links:
+      - acl_db
+    ports:
+      - "5002:5002"
+    volumes:
+      - .:/app
+    volumes:
+      - ../acl/:/app
+    env_file:
+      - ../acl/dev.env
+    environment:
+      - PYTHONUNBUFFERED=0 # Causes print statements to be logged
+
+  acl_db:
+    restart: always
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=local_acl_service
+      - PGPORT=5433
+    volumes:
+      - ../acl/postgres-data/postgres:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5433"

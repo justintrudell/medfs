@@ -9,6 +9,10 @@ DB_URL = environ.get("RECORD_SVC_DB_URL")
 DB_PORT = environ.get("RECORD_SVC_DB_PORT")
 DB_NAME = environ.get("RECORD_SVC_DB_NAME")
 
+# ACL service parameters
+ACL_URL = environ.get("ACL_SVC_URL")
+ACL_PORT = environ.get("ACL_SVC_PORT")
+
 # We'll configure this in the future
 ENVIRONMENT = environ.get("ENVIRONMENT")
 
