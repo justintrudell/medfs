@@ -1,15 +1,14 @@
 from flask import Blueprint, request
 from flask_login import login_required, current_user
-from uuid import UUID
 
 from record_service.database.database import db
 from record_service.models.record import Record
 from record_service.utils.responses import JsonResponse
-from record_service.utils.file_uploader import FileUploader, SoftWriter
+from record_service.utils.file_uploader import FileUploader, IpfsWriter
 
 
 record_api = Blueprint("record_api", __name__)
-UPLOADER = FileUploader(SoftWriter())
+UPLOADER = FileUploader(IpfsWriter())
 
 
 @record_api.route("/records", methods=["GET"])
@@ -25,13 +24,7 @@ def get_all_records_for_user() -> JsonResponse:
         return JsonResponse(message="No records found.", data=[], status=204)
 
     data = [
-        {
-            "id": str(r.id),
-            "name": r.filename,
-            "hash": r.record_hash,
-            "aclId": str(r.acl_id),
-        }
-        for r in records
+        {"id": str(r.id), "name": r.filename, "hash": r.record_hash} for r in records
     ]
     return JsonResponse(data=data, status=200)
 
@@ -64,26 +57,18 @@ def upload_file():
     - file: set by multipart
     - data:
       - extension: file extension (i.e. .pdf files = "pdf")
-      - aclId: acl group for the file
     """
     if "file" not in request.files:
         return "No file.", 400
 
     data = request.form
-    if not all(key in data.keys() for key in ["extension", "aclId"]):
+    if not all(key in data.keys() for key in ["extension"]):
         return "Missing data", 400
 
     new_record = UPLOADER.upload(request.files["file"], data["extension"])
-
-    # TODO validate
     new_record.creator_id = current_user.get_id()
-    new_record.acl_id = UUID(request.form["aclId"])
 
     db.session.add(new_record)
     db.session.commit()
-
-    # TODO
-    # for user in acl_group:
-    #    push key
 
     return "Success", 200
