@@ -5,8 +5,12 @@ import { Switch, Route, Link } from "react-router-dom";
 import { DetailView } from "./details";
 import { ListView } from "../components/lists/listView";
 import { DispatchedProps } from "../app";
+import { Layout } from "antd";
+import "antd/dist/antd.css";
 
-type RecordListState = {
+const { Content } = Layout;
+
+type RecordListState  = {
   records: RecordItem[];
 };
 
@@ -14,7 +18,7 @@ export class Records extends React.Component<DispatchedProps, RecordListState> {
   constructor(props: DispatchedProps) {
     super(props);
     this.state = {
-      records: []
+      records: [],
     };
   }
 
@@ -50,8 +54,8 @@ export class Records extends React.Component<DispatchedProps, RecordListState> {
 
   render() {
     return (
-      <div>
-        <h1> Homepage </h1>
+      <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280 }}>
+        <div>
         <Switch>
           <Route
             exact
@@ -66,7 +70,8 @@ export class Records extends React.Component<DispatchedProps, RecordListState> {
           />
           <Route path="/records/details/:record_id" component={DetailView} />
         </Switch>
-      </div>
+        </div>
+      </Content>
     );
   }
 }

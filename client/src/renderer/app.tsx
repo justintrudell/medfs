@@ -1,12 +1,15 @@
 import * as React from "react";
 import { Main } from "./main";
-import { Header } from "./home/header";
+import { Navigation } from "./home/navigation";
+import { MedFsHeader } from "./home/header";
 import { getLogin } from "../utils/loginUtils";
 import { stream } from "../api/record_service";
 import * as _ from "lodash";
 import { RouteComponentProps } from "react-router";
 import { History } from "history";
 import { withRouter } from "react-router-dom";
+import { Layout } from "antd";
+
 
 interface AppState {
   userInternal?: UserInternal;
@@ -62,10 +65,14 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
 
   render() {
     return (
-      <div>
-        {this.isLoggedIn() && <Header {...this.state} {...this.props} />}
-        <Main {...this.state} {...this.props} />
-      </div>
+      <Layout>
+        {this.isLoggedIn() && <Navigation {...this.state} {...this.props} />}
+        <Layout
+          style={{ width: "100%", minHeight: "100vh", marginLeft: this.isLoggedIn() ? 200 : 0, overflow: "visible" }}>
+          {this.isLoggedIn() && <MedFsHeader {...this.state} {...this.props} />}
+          <Main {...this.state} {...this.props} />
+        </Layout>
+      </Layout>
     );
   }
 }

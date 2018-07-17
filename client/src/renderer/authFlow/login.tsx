@@ -50,7 +50,6 @@ export class Login extends React.Component<LoginProps, LoginState> {
             email: this.state.email,
             userId: response.body.data.userId
           };
-          message.success("Welcome!");
           this.props.loginCallback(userInternal);
         } else {
           console.log(response);
