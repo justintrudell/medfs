@@ -1,6 +1,10 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import * as authAPI from "../../api/auth";
-import { Error } from "../components/notifications/error";
+import { Form, Icon, Input, Button, Layout, message } from "antd";
+
+const { Content } = Layout;
+const logo = require("../../image/logo.png");
 
 type LoginState = {
   email: string;
@@ -38,7 +42,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
       .login(this.state.email, this.state.password)
       .then(response => {
         if (response.statusCode === 401) {
-          this.setState({ errorMessage: "Please try again" });
+          message.error("Please try again!");
           return;
         } else if (response.statusCode === 200) {
           const userInternal: UserInternal = {
@@ -48,7 +52,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
           this.props.loginCallback(userInternal);
         } else {
           console.log(response);
-          this.setState({ errorMessage: "Something went wrong" });
+          message.error("Something went wrong!");
         }
       })
       .catch(errorMessage => {
@@ -58,38 +62,44 @@ export class Login extends React.Component<LoginProps, LoginState> {
 
   render() {
     return (
-      <div>
-        <form onSubmit={this.handleSubmit}>
-          <h1>Login</h1>
-
-          <label>
-            <b>Email</b>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter Email"
-            id="email"
-            required
-            value={this.state.email}
-            onChange={this.handleChange}
-          />
-
-          <label>
-            <b>Password</b>
-          </label>
-          <input
-            type="password"
-            placeholder="Enter Password"
-            id="password"
-            required
-            value={this.state.password}
-            onChange={this.handleChange}
-          />
-
-          <input type="submit" value="Submit" />
-        </form>
-        <Error errorMessage={this.state.errorMessage} />
-      </div>
+      <Content style={{ padding: "10% 50px", textAlign: "center"}}>
+        <div style={{ width: 360, display: "inline-block" }} >
+          <div style={{ padding: 12 }} >
+            <img src={logo} style={{ width: 180 }} />
+          </div>
+          <div style={{ background: "#fff", padding: 24 }}>
+            <Form onSubmit={this.handleSubmit} className="login-form">
+              <Form.Item>
+                <Input
+                  prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+                  placeholder="Email"
+                  value={this.state.email}
+                  onChange={this.handleChange}
+                  id="email"
+                  required />
+              </Form.Item>
+              <Form.Item>
+                <Input
+                  prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+                  type="password"
+                  placeholder="Password"
+                  value={this.state.password}
+                  onChange={this.handleChange}
+                  id="password"
+                  required />
+              </Form.Item>
+              <Form.Item>
+                <div>
+                  <Button type="primary" htmlType="submit" className="login-form-button">
+                    Log in
+                  </Button>
+                </div>
+                Or <Link to="/signup">register now!</Link>
+              </Form.Item>
+            </Form>
+          </div>
+        </div>
+      </Content>
     );
   }
 }
