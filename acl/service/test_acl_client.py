@@ -74,15 +74,33 @@ def run():
     )
     print("Greeter client received: {}, expected True".format(response.result))
 
-    request = acl_pb2.GrantPermissionsRequest(
-        grantor=acl_pb2.UserId(id=uid),
-        record=acl_pb2.RecordId(id=rid),
-        permission=acl_pb2.GrantPermissionsRequest.READ,
+    # request = acl_pb2.GrantPermissionsRequest(
+    #     grantor=acl_pb2.UserId(id=uid),
+    #     record=acl_pb2.RecordId(id=rid),
+    #     permission=acl_pb2.GrantPermissionsRequest.READ,
+    # )
+    # recipient_uid = "72baaa21-0d1b-4408-8576-6c4b23dc59ca"
+    # del request.recipients[:]
+    # request.recipients.extend([acl_pb2.UserId(id=recipient_uid)])
+    # response = stub.GrantPermissions(request)
+    request = acl_pb2.SetPermissionsForFileRequest(
+        grantor=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
     )
     recipient_uid = "72baaa21-0d1b-4408-8576-6c4b23dc59ca"
-    del request.recipients[:]
-    request.recipients.extend([acl_pb2.UserId(id=recipient_uid)])
-    response = stub.GrantPermissions(request)
+    del request.userPermMap[:]
+    request.userPermMap.extend(
+        [
+            acl_pb2.UserPermissionEntry(
+                user=acl_pb2.UserId(id=uid),
+                permission=acl_pb2.UserPermissionEntry.WRITE,
+            ),
+            acl_pb2.UserPermissionEntry(
+                user=acl_pb2.UserId(id=recipient_uid),
+                permission=acl_pb2.UserPermissionEntry.READ,
+            ),
+        ]
+    )
+    response = stub.SetPermissionsForFile(request)
     print("Greeter client received: {}, expected True".format(response.result))
 
     response = stub.IsPermissionedForRead(
@@ -99,14 +117,23 @@ def run():
     )
     print("Greeter client received: {}, expected False".format(response.result))
 
-    request = acl_pb2.GrantPermissionsRequest(
-        grantor=acl_pb2.UserId(id=uid),
-        record=acl_pb2.RecordId(id=rid),
-        permission=acl_pb2.GrantPermissionsRequest.WRITE,
+    request = acl_pb2.SetPermissionsForFileRequest(
+        grantor=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
     )
-    del request.recipients[:]
-    request.recipients.extend([acl_pb2.UserId(id=recipient_uid)])
-    response = stub.GrantPermissions(request)
+    del request.userPermMap[:]
+    request.userPermMap.extend(
+        [
+            acl_pb2.UserPermissionEntry(
+                user=acl_pb2.UserId(id=uid),
+                permission=acl_pb2.UserPermissionEntry.WRITE,
+            ),
+            acl_pb2.UserPermissionEntry(
+                user=acl_pb2.UserId(id=recipient_uid),
+                permission=acl_pb2.UserPermissionEntry.WRITE,
+            ),
+        ]
+    )
+    response = stub.SetPermissionsForFile(request)
     print("Greeter client received: {}, expected True".format(response.result))
 
     response = stub.IsPermissionedForWrite(

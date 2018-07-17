@@ -129,6 +129,48 @@ class AclServicer(acl_pb2_grpc.AclServicer):
                     session.delete(user_perm)
         return acl_pb2.PermissionResponse(result=True)
 
+    def SetPermissionsForFile(self, request, context):
+        if not self._has_write_permissions(request.grantor.id, request.record.id):
+            return acl_pb2.PermissionResponse(result=False)
+        with session_scope() as session:
+            readonly_perm = (
+                session.query(Permission)
+                .filter(Permission.is_readonly == True)  # noqa
+                .one_or_none()
+            )
+            write_perm = (
+                session.query(Permission)
+                .filter(Permission.is_readonly == False)
+                .one_or_none()
+            )  # noqa
+            if not readonly_perm or not write_perm:
+                # means our permissions db isn't initialized so idk
+                return acl_pb2.PermissionResponse(result=False)
+            # Delete all permissions associated with this record and repopulate
+            to_delete = session.query(Acl).filter(Acl.record_id == request.record.id)
+            for entry in to_delete:
+                session.delete(entry)
+            for entry in request.userPermMap:
+                user_perm = (
+                    session.query(Acl)
+                    .filter(Acl.user_id == UUID(entry.user.id))
+                    .filter(Acl.record_id == UUID(request.record.id))
+                    .one_or_none()
+                )
+                permission_to_set = (
+                    readonly_perm.id
+                    if entry.permission == acl_pb2.UserPermissionEntry.READ
+                    else write_perm.id
+                )
+                user_perm = Acl(
+                    user_id=entry.user.id,
+                    record_id=request.record.id,
+                    permission_id=permission_to_set,
+                )
+                session.add(user_perm)
+
+        return acl_pb2.PermissionResponse(result=True)
+
     def AddRecord(self, request, context):
         return acl_pb2.AddRecordResponse(result=True)
 
