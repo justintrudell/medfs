@@ -74,15 +74,6 @@ def run():
     )
     print("Greeter client received: {}, expected True".format(response.result))
 
-    # request = acl_pb2.GrantPermissionsRequest(
-    #     grantor=acl_pb2.UserId(id=uid),
-    #     record=acl_pb2.RecordId(id=rid),
-    #     permission=acl_pb2.GrantPermissionsRequest.READ,
-    # )
-    # recipient_uid = "72baaa21-0d1b-4408-8576-6c4b23dc59ca"
-    # del request.recipients[:]
-    # request.recipients.extend([acl_pb2.UserId(id=recipient_uid)])
-    # response = stub.GrantPermissions(request)
     request = acl_pb2.SetPermissionsForFileRequest(
         grantor=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
     )
