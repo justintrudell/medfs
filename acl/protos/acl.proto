@@ -3,7 +3,7 @@ syntax = "proto3";
 service Acl {
     rpc IsPermissionedForRead (PermissionRequest) returns (PermissionResponse) {}
     rpc IsPermissionedForWrite (PermissionRequest) returns (PermissionResponse) {}
-    rpc ModifyPermission (ModifyPermissionRequest) returns (ModifyPermissionResponse) {}
+    rpc SetPermissionsForFile(SetPermissionsForFileRequest) returns (PermissionResponse) {}
     rpc AddRecord (AddRecordRequest) returns (AddRecordResponse) {}
     rpc GetAllRecordsForUser (GetRecordsRequest) returns (ListOfRecords) {}
     rpc GetAllUsersForRecord (GetUsersRequest) returns (ListOfUsers) {}
@@ -26,24 +26,19 @@ message PermissionResponse {
     bool result = 1;
 }
 
-message ModifyPermissionRequest {
+message SetPermissionsForFileRequest {
     UserId grantor = 1;
-    UserId grantee = 2;
-    RecordId record = 3;
-    enum Modification {
-        GRANT = 0;
-        REVOKE = 1;
-    }
-    Modification mod = 4;
+    RecordId record = 2;
+    repeated UserPermissionEntry userPermMap = 3;
+}
+
+message UserPermissionEntry {
+    UserId user = 1;
     enum Permission {
         READ = 0;
         WRITE = 1;
     }
-    Permission permission = 5;
-}
-
-message ModifyPermissionResponse {
-    bool result = 1;
+    Permission permission = 2;
 }
 
 message AddRecordRequest {

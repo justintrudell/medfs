@@ -14,6 +14,20 @@ import acl_pb2_grpc
 
 
 def run():
+    Session = sessionmaker(db)
+    session = Session()
+
+    # Clear the db before we start
+    acls = session.query(Acl)
+    for acl in acls:
+        session.delete(acl)
+    session.commit()
+
+    permissions = session.query(Permission)
+    for permission in permissions:
+        session.delete(permission)
+    session.commit()
+
     uid = "d1227778-23dd-4435-a239-a2132bd3d814"
     rid = "a54eb2bb-6988-4ace-8648-2f816f7291bb"
     channel = grpc.insecure_channel("localhost:5001")
@@ -25,8 +39,6 @@ def run():
     )
     print("Greeter client received: {}, expected False".format(response.result))
 
-    Session = sessionmaker(db)
-    session = Session()
     test_readonly = Permission(is_readonly=True)
     test_readwrite = Permission(is_readonly=False)
     session.add(test_readonly)
@@ -62,10 +74,74 @@ def run():
     )
     print("Greeter client received: {}, expected True".format(response.result))
 
-    session.delete(test_acl)
+    request = acl_pb2.SetPermissionsForFileRequest(
+        grantor=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
+    )
+    recipient_uid = "72baaa21-0d1b-4408-8576-6c4b23dc59ca"
+    del request.userPermMap[:]
+    request.userPermMap.extend(
+        [
+            acl_pb2.UserPermissionEntry(
+                user=acl_pb2.UserId(id=uid),
+                permission=acl_pb2.UserPermissionEntry.WRITE,
+            ),
+            acl_pb2.UserPermissionEntry(
+                user=acl_pb2.UserId(id=recipient_uid),
+                permission=acl_pb2.UserPermissionEntry.READ,
+            ),
+        ]
+    )
+    response = stub.SetPermissionsForFile(request)
+    print("Greeter client received: {}, expected True".format(response.result))
+
+    response = stub.IsPermissionedForRead(
+        acl_pb2.PermissionRequest(
+            user=acl_pb2.UserId(id=recipient_uid), record=acl_pb2.RecordId(id=rid)
+        )
+    )
+    print("Greeter client received: {}, expected True".format(response.result))
+
+    response = stub.IsPermissionedForWrite(
+        acl_pb2.PermissionRequest(
+            user=acl_pb2.UserId(id=recipient_uid), record=acl_pb2.RecordId(id=rid)
+        )
+    )
+    print("Greeter client received: {}, expected False".format(response.result))
+
+    request = acl_pb2.SetPermissionsForFileRequest(
+        grantor=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
+    )
+    del request.userPermMap[:]
+    request.userPermMap.extend(
+        [
+            acl_pb2.UserPermissionEntry(
+                user=acl_pb2.UserId(id=uid),
+                permission=acl_pb2.UserPermissionEntry.WRITE,
+            ),
+            acl_pb2.UserPermissionEntry(
+                user=acl_pb2.UserId(id=recipient_uid),
+                permission=acl_pb2.UserPermissionEntry.WRITE,
+            ),
+        ]
+    )
+    response = stub.SetPermissionsForFile(request)
+    print("Greeter client received: {}, expected True".format(response.result))
+
+    response = stub.IsPermissionedForWrite(
+        acl_pb2.PermissionRequest(
+            user=acl_pb2.UserId(id=recipient_uid), record=acl_pb2.RecordId(id=rid)
+        )
+    )
+    print("Greeter client received: {}, expected True".format(response.result))
+
+    acls = session.query(Acl)
+    for acl in acls:
+        session.delete(acl)
     session.commit()
-    session.delete(test_readonly)
-    session.delete(test_readwrite)
+
+    permissions = session.query(Permission)
+    for permission in permissions:
+        session.delete(permission)
     session.commit()
     session.close()
 
