@@ -88,8 +88,8 @@ class AclServicer(acl_pb2_grpc.AclServicer):
                     else write_perm.id
                 )
                 user_perm = Acl(
-                    user_id=entry.user.id,
-                    record_id=request.record.id,
+                    user_id=UUID(entry.user.id),
+                    record_id=UUID(request.record.id),
                     permission_id=permission_to_set,
                 )
                 session.add(user_perm)
