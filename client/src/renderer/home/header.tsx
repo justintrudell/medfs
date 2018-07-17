@@ -19,6 +19,11 @@ export class Header extends React.Component<DispatchedProps, {}> {
                   <Link to="/signup">Signup</Link>
                 </li>
               )}
+              {this.props.isLoggedIn() && (
+                <li>
+                  <Link to="/upload">Upload</Link>
+                </li>
+              )}
             </ul>
           </nav>
         </header>

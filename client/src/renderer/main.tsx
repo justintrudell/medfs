@@ -7,6 +7,7 @@ import { DispatchedProps } from "./app";
 import * as localForage from "localforage";
 import { constants } from "../config";
 import { Error } from "./components/notifications/error";
+import { Upload } from "./records/upload";
 
 interface MainState {
   errorMessage: string;
@@ -42,6 +43,7 @@ export class Main extends React.Component<DispatchedProps, MainState> {
           />
           <Route exact path="/signup" component={Signup} />
           <Route exact path="/records" component={Records} />
+          <Route exact path="/upload" component={Upload} />
         </Switch>
         <Error errorMessage={this.state.errorMessage} />
       </div>
