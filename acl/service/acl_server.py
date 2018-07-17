@@ -56,8 +56,78 @@ class AclServicer(acl_pb2_grpc.AclServicer):
         )
         return acl_pb2.PermissionResponse(result=permission_exists)
 
-    def ModifyPermission(self, request, context):
-        return acl_pb2.ModifyPermissionResponse(result=True)
+    def GrantPermissions(self, request, context):
+        if not self._has_write_permissions(request.grantor.id, request.record.id):
+            return acl_pb2.PermissionResponse(result=False)
+
+        with session_scope() as session:
+            readonly_perm = (
+                session.query(Permission)
+                .filter(Permission.is_readonly == True)  # noqa
+                .one_or_none()
+            )
+            write_perm = (
+                session.query(Permission)
+                .filter(Permission.is_readonly == False)
+                .one_or_none()
+            )  # noqa
+            if not readonly_perm or not write_perm:
+                # means our permissions db isn't initialized so idk
+                return acl_pb2.PermissionResponse(result=False)
+            for recipient in request.recipients:
+                user_perm = (
+                    session.query(Acl)
+                    .filter(Acl.user_id == UUID(recipient.id))
+                    .filter(Acl.record_id == UUID(request.record.id))
+                    .one_or_none()
+                )
+                # if permission doesn't exist, create appropriate permission
+                if not user_perm:
+                    if request.permission == acl_pb2.GrantPermissionsRequest.READ:
+                        permission_id = readonly_perm.id
+                    elif request.permission == acl_pb2.GrantPermissionsRequest.WRITE:
+                        permission_id = write_perm.id
+                    new_user_perm = Acl(
+                        user_id=UUID(recipient.id),
+                        record_id=UUID(request.record.id),
+                        permission_id=permission_id,
+                    )
+                    session.add(new_user_perm)
+                elif request.permission == acl_pb2.GrantPermissionsRequest.WRITE:
+                    user_perm.permission_id = write_perm.id
+        return acl_pb2.PermissionResponse(result=True)
+
+    def RevokePermissions(self, request, context):
+        if not self._has_write_permissions(request.grantor.id, request.record.id):
+            return acl_pb2.PermissionResponse(result=False)
+
+        with session_scope() as session:
+            readonly_perm = (
+                session.query(Permission)
+                .filter(Permission.is_readonly == True)  # noqa
+                .one_or_none()
+            )
+            if not readonly_perm:
+                # means our permissions db isn't initialized so idk
+                return acl_pb2.PermissionResponse(result=False)
+            for recipient in request.recipients:
+                user_perm = (
+                    session.query(Acl)
+                    .filter(Acl.user_id == UUID(recipient.id))
+                    .filter(Acl.record_id == UUID(request.record.id))
+                    .one_or_none()
+                )
+                # if trying to revoke and recipient has no permissions to begin with
+                # return True
+                if not user_perm:
+                    continue
+                # change recipient write permission to readonly
+                if request.permission == acl_pb2.RevokePermissionsRequest.WRITE:
+                    user_perm.permission_id = readonly_perm.id
+                # delete recipient permission
+                elif request.permission == acl_pb2.RevokePermissionsRequest.READ:
+                    session.delete(user_perm)
+        return acl_pb2.PermissionResponse(result=True)
 
     def AddRecord(self, request, context):
         return acl_pb2.AddRecordResponse(result=True)

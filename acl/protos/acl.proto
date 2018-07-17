@@ -3,7 +3,9 @@ syntax = "proto3";
 service Acl {
     rpc IsPermissionedForRead (PermissionRequest) returns (PermissionResponse) {}
     rpc IsPermissionedForWrite (PermissionRequest) returns (PermissionResponse) {}
-    rpc ModifyPermission (ModifyPermissionRequest) returns (ModifyPermissionResponse) {}
+    rpc GrantPermissions(GrantPermissionsRequest) returns (PermissionResponse) {}
+    rpc RevokePermissions(RevokePermissionsRequest) returns (PermissionResponse) {}
+    rpc SetPermissions(SetPermissionsRequest) returns (PermissionsResponse) {}
     rpc AddRecord (AddRecordRequest) returns (AddRecordResponse) {}
     rpc GetAllRecordsForUser (GetRecordsRequest) returns (ListOfRecords) {}
     rpc GetAllUsersForRecord (GetUsersRequest) returns (ListOfUsers) {}
@@ -26,24 +28,41 @@ message PermissionResponse {
     bool result = 1;
 }
 
-message ModifyPermissionRequest {
+message GrantPermissionsRequest {
     UserId grantor = 1;
-    UserId grantee = 2;
+    repeated UserId recipients = 2;
     RecordId record = 3;
-    enum Modification {
-        GRANT = 0;
-        REVOKE = 1;
-    }
-    Modification mod = 4;
     enum Permission {
         READ = 0;
         WRITE = 1;
     }
-    Permission permission = 5;
+    Permission permission = 4;
 }
 
-message ModifyPermissionResponse {
-    bool result = 1;
+message RevokePermissionsRequest {
+    UserId grantor = 1;
+    repeated UserId recipients = 2;
+    RecordId record = 3;
+    enum Permission {
+        READ = 0;
+        WRITE = 1;
+    }
+    Permission permission = 4;
+}
+
+message SetPermissionsRequest {
+    UserId grantor = 1;
+    RecordId record = 2;
+    repeated UserPemissionEntry userPermMap = 3;
+}
+
+message UserPermissionEntry {
+    UserId user = 1;
+    enum Permission {
+        READ = 0;
+        WRITE = 1;
+    }
+    Permission permission = 2;
 }
 
 message AddRecordRequest {
