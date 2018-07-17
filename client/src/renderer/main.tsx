@@ -30,7 +30,7 @@ export class Main extends React.Component<DispatchedProps, MainState> {
 
   render() {
     return (
-      <Layout style={{ height: "100vh" }}>
+      <Layout style={{ height: "100vh", marginLeft: this.props.isLoggedIn() ? 200 : 0 }} hasSider={this.props.isLoggedIn()}>
         <Switch>
           <Route
             path="/"
