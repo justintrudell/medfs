@@ -10,10 +10,10 @@ ssh-msg:
 	docker exec -ti medfs_message_service_1 /bin/bash
 
 grpc-rec:
-	mkdir -p record_service/protos/record_service/external/acl/
-	cp acl/protos/acl.proto record_service/protos/record_service/external/acl/
-	rm -f record_service/record_service/external/acl/acl_pb2*
-	python3 -m grpc_tools.protoc -I record_service/protos --python_out=record_service --grpc_python_out=record_service record_service/protos/record_service/external/acl/acl.proto
+	mkdir -p record_service/protos/record_service/external/
+	cp acl/protos/acl.proto record_service/protos/record_service/external/
+	rm -f record_service/record_service/external/acl_pb2*
+	python3 -m grpc_tools.protoc -I record_service/protos --python_out=record_service --grpc_python_out=record_service record_service/protos/record_service/external/acl.proto
 	rm -rf record_service/protos
 
 grpc-acl:

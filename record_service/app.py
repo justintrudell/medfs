@@ -6,7 +6,7 @@ from flask_cors import CORS
 import config
 
 from record_service.database.database import db
-from record_service.endpoints.authentication.auth_api import login_manager
+from record_service.endpoints.auth_api import login_manager
 from record_service.utils.constants import SECRET_KEY
 
 # DB Models - import required to create tables
@@ -15,14 +15,14 @@ from record_service.models.user import User  # noqa F401
 from record_service.models.record import Record  # noqa F401
 
 # API Endpoints
-from record_service.endpoints.authentication.auth_api import auth_api
-from record_service.endpoints.messages.message_api import message_api
-from record_service.endpoints.permissions.permission_api import permission_api
-from record_service.endpoints.records.record_api import record_api
-from record_service.endpoints.users.user_api import user_api
+from record_service.endpoints.auth_api import auth_api
+from record_service.endpoints.message_api import message_api
+from record_service.endpoints.permission_api import permission_api
+from record_service.endpoints.record_api import record_api
+from record_service.endpoints.user_api import user_api
 
 # External APIs
-from record_service.external.acl import acl_api
+from record_service.external import acl_api
 
 
 app = Flask(__name__)
