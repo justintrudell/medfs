@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { DispatchedProps } from "../app";
 import * as authAPI from "../../api/auth";
 import { Form, Icon, Input, Button, Layout, message } from "antd";
 
@@ -17,7 +16,7 @@ interface LoginProps {
   loginCallback: (userInternal: UserInternal) => void;
 }
 
-export class Login extends React.Component<LoginProps, LoginState, DispatchedProps> {
+export class Login extends React.Component<LoginProps, LoginState> {
   constructor(props: LoginProps) {
     super(props);
     this.state = {

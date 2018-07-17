@@ -60,22 +60,10 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
     });
   }
 
-  Navigation() {
-    return (
-      <Header {...this.state} {...this.props} />
-    );
-  }
-
   render() {
-    let header;
-
-    if (this.isLoggedIn()) {
-      header = (<Header {...this.state} {...this.props} />);
-    }
-
     return (
       <div>
-        {header}
+        {this.isLoggedIn() && <Header {...this.state} {...this.props} />}
         <Main {...this.state} {...this.props} />
       </div>
     );
