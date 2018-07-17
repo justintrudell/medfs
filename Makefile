@@ -23,6 +23,9 @@ grpc-acl:
 db:
 	docker run -it --rm --net medfs_default --link medfs_record_service_db_1:postgres postgres sh -c 'PGPASSWORD=password exec psql -h postgres -U testuser -d local_record_service'
 
+db-acl:
+	docker run -it --rm --net medfs_default --link medfs_acl_service_db_1:postgres postgres sh -c 'PGPASSWORD=password exec psql -p 5433 -h postgres -U testuser -d local_acl_service'
+
 # ------------------DOCKER-COMPOSE------------------
 
 build:

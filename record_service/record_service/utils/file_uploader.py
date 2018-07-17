@@ -48,7 +48,7 @@ class FileUploader:
             upload_response = self._fs_writer.write(path)
             current_app.logger.info(upload_response)
         except Exception as e:
-            raise UploadException(e.message)
+            raise UploadException(str(e))
         finally:
             os.remove(path)
 
