@@ -74,9 +74,7 @@ class AclServicer(acl_pb2_grpc.AclServicer):
                 # means our permissions db isn't initialized so idk
                 return acl_pb2.PermissionResponse(result=False)
             # Delete all permissions associated with this record and repopulate
-            to_delete = session.query(Acl).filter(Acl.record_id == request.record.id)
-            for entry in to_delete:
-                session.delete(entry)
+            session.query(Acl).filter(Acl.record_id == UUID(request.record.id)).delete()
             for entry in request.userPermMap:
                 user_perm = (
                     session.query(Acl)
