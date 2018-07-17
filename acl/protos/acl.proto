@@ -5,7 +5,7 @@ service Acl {
     rpc IsPermissionedForWrite (PermissionRequest) returns (PermissionResponse) {}
     rpc GrantPermissions(GrantPermissionsRequest) returns (PermissionResponse) {}
     rpc RevokePermissions(RevokePermissionsRequest) returns (PermissionResponse) {}
-    rpc SetPermissions(SetPermissionsRequest) returns (PermissionsResponse) {}
+    rpc SetPermissions(SetPermissionsRequest) returns (PermissionResponse) {}
     rpc AddRecord (AddRecordRequest) returns (AddRecordResponse) {}
     rpc GetAllRecordsForUser (GetRecordsRequest) returns (ListOfRecords) {}
     rpc GetAllUsersForRecord (GetUsersRequest) returns (ListOfUsers) {}
@@ -53,7 +53,7 @@ message RevokePermissionsRequest {
 message SetPermissionsRequest {
     UserId grantor = 1;
     RecordId record = 2;
-    repeated UserPemissionEntry userPermMap = 3;
+    repeated UserPermissionEntry userPermMap = 3;
 }
 
 message UserPermissionEntry {
