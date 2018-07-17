@@ -11,14 +11,14 @@ ssh-msg:
 
 grpc-rec:
 	mkdir -p record_service/protos/record_service/external/
-	cp acl/protos/acl.proto record_service/protos/record_service/external/
+	cp acl_service/protos/acl.proto record_service/protos/record_service/external/
 	rm -f record_service/record_service/external/acl_pb2*
 	python3 -m grpc_tools.protoc -I record_service/protos --python_out=record_service --grpc_python_out=record_service record_service/protos/record_service/external/acl.proto
 	rm -rf record_service/protos
 
 grpc-acl:
-	rm -f acl/service/acl_pb2*.py
-	python3 -m grpc_tools.protoc -I acl/protos --python_out=acl/service --grpc_python_out=acl/service acl/protos/acl.proto
+	rm -f acl_service/service/acl_pb2*.py
+	python3 -m grpc_tools.protoc -I acl_service/protos --python_out=acl_service/service --grpc_python_out=acl_service/service acl_service/protos/acl.proto
 
 db:
 	docker run -it --rm --net medfs_default --link medfs_record_service_db_1:postgres postgres sh -c 'PGPASSWORD=password exec psql -h postgres -U testuser -d local_record_service'
