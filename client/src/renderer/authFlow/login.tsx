@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as authAPI from "../../api/auth";
+import { Error } from "../components/notifications/error";
 import { Form, Icon, Input, Button, Layout, message } from "antd";
 
 const { Content } = Layout;
@@ -42,13 +43,14 @@ export class Login extends React.Component<LoginProps, LoginState> {
       .login(this.state.email, this.state.password)
       .then(response => {
         if (response.statusCode === 401) {
-          message.error("Please try again!");
+          this.setState({ errorMessage: "Please try again!" });
           return;
         } else if (response.statusCode === 200) {
           const userInternal: UserInternal = {
             email: this.state.email,
             userId: response.body.data.userId
           };
+          message.success("Welcome!");
           this.props.loginCallback(userInternal);
         } else {
           console.log(response);
@@ -56,7 +58,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
         }
       })
       .catch(errorMessage => {
-        this.setState({ errorMessage });
+        message.error(errorMessage);
       });
   }
 
@@ -68,6 +70,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
             <img src={logo} style={{ width: 180 }} />
           </div>
           <div style={{ background: "#fff", padding: 24 }}>
+            <h3>Log in</h3>
             <Form onSubmit={this.handleSubmit} className="login-form">
               <Form.Item>
                 <Input
@@ -88,6 +91,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
                   id="password"
                   required />
               </Form.Item>
+              <Error errorMessage={this.state.errorMessage} />
               <Form.Item>
                 <div>
                   <Button type="primary" htmlType="submit" className="login-form-button">
