@@ -27,7 +27,7 @@ def set_permissions(
 ) -> acl_pb2.PermissionResponse:
     acl_permissions = [
         acl_pb2.UserPermissionEntry(
-            user=_user_id(user_uuid), permission=_str_to_perm(perm)
+            user=_user_id(user_uuid), permission=_str_to_user_perm(perm)
         )
         for user_uuid, perm in permissions.items()
     ]
@@ -37,6 +37,56 @@ def set_permissions(
         userPermMap=acl_permissions,
     )
     return client.SetPermissionsForFile(req)
+
+
+def _record_perm_to_string(perm_entry: acl_pb2.RecordPermissionEntry) -> str:
+    if perm_entry.permission == acl_pb2.RecordPermissionEntry.READ:
+        return "READ"
+    elif perm_entry.permission == acl_pb2.RecordPermissionEntry.WRITE:
+        return "WRITE"
+    else:
+        return "UNKNOWN"
+
+
+def is_user_permissioned_for_read(
+    client: acl_func.AclStub,
+    user_uuid: str,
+    record_uuid: str
+) -> bool:
+    request = acl_pb2.PermissionRequest(
+        user=_user_id(user_uuid), record=_record_id(record_uuid)
+    )
+    response = client.IsPermissionedForRead(request)
+    return response.result
+
+
+def is_user_permissioned_for_write(
+    client: acl_func.AclStub,
+    user_uuid: str,
+    record_uuid: str
+) -> bool:
+    request = acl_pb2.PermissionRequest(
+        user=_user_id(user_uuid), record=_record_id(record_uuid)
+    )
+    response = client.IsPermissionedForWrite(request)
+    return response.result
+
+
+# Return dict maps user_id (str) to permission (str)
+# eg. {
+#   "<some_uuid>": "READ",
+#   "<some_other_uuid>": "WRITE"
+# }
+def get_records_for_user(
+    client: acl_func.AclStub,
+    user_uuid: str
+) -> Dict[str, str]:
+    request = acl_pb2.GetRecordsRequest(requestor=_user_id(user_uuid))
+    ret = {}
+    for entry in request.records:
+        ret[entry.record.id] = _record_perm_to_string(request.permission)
+
+    return ret
 
 
 def _user_id(user_uuid: str) -> acl_pb2.UserId:
@@ -51,7 +101,7 @@ def _record_id(record_uuid: str) -> acl_pb2.RecordId:
     return acl_pb2.RecordId(id=record_uuid)
 
 
-def _str_to_perm(perm_str: str) -> acl_pb2.UserPermissionEntry:
+def _str_to_user_perm(perm_str: str) -> acl_pb2.UserPermissionEntry:
     upper_str = perm_str.upper()
     try:
         return getattr(acl_pb2.UserPermissionEntry, upper_str)
