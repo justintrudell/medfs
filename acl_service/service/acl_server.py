@@ -23,6 +23,16 @@ class AclServicer(acl_pb2_grpc.AclServicer):
     def __init__(self):
         base = Base()
         base.metadata.create_all(db)
+        self._create_permissions_if_not_exist()
+
+    def _create_permissions_if_not_exist(self):
+        with session_scope() as session:
+            if not session.query(Permission).filter(Permission.is_readonly == True).one_or_none(): # noqa
+                readonly_perm = Permission(is_readonly=True)
+                session.add(readonly_perm)
+            if not session.query(Permission).filter(Permission.is_readonly == False).one_or_none(): # noqa
+                readwrite_perm = Permission(is_readonly=False)
+                session.add(readwrite_perm)
 
     def _has_read_permissions(self, user_id: str, record_id: str) -> bool:
         with session_scope() as session:
