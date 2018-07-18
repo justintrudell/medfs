@@ -1,6 +1,8 @@
 import grpc
+from typing import Dict
+import uuid
 
-from record_service.external import acl_pb2_grpc as acl_func
+from record_service.external import acl_pb2, acl_pb2_grpc as acl_func
 
 
 def build_client(server: str, port: int):
