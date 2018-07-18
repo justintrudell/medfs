@@ -22,7 +22,6 @@ const Dragger = Upload.Dragger;
 interface UploadState {
   permissions: Permission[];
   files: UploadFile[];
-  errorMessage: string;
 }
 
 export class Uploads extends React.Component<TitleProps, UploadState> {
@@ -35,8 +34,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
           permissionType: PermissionType.READ
         };
       }),
-      files: [],
-      errorMessage: ""
+      files: []
     };
   }
 
