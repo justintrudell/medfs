@@ -1,14 +1,51 @@
 import * as React from "react";
-import { Layout, Icon, Badge } from "antd";
+import { Link } from "react-router-dom";
+import { Layout, Icon, Badge, Menu, Dropdown } from "antd";
 import "antd/dist/antd.css";
-import { DispatchedProps } from "../app";
+import { MedFsNotification } from "../../models/notifications";
 
 const { Header } = Layout;
 
-export class MedFsHeader extends React.Component<DispatchedProps, {}> {
-  // TODO: figure out how to pass the title down in the state (@vfkou teach me the ways)
-  // TODO: set up notifcations to use message service
-  // TODO: set up setting pages
+interface HeaderProps {
+  notifications: MedFsNotification[];
+  pageTitle?: string;
+  clearNotifications: (visible?: boolean) => void;
+}
+
+export class MedFsHeader extends React.Component<HeaderProps, {}> {
+  getKey = (item: MedFsNotification): string => {
+    return item.recordId;
+  }
+
+  getName = (item: MedFsNotification): string => {
+    return item.name;
+  }
+
+  notificationMenu() {
+    // TODO: do something with the private keys
+    const menuItems = (
+      <Menu>
+        {this.props.notifications.map(item => {
+          return (
+            <Menu.Item key={this.getKey(item)}>
+              <Link to={`/records/details/${this.getKey(item)}`}>
+                New file shared: {this.getName(item)}
+              </Link>
+            </Menu.Item>
+          );
+        })}
+      </Menu>
+    );
+
+    return (
+      <Dropdown overlay={menuItems} trigger={["click"]} onVisibleChange={this.props.clearNotifications}>
+        <Badge dot={this.props.notifications.length > 0}>
+          <a><Icon type="notification" /></a>
+        </Badge>
+      </Dropdown>
+    );
+  }
+
   render() {
     return (
       <Header style={{
@@ -28,9 +65,7 @@ export class MedFsHeader extends React.Component<DispatchedProps, {}> {
             float: "right",
             fontSize: 20
           }}>
-          <Badge dot>
-            <a><Icon type="notification" /></a>
-          </Badge>
+          {this.notificationMenu()}
           <a><Icon type="setting" style={{ margin: "16px 0 16px 16px" }} /></a>
         </div>
       </Header>
