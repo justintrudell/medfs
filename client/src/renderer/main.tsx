@@ -29,7 +29,7 @@ export class Main extends React.Component<DispatchedProps, MainState> {
     return (
         <Switch>
           <Route exact path="/signup" component={Signup} />
-          <Route exact path="/records" component={Records} />
+          <Route exact path="/records" render={() => <Records {...this.props} /> } /> 
           <Route
             path="/"
             render={() =>

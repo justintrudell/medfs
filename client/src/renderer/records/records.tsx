@@ -65,10 +65,12 @@ export class Records extends React.Component<DispatchedProps, RecordListState> {
                 items={this.state.records}
                 getKey={this.keyFunc}
                 renderFunc={this.renderFunc}
+                pageTitle={this.props.pageTitle}
+                setPageTitle={this.props.setPageTitle}
               />
             )}
           />
-          <Route path="/records/details/:record_id" component={DetailView} />
+          <Route path="/records/details/:record_id" render={({match}) => <DetailView {...this.props} match={match}/>} />
         </Switch>
         </div>
       </Content>
