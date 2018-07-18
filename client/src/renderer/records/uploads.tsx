@@ -5,6 +5,7 @@ import { Upload, Icon } from "antd";
 import { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile } from "antd/lib/upload/interface";
 import { Permission, PermissionType } from "../../models/permissions";
+import { TitleProps } from "../app";
 
 const { Content } = Layout;
 const Dragger = Upload.Dragger;
@@ -14,8 +15,8 @@ interface UploadState {
   files: UploadFile[];
 }
 
-export class Uploads extends React.Component<{}, UploadState> {
-  constructor(props: {}) {
+export class Uploads extends React.Component<TitleProps, UploadState> {
+  constructor(props: TitleProps) {
     super(props);
     this.state = {
       permissions: _.range(3).map(_v => {
@@ -65,6 +66,10 @@ export class Uploads extends React.Component<{}, UploadState> {
     return false;
   };
 
+  componentDidMount() {
+    this.props.setPageTitle("Upload");
+  }
+
   render() {
     return (
       <Content
@@ -76,7 +81,6 @@ export class Uploads extends React.Component<{}, UploadState> {
         }}
       >
         <form onSubmit={this.handleSubmit}>
-          <h2> Upload </h2>
           {this.state.permissions.map((permission, idx) => {
             return (
               <div key={idx} className="perimssion">

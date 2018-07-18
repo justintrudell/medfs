@@ -11,8 +11,6 @@ import { withRouter } from "react-router-dom";
 import { Layout } from "antd";
 import { MedFsNotification } from "../models/notifications";
 
-
-
 interface AppState {
   userInternal?: UserInternal;
   stream?: EventSource;
@@ -28,6 +26,10 @@ export interface DispatchedProps extends AppState {
   history: History;
 }
 
+export interface TitleProps {
+  setPageTitle: (title?: string) => void;
+}
+
 class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
   constructor(props: RouteComponentProps<{}>) {
     super(props);
@@ -40,7 +42,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
       updateIsLoggedIn: this.updateLogin,
       isLoggedIn: this.isLoggedIn,
       setPageTitle: this.setPageTitle,
-      addNotification: this.addNotification,
+      addNotification: this.addNotification
     };
   }
 
@@ -70,7 +72,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
     if (this.state.pageTitle !== title) {
       this.setState({ pageTitle: title });
     }
-  }
+  };
 
   addNotification = (notification?: MedFsNotification): void => {
     if (notification) {
@@ -78,13 +80,13 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
         notifications: [...prevState.notifications, notification]
       }));
     }
-  }
+  };
 
   clearNotifications = (visible?: boolean): void => {
     if (!visible && this.state.notifications.length > 0) {
       this.setState({ notifications: [] });
     }
-  }
+  };
 
   componentDidMount() {
     getLogin().then(userInternal => {
@@ -99,13 +101,25 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
       <Layout>
         {this.isLoggedIn() && <Navigation {...this.state} {...this.props} />}
         <Layout
-          style={{ width: "100%", minHeight: "100vh", marginLeft: this.isLoggedIn() ? 200 : 0, overflow: "visible" }}>
-          {this.isLoggedIn() && <MedFsHeader
-            notifications={this.state.notifications}
-            pageTitle={this.state.pageTitle}
-            clearNotifications={this.clearNotifications}
-          />}
-          <Main {...this.state} {...this.props} setPageTitle={this.setPageTitle} />
+          style={{
+            width: "100%",
+            minHeight: "100vh",
+            marginLeft: this.isLoggedIn() ? 200 : 0,
+            overflow: "visible"
+          }}
+        >
+          {this.isLoggedIn() && (
+            <MedFsHeader
+              notifications={this.state.notifications}
+              pageTitle={this.state.pageTitle}
+              clearNotifications={this.clearNotifications}
+            />
+          )}
+          <Main
+            {...this.state}
+            {...this.props}
+            setPageTitle={this.setPageTitle}
+          />
         </Layout>
       </Layout>
     );

@@ -36,7 +36,11 @@ export class Main extends React.Component<DispatchedProps, MainState> {
           path="/records"
           render={() => <Records {...this.props} />}
         />
-        <Route exact path="/uploads" component={Uploads} />
+        <Route
+          exact
+          path="/uploads"
+          render={() => <Uploads setPageTitle={this.props.setPageTitle} />}
+        />
         <Route
           path="/"
           render={() =>
