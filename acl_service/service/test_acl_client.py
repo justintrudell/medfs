@@ -167,10 +167,28 @@ def test_set_permission():
     clear_db()
 
 
+def test_add_record():
+    clear_db()
+    uid, rid, channel, stub = get_test_params()
+    request = acl_pb2.AddRecordRequest(
+        creator=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
+    )
+    response = stub.AddRecord(request)
+    print("Greeter client received: {}, expected True".format(response.result))
+
+    response = stub.IsPermissionedForWrite(
+        acl_pb2.PermissionRequest(
+            user=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
+        )
+    )
+    print("Greeter client received: {}, expected True".format(response.result))
+    clear_db()
+
 def run():
     test_read_permission()
     test_write_permission()
     test_set_permission()
+    test_add_record()
 
 
 if __name__ == "__main__":
