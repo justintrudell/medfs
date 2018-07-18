@@ -134,22 +134,38 @@ class AclServicer(acl_pb2_grpc.AclServicer):
     def GetAllRecordsForUser(self, request, context):
         listOfRecords = acl_pb2.ListOfRecords()
         with session_scope() as session:
-            records = session.query(Acl, Permission).filter(Acl.permission_id == Permission.id).filter(Acl.user_id == UUID(request.requestor.id)).all()
+            records = (
+                session.query(Acl, Permission)
+                .filter(Acl.permission_id == Permission.id)
+                .filter(Acl.user_id == UUID(request.requestor.id))
+                .all()
+            )
             for record, perm in records:
                 new_record = listOfRecords.records.add()
                 new_record.record.id = str(record.record_id)
-                new_record.permission = acl_pb2.RecordPermissionEntry.READ if perm.is_readonly else acl_pb2.RecordPermissionEntry.WRITE
+                new_record.permission = (
+                    acl_pb2.RecordPermissionEntry.READ if perm.is_readonly
+                    else acl_pb2.RecordPermissionEntry.WRITE
+                )
 
         return listOfRecords
 
     def GetAllUsersForRecord(self, request, context):
         listOfUsers = acl_pb2.ListOfUsers()
         with session_scope() as session:
-            users = session.query(Acl, Permission).filter(Acl.permission_id == Permission.id).filter(Acl.record_id == UUID(request.record.id)).all()
+            users = (
+                session.query(Acl, Permission)
+                .filter(Acl.permission_id == Permission.id)
+                .filter(Acl.record_id == UUID(request.record.id))
+                .all()
+            )
             for user, perm in users:
                 new_user = listOfUsers.users.add()
                 new_user.user.id = str(user.user_id)
-                new_user.permission = acl_pb2.UserPermissionEntry.READ if perm.is_readonly else acl_pb2.UserPermissionEntry.WRITE
+                new_user.permission = (
+                    acl_pb2.UserPermissionEntry.READ if perm.is_readonly
+                    else acl_pb2.UserPermissionEntry.WRITE
+                )
 
         return listOfUsers
 
