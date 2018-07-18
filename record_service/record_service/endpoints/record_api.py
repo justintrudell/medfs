@@ -79,7 +79,7 @@ def upload_file():
     if permissions_json is None:
         return "Invalid JSON was passed for permissions", 400
     perms_with_uuid = {
-        db.session.query(User).filter_by(email=email).one().id: value
+        str(db.session.query(User).filter_by(email=email).one().id): value
         for email, value in permissions_json.items()
     }
 
@@ -88,13 +88,13 @@ def upload_file():
     new_record.creator_id = current_user.get_id()
 
     # Update permissions in the ACL service
-    _create_acl_permissions(new_record.id, perms_with_uuid)
+    _create_acl_permissions(str(new_record.id), perms_with_uuid)
 
     # Push out keys to message service
     msg = json.dumps(
         {
             "type": "privateKey",
-            "recordId": new_record.id,
+            "recordId": str(new_record.id),
             "privateKey": data["privateKey"],
         }
     )
@@ -104,7 +104,7 @@ def upload_file():
     db.session.add(new_record)
     db.session.commit()
 
-    return new_record.id, 200
+    return str(new_record.id), 200
 
 
 def _create_acl_permissions(record_uuid: str, permissions: Dict[str, str]):

@@ -53,5 +53,8 @@ class FileUploader:
             os.remove(path)
 
         return Record(
-            filename=file.filename, record_hash=upload_response["Hash"], created=now
+            id=uuid4(),
+            filename=file.filename,
+            record_hash=upload_response["Hash"],
+            created=now,
         )
