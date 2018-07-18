@@ -1,11 +1,20 @@
 import * as React from "react";
-import { Layout } from "antd";
 import * as _ from "lodash";
-import { Upload, Icon } from "antd";
+import {
+  Upload,
+  Icon,
+  Layout,
+  Form,
+  Input,
+  Button,
+  message,
+  Select
+} from "antd";
 import { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile } from "antd/lib/upload/interface";
 import { Permission, PermissionType } from "../../models/permissions";
 import { TitleProps } from "../app";
+import { SelectValue } from "../../../node_modules/antd/lib/select";
 
 const { Content } = Layout;
 const Dragger = Upload.Dragger;
@@ -13,6 +22,7 @@ const Dragger = Upload.Dragger;
 interface UploadState {
   permissions: Permission[];
   files: UploadFile[];
+  errorMessage: string;
 }
 
 export class Uploads extends React.Component<TitleProps, UploadState> {
@@ -25,7 +35,8 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
           permissionType: PermissionType.READ
         };
       }),
-      files: []
+      files: [],
+      errorMessage: ""
     };
   }
 
@@ -45,19 +56,31 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
     this.setState({ permissions });
   };
 
+  handleSelect = (idx: number) => (value: SelectValue) => {
+    const permissions = this.state.permissions.map((permission, pidx) => {
+      if (idx !== pidx) {
+        return permission;
+      }
+      const pType = value.toString() as keyof typeof PermissionType;
+      return { ...permission, permissionType: PermissionType[pType] };
+    });
+    this.setState({ permissions });
+  };
+
   handleSubmit = (event: React.FormEvent<EventTarget>): void => {
     event.preventDefault();
     console.log(this.state);
+    if (this.state.files.length !== 1) {
+      message.error("Please upload a file");
+      return;
+    }
   };
 
-  onChange = (info: UploadChangeParam): void => {
-    console.log("File uploaded", info);
-  };
+  onChange = (_info: UploadChangeParam): void => {};
 
   beforeUpload = (file: UploadFile): boolean => {
     if (this.state.files.length >= 1) {
-      // TODO, reflect in UI
-      console.log("Can only upload one file");
+      message.error("Cannot upload more than one file");
       return false;
     }
     this.setState(({ files }) => ({
@@ -80,11 +103,12 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
           minHeight: 280
         }}
       >
-        <form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit}>
           {this.state.permissions.map((permission, idx) => {
             return (
-              <div key={idx} className="perimssion">
-                <input
+              <Input.Group key={idx} className="perimssion" compact>
+                <Input
+                  style={{ width: "65%" }}
                   type="text"
                   placeholder="Email address"
                   value={permission.userEmail}
@@ -96,26 +120,20 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
                     }
                   )}
                 />
-                <select
-                  onChange={this.handleChange(
-                    idx,
-                    "permissionType",
-                    (elem: HTMLInputElement): string => {
-                      return PermissionType[
-                        elem.value as keyof typeof PermissionType
-                      ];
-                    }
-                  )}
+                <Select
+                  style={{ width: "35%" }}
+                  onChange={this.handleSelect(idx)}
+                  defaultValue={Object.keys(PermissionType)[0]}
                 >
                   {Object.keys(PermissionType).map(permType => {
                     return (
-                      <option key={permType} value={permType}>
+                      <Select.Option key={permType} value={permType}>
                         {permType}
-                      </option>
+                      </Select.Option>
                     );
                   })}
-                </select>
-              </div>
+                </Select>
+              </Input.Group>
             );
           })}
 
@@ -134,8 +152,14 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
             </p>
           </Dragger>
 
-          <input type="submit" value="Submit" />
-        </form>
+          <Form.Item>
+            <div>
+              <Button type="primary" htmlType="submit">
+                Upload
+              </Button>
+            </div>
+          </Form.Item>
+        </Form>
       </Content>
     );
   }
