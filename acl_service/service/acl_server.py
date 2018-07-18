@@ -97,6 +97,28 @@ class AclServicer(acl_pb2_grpc.AclServicer):
         return acl_pb2.PermissionResponse(result=True)
 
     def AddRecord(self, request, context):
+        with session_scope() as session:
+            # First check that the record we're trying to add doesn't exist
+            record = session.query(Acl).filter(Acl.record_id == UUID(request.record.id)).first()
+            if record:
+                return acl_pb2.AddRecordResponse(result=False)
+            write_perm = (
+                session.query(Permission)
+                .filter(Permission.is_readonly == False)
+                .one_or_none()
+            )  # noqa
+            if not write_perm:
+                # means our permissions db isn't initialized so idk
+                return acl_pb2.AddRecordResponse(result=False)
+
+            # Assign write permissions to the creator
+            user_perm = Acl(
+                user_id=UUID(request.creator.id),
+                record_id=UUID(request.record.id),
+                permission_id=write_perm.id,
+            )
+            session.add(user_perm)
+
         return acl_pb2.AddRecordResponse(result=True)
 
     def GetAllRecordsForUser(self, request, context):

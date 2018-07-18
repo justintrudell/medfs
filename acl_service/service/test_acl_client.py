@@ -12,9 +12,10 @@ import grpc
 import acl_pb2
 import acl_pb2_grpc
 
+Session = sessionmaker(db)
 
-def run():
-    Session = sessionmaker(db)
+
+def clear_db():
     session = Session()
 
     # Clear the db before we start
@@ -27,10 +28,15 @@ def run():
     for permission in permissions:
         session.delete(permission)
     session.commit()
+    session.close()
+
+
+def run():
+    clear_db()
 
     uid = "d1227778-23dd-4435-a239-a2132bd3d814"
     rid = "a54eb2bb-6988-4ace-8648-2f816f7291bb"
-    channel = grpc.insecure_channel("localhost:5001")
+    channel = grpc.insecure_channel("localhost:5002")
     stub = acl_pb2_grpc.AclStub(channel)
     response = stub.IsPermissionedForRead(
         acl_pb2.PermissionRequest(
@@ -39,6 +45,7 @@ def run():
     )
     print("Greeter client received: {}, expected False".format(response.result))
 
+    session = Session()
     test_readonly = Permission(is_readonly=True)
     test_readwrite = Permission(is_readonly=False)
     session.add(test_readonly)
@@ -134,16 +141,9 @@ def run():
     )
     print("Greeter client received: {}, expected True".format(response.result))
 
-    acls = session.query(Acl)
-    for acl in acls:
-        session.delete(acl)
-    session.commit()
-
-    permissions = session.query(Permission)
-    for permission in permissions:
-        session.delete(permission)
-    session.commit()
     session.close()
+
+    clear_db()
 
 
 if __name__ == "__main__":
