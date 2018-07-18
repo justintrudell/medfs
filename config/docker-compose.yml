@@ -13,6 +13,7 @@ services:
       - ../record_service/:/app
     env_file:
       - ../record_service/dev.env
+      - ../record_service/secrets/aws.env
     environment:
       - PYTHONUNBUFFERED=0 # Causes print statements to be logged
 

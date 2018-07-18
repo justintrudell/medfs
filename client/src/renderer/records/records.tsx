@@ -6,7 +6,6 @@ import { DetailView } from "./details";
 import { ListView } from "../components/lists/listView";
 import { DispatchedProps } from "../app";
 import { Layout } from "antd";
-import "antd/dist/antd.css";
 import { ColumnProps } from "../../../node_modules/antd/lib/table";
 
 const { Content } = Layout;

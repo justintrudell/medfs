@@ -16,8 +16,7 @@ class ServerSentEvent:
         self.id = msg_dict["id"]
 
     def encode(self) -> str:
-        fields = "\n".join(f"{k}: {v}" for k, v in vars(self).items())
-        return f"{fields}\n\n"
+        return self.data
 
 
 def check_credentials(request) -> Optional[web.Response]:
