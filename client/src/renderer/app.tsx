@@ -11,6 +11,8 @@ import { withRouter } from "react-router-dom";
 import { Layout } from "antd";
 import { MedFsNotification } from "../models/notifications";
 
+const { Footer } = Layout;
+
 interface AppState {
   userInternal?: UserInternal;
   stream?: EventSource;
@@ -120,6 +122,9 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             {...this.props}
             setPageTitle={this.setPageTitle}
           />
+          <Footer style={{ textAlign: 'center' }}>
+            medFS ©2018
+          </Footer>
         </Layout>
       </Layout>
     );
