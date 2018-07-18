@@ -1,5 +1,5 @@
 import * as React from "react";
-import { RouteComponentProps } from "react-router";
+import { match } from "react-router";
 import { get } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
@@ -8,12 +8,15 @@ import { writeFile } from "fs";
 import { constants } from "../../config";
 import { join } from "path";
 import { IPFSFile } from "ipfs";
+import { DispatchedProps } from "../app";
 
 interface MatchParams {
   record_id: string;
 }
 
-interface DetailProps extends RouteComponentProps<MatchParams> {}
+interface DetailProps extends DispatchedProps {
+  match: match<MatchParams>;
+}
 
 interface DetailState {
   recordDetails?: RecordDetails;
@@ -34,6 +37,9 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       .then(result => {
         if (result.statusCode === 200) {
           const recordDetails: RecordDetails = result.body.data;
+          if (this.props.pageTitle !== recordDetails.filename) {
+            this.props.setPageTitle(recordDetails.filename);
+          }
           this.setState({ recordDetails });
         }
       })

@@ -2,6 +2,12 @@ import * as React from "react";
 import * as _ from "lodash";
 import * as userAPI from "../../api/users";
 import { Error } from "../components/notifications/error";
+import { Form, Icon, Input, Button, Layout, message } from "antd";
+import { Link } from "react-router-dom";
+import { DispatchedProps } from "../app";
+
+const { Content } = Layout;
+const logo = require("../../image/logo.png");
 
 type State = {
   email: string;
@@ -10,8 +16,8 @@ type State = {
   errorMessage: string;
 };
 
-export class Signup extends React.Component<{}, State> {
-  constructor(props: {}) {
+export class Signup extends React.Component<DispatchedProps, State> {
+  constructor(props: DispatchedProps) {
     super(props);
     this.state = {
       email: "",
@@ -53,59 +59,76 @@ export class Signup extends React.Component<{}, State> {
     userAPI
       .createUser(this.state.email, this.state.password)
       .then(response => {
-        console.log(response);
+        if (response.statusCode === 201) {
+          message.success("Success!");
+          this.props.history.push("/");
+        } else {
+          message.error("Something went wrong.");
+          console.log(response);
+        }
       })
       .catch(error => {
+        message.error(error);
         console.log(error);
       });
   }
 
   render() {
     return (
-      <div>
-        <form onSubmit={this.handleSubmit}>
-          <h1>Register</h1>
-
-          <label>
-            <b>Email</b>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter Email"
-            id="email"
-            required
-            value={this.state.email}
-            onChange={this.handleChange}
-          />
-
-          <label>
-            <b>Password</b>
-          </label>
-          <input
-            type="password"
-            placeholder="Enter Password"
-            id="password"
-            required
-            value={this.state.password}
-            onChange={this.handleChange}
-          />
-
-          <label>
-            <b>Repeat Password</b>
-          </label>
-          <input
-            type="password"
-            placeholder="Repeat Password"
-            id="confirmPassword"
-            required
-            value={this.state.confirmPassword}
-            onChange={this.handleChange}
-          />
-
-          <input type="submit" value="Submit" />
-        </form>
-        <Error errorMessage={this.state.errorMessage} />
-      </div>
+      <Content style={{ padding: "8% 50px", textAlign: "center" }}>
+        <div style={{ width: 360, display: "inline-block" }} >
+          <div style={{ padding: 12 }} >
+            <img src={logo} style={{ width: 180 }} />
+          </div>
+          <div style={{ background: "#fff", padding: 24 }}>
+            <h3>Register</h3>
+            <Form onSubmit={this.handleSubmit} className="login-form">
+              <Form.Item>
+                <Input
+                  prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+                  type="text"
+                  placeholder="Enter Email"
+                  id="email"
+                  required
+                  value={this.state.email}
+                  onChange={this.handleChange} />
+              </Form.Item>
+              <Form.Item>
+                <Input
+                  prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+                  type="password"
+                  placeholder="Enter Password"
+                  id="password"
+                  required
+                  value={this.state.password}
+                  onChange={this.handleChange} />
+              </Form.Item>
+              <Form.Item>
+                <Input
+                  prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+                  type="password"
+                  placeholder="Repeat Password"
+                  id="confirmPassword"
+                  required
+                  value={this.state.confirmPassword}
+                  onChange={this.handleChange} />
+              </Form.Item>
+              <Error errorMessage={this.state.errorMessage} />
+              <Form.Item>
+                <div>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="login-form-button">
+                    Submit
+                </Button>
+                </div>
+                <Link to="/">Back to login</Link>
+              </Form.Item>
+            </Form>
+          </div>
+        </div>
+      </Content>
     );
   }
 }

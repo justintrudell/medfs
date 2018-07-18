@@ -1,18 +1,23 @@
 import * as React from "react";
 import { Main } from "./main";
-import { Header } from "./home/header";
+import { Navigation } from "./home/navigation";
+import { MedFsHeader } from "./home/header";
 import { getLogin } from "../utils/loginUtils";
 import { stream } from "../api/record_service";
 import * as _ from "lodash";
 import { RouteComponentProps } from "react-router";
 import { History } from "history";
 import { withRouter } from "react-router-dom";
+import { Layout } from "antd";
+
 
 interface AppState {
   userInternal?: UserInternal;
   stream?: EventSource;
+  pageTitle?: string;
   updateIsLoggedIn: (userInternal?: UserInternal) => void;
   isLoggedIn: () => boolean;
+  setPageTitle: (title?: string) => void;
 }
 
 export interface DispatchedProps extends AppState {
@@ -26,8 +31,10 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
     this.state = {
       userInternal: undefined,
       stream: undefined,
+      pageTitle: undefined,
       updateIsLoggedIn: this.updateLogin,
-      isLoggedIn: this.isLoggedIn
+      isLoggedIn: this.isLoggedIn,
+      setPageTitle: this.setPageTitle
     };
   }
 
@@ -52,6 +59,12 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
     });
   };
 
+  setPageTitle = (title?: string): void => {
+    if (this.state.pageTitle !== title) {
+      this.setState({ pageTitle: title });
+    }
+  }
+
   componentDidMount() {
     getLogin().then(userInternal => {
       if (!_.isEmpty(userInternal)) {
@@ -62,10 +75,14 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
 
   render() {
     return (
-      <div>
-        <Header {...this.state} {...this.props} />
-        <Main {...this.state} {...this.props} />
-      </div>
+      <Layout>
+        {this.isLoggedIn() && <Navigation {...this.state} {...this.props} />}
+        <Layout
+          style={{ width: "100%", minHeight: "100vh", marginLeft: this.isLoggedIn() ? 200 : 0, overflow: "visible" }}>
+          {this.isLoggedIn() && <MedFsHeader {...this.state} {...this.props} />}
+          <Main {...this.state} {...this.props} setPageTitle={this.setPageTitle} />
+        </Layout>
+      </Layout>
     );
   }
 }

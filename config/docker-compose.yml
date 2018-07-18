@@ -52,7 +52,7 @@ services:
 
   acl_service:
     restart: always
-    build: ../acl/
+    build: ../acl_service/
     links:
       - acl_service_db
     ports:
@@ -60,9 +60,9 @@ services:
     volumes:
       - .:/app
     volumes:
-      - ../acl/:/app
+      - ../acl_service/:/app
     env_file:
-      - ../acl/dev.env
+      - ../acl_service/dev.env
     environment:
       - PYTHONUNBUFFERED=0 # Causes print statements to be logged
 
@@ -75,6 +75,6 @@ services:
       - POSTGRES_DB=local_acl_service
       - PGPORT=5433
     volumes:
-      - ../acl/postgres-data/postgres:/docker-entrypoint-initdb.d
+      - ../acl_service/postgres-data/postgres:/docker-entrypoint-initdb.d
     ports:
       - "5433:5433"

@@ -1,11 +1,8 @@
 import * as React from "react";
+import { Alert } from "antd";
 
 type ErrorProps = {
   errorMessage: string;
-};
-
-const errorStyle = {
-  color: "red"
 };
 
 export class Error extends React.Component<ErrorProps, {}> {
@@ -14,9 +11,11 @@ export class Error extends React.Component<ErrorProps, {}> {
   }
 
   render() {
-    if (this.props.errorMessage) {
-      return <p style={errorStyle}> {this.props.errorMessage} </p>;
-    }
-    return <div />;
+    return (
+      <div style={{ paddingBottom: 24, textAlign: "left" }}>
+        {this.props.errorMessage &&
+          <Alert message={this.props.errorMessage} type="error" showIcon />}
+      </div>
+    );
   }
 }

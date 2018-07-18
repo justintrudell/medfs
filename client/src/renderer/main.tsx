@@ -6,8 +6,8 @@ import { Records } from "./records/records";
 import { DispatchedProps } from "./app";
 import * as localForage from "localforage";
 import { constants } from "../config";
-import { Error } from "./components/notifications/error";
-import { Upload } from "./records/upload";
+
+import { Uploads } from "./records/uploads";
 
 interface MainState {
   errorMessage: string;
@@ -29,24 +29,25 @@ export class Main extends React.Component<DispatchedProps, MainState> {
 
   render() {
     return (
-      <div>
-        <Switch>
-          <Route
-            path="/"
-            render={() =>
-              this.props.isLoggedIn() ? (
-                <Records {...this.props} />
-              ) : (
-                <Login loginCallback={this.handleLogin} />
-              )
-            }
-          />
-          <Route exact path="/signup" component={Signup} />
-          <Route exact path="/records" component={Records} />
-          <Route exact path="/upload" component={Upload} />
-        </Switch>
-        <Error errorMessage={this.state.errorMessage} />
-      </div>
+      <Switch>
+        <Route exact path="/signup" component={Signup} />
+        <Route
+          exact
+          path="/records"
+          render={() => <Records {...this.props} />}
+        />
+        <Route exact path="/uploads" component={Uploads} />
+        <Route
+          path="/"
+          render={() =>
+            this.props.isLoggedIn() ? (
+              <Records {...this.props} />
+            ) : (
+              <Login loginCallback={this.handleLogin} />
+            )
+          }
+        />
+      </Switch>
     );
   }
 }
