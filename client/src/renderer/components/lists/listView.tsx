@@ -4,9 +4,17 @@ interface ListViewProps<T> {
   items: T[];
   getKey: (arg: T) => string;
   renderFunc: (arg: T) => JSX.Element;
+  pageTitle?: string;
+  setPageTitle: (title?: string) => void;
 }
 
 export class ListView<T> extends React.Component<ListViewProps<T>, {}> {
+  componentDidMount() {
+    if (this.props.pageTitle !== "Home") {
+      this.props.setPageTitle("Home");
+    }
+  }
+
   render() {
     if (!this.props.items.length) {
       return <p> No items found </p>;

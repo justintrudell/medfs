@@ -17,7 +17,7 @@ type State = {
 };
 
 export class Signup extends React.Component<DispatchedProps, State> {
-  constructor(props: {}) {
+  constructor(props: DispatchedProps) {
     super(props);
     this.state = {
       email: "",

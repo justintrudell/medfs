@@ -6,9 +6,6 @@ import { Records } from "./records/records";
 import { DispatchedProps } from "./app";
 import * as localForage from "localforage";
 import { constants } from "../config";
-import { Error } from "./components/notifications/error";
-import "antd/dist/antd.css";
-import { Layout } from "antd";
 
 interface MainState {
   errorMessage: string;
@@ -19,7 +16,7 @@ export class Main extends React.Component<DispatchedProps, MainState> {
     super(props);
 
     this.state = {
-      errorMessage: ""
+      errorMessage: "",
     };
   }
 
@@ -30,10 +27,9 @@ export class Main extends React.Component<DispatchedProps, MainState> {
 
   render() {
     return (
-      <Layout style={{ height: "100vh", marginLeft: this.props.isLoggedIn() ? 200 : 0 }} hasSider={this.props.isLoggedIn()}>
         <Switch>
           <Route exact path="/signup" component={Signup} />
-          <Route exact path="/records" component={Records} />
+          <Route exact path="/records" render={() => <Records {...this.props} /> } /> 
           <Route
             path="/"
             render={() =>
@@ -45,8 +41,6 @@ export class Main extends React.Component<DispatchedProps, MainState> {
             }
           />
         </Switch>
-        <Error errorMessage={this.state.errorMessage} />
-      </Layout>
     );
   }
 }
