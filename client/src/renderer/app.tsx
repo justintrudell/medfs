@@ -9,15 +9,19 @@ import { RouteComponentProps } from "react-router";
 import { History } from "history";
 import { withRouter } from "react-router-dom";
 import { Layout } from "antd";
+import { MedFsNotification } from "../models/notifications";
+
 
 
 interface AppState {
   userInternal?: UserInternal;
   stream?: EventSource;
   pageTitle?: string;
+  notifications: MedFsNotification[];
   updateIsLoggedIn: (userInternal?: UserInternal) => void;
   isLoggedIn: () => boolean;
   setPageTitle: (title?: string) => void;
+  addNotification: (notification?: MedFsNotification) => void;
 }
 
 export interface DispatchedProps extends AppState {
@@ -32,9 +36,11 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
       userInternal: undefined,
       stream: undefined,
       pageTitle: undefined,
+      notifications: [],
       updateIsLoggedIn: this.updateLogin,
       isLoggedIn: this.isLoggedIn,
-      setPageTitle: this.setPageTitle
+      setPageTitle: this.setPageTitle,
+      addNotification: this.addNotification,
     };
   }
 
@@ -50,7 +56,8 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
       if (this.isLoggedIn()) {
         const evtSource = stream(
           "/messages/stream/",
-          this.state.userInternal!.userId
+          this.state.userInternal!.userId,
+          this.addNotification
         );
         this.setState({
           stream: evtSource
@@ -62,6 +69,20 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
   setPageTitle = (title?: string): void => {
     if (this.state.pageTitle !== title) {
       this.setState({ pageTitle: title });
+    }
+  }
+
+  addNotification = (notification?: MedFsNotification): void => {
+    if (notification) {
+      this.setState(prevState => ({
+        notifications: [...prevState.notifications, notification]
+      }));
+    }
+  }
+
+  clearNotifications = (visible?: boolean): void => {
+    if (!visible && this.state.notifications.length > 0) {
+      this.setState({ notifications: [] });
     }
   }
 
@@ -79,7 +100,11 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
         {this.isLoggedIn() && <Navigation {...this.state} {...this.props} />}
         <Layout
           style={{ width: "100%", minHeight: "100vh", marginLeft: this.isLoggedIn() ? 200 : 0, overflow: "visible" }}>
-          {this.isLoggedIn() && <MedFsHeader {...this.state} {...this.props} />}
+          {this.isLoggedIn() && <MedFsHeader
+            notifications={this.state.notifications}
+            pageTitle={this.state.pageTitle}
+            clearNotifications={this.clearNotifications}
+          />}
           <Main {...this.state} {...this.props} setPageTitle={this.setPageTitle} />
         </Layout>
       </Layout>

@@ -1,6 +1,7 @@
 import * as requestMaster from "request";
 import { constants } from "../config";
 import { resolve } from "url";
+import { MedFsNotification } from "../models/notifications";
 const fileCookieStore = require("tough-cookie-file-store");
 const newEventSource = require("eventsource");
 
@@ -49,7 +50,7 @@ export function post(
   });
 }
 
-export function stream(endpoint: string, uuid: string): EventSource {
+export function stream(endpoint: string, uuid: string, notifyFunction: (notification?: MedFsNotification) => void): EventSource {
   const sessionCookie = cookieStore.idx.localhost["/"]["session"];
   const sessionCookieStr = sessionCookie.key + "=" + sessionCookie.value;
   const rememberCookie = cookieStore.idx.localhost["/"]["remember_token"];
@@ -63,8 +64,7 @@ export function stream(endpoint: string, uuid: string): EventSource {
     eventSourceInitDict
   );
   evtSource.onmessage = (e: { data: string }) => {
-    // TODO: Handle incoming messages
-    console.log("Received message: " + e.data);
+    notifyFunction(JSON.parse(e.data) as MedFsNotification);
   };
   return evtSource;
 }

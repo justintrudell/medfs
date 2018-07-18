@@ -53,7 +53,12 @@ export class Uploads extends React.Component<{}, UploadState> {
     console.log("File uploaded", info);
   };
 
-  beforeUpload = (file: UploadFile) => {
+  beforeUpload = (file: UploadFile): boolean => {
+    if (this.state.files.length >= 1) {
+      // TODO, reflect in UI
+      console.log("Can only upload one file");
+      return false;
+    }
     this.setState(({ files }) => ({
       files: [...files, file]
     }));
@@ -112,6 +117,7 @@ export class Uploads extends React.Component<{}, UploadState> {
 
           <Dragger
             name="upload"
+            multiple={false}
             onChange={this.onChange}
             beforeUpload={this.beforeUpload}
             fileList={this.state.files}
