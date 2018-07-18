@@ -1,75 +1,132 @@
 import * as React from "react";
+import { Layout } from "antd";
+import * as _ from "lodash";
+import { Upload, Icon } from "antd";
+import { UploadChangeParam } from "antd/lib/upload";
+import { UploadFile } from "antd/lib/upload/interface";
 import { Permission, PermissionType } from "../../models/permissions";
+
+const { Content } = Layout;
+const Dragger = Upload.Dragger;
 
 interface UploadState {
   permissions: Permission[];
+  files: UploadFile[];
 }
 
 export class Uploads extends React.Component<{}, UploadState> {
   constructor(props: {}) {
     super(props);
     this.state = {
-      permissions: []
+      permissions: _.range(3).map(_v => {
+        return {
+          userEmail: "",
+          permissionType: PermissionType.READ
+        };
+      }),
+      files: []
     };
   }
 
-  handleEmailChange = (idx: number) => (
-    event: React.FormEvent<EventTarget>
-  ): void => {
+  handleChange = <T extends {}>(
+    idx: number,
+    key: keyof Permission,
+    extractPermission: (elem: HTMLInputElement) => T
+  ) => (event: React.FormEvent<EventTarget>): void => {
     const permissions = this.state.permissions.map((permission, pidx) => {
-      if (idx != pidx) {
+      if (idx !== pidx) {
         return permission;
       }
+
       const target = event.target as HTMLInputElement;
-      return { ...permission, name: target.value };
+      return { ...permission, [key]: extractPermission(target) };
     });
     this.setState({ permissions });
   };
 
-  //TODO: change to one function
-  handleDropdownChange = (idx: number) => (
-    event: React.FormEvent<EventTarget>
-  ): void => {
-    const permissions = this.state.permissions.map((permission, pidx) => {
-      if (idx != pidx) {
-        return permission;
-      }
-      const target = event.target as HTMLInputElement;
-      const permissionType =
-        PermissionType[target.value as keyof typeof PermissionType];
-      return { ...permission, permissionType: permissionType };
-    });
-    this.setState({ permissions });
-  };
-
-  handleSubmit(event: React.FormEvent<EventTarget>) {
+  handleSubmit = (event: React.FormEvent<EventTarget>): void => {
     event.preventDefault();
-    console.log("HERE");
     console.log(this.state);
-  }
+  };
+
+  onChange = (info: UploadChangeParam): void => {
+    console.log("File uploaded", info);
+  };
+
+  beforeUpload = (file: UploadFile) => {
+    this.setState(({ files }) => ({
+      files: [...files, file]
+    }));
+    return false;
+  };
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <h2> Upload </h2>
-        {this.state.permissions.map((permission, idx) => {
-          <div className="perimssion">
-            <input
-              type="text"
-              placeholder={`Email address #${idx}`}
-              value={permission.userEmail}
-              onChange={this.handleEmailChange(idx)}
-            />
-            <select onChange={this.handleDropdownChange(idx)}>
-              {Object.keys(PermissionType).map(permType => {
-                <option value={permType}> {permType} </option>;
-              })}
-            </select>
-          </div>;
-        })}
+      <Content
+        style={{
+          margin: "24px 16px",
+          padding: 24,
+          background: "#fff",
+          minHeight: 280
+        }}
+      >
+        <form onSubmit={this.handleSubmit}>
+          <h2> Upload </h2>
+          {this.state.permissions.map((permission, idx) => {
+            return (
+              <div key={idx} className="perimssion">
+                <input
+                  type="text"
+                  placeholder="Email address"
+                  value={permission.userEmail}
+                  onChange={this.handleChange(
+                    idx,
+                    "userEmail",
+                    (elem: HTMLInputElement): string => {
+                      return elem.value;
+                    }
+                  )}
+                />
+                <select
+                  onChange={this.handleChange(
+                    idx,
+                    "permissionType",
+                    (elem: HTMLInputElement): string => {
+                      return PermissionType[
+                        elem.value as keyof typeof PermissionType
+                      ];
+                    }
+                  )}
+                >
+                  {Object.keys(PermissionType).map(permType => {
+                    return (
+                      <option key={permType} value={permType}>
+                        {permType}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            );
+          })}
 
-        <input type="submit" value="Submit" />
-      </form>
+          <Dragger
+            name="upload"
+            onChange={this.onChange}
+            beforeUpload={this.beforeUpload}
+            fileList={this.state.files}
+          >
+            <p className="ant-upload-drag-icon">
+              <Icon type="inbox" />
+            </p>
+            <p className="ant-upload-text">
+              Click or drag file to this area to upload
+            </p>
+          </Dragger>
+
+          <input type="submit" value="Submit" />
+        </form>
+      </Content>
     );
   }
 }
