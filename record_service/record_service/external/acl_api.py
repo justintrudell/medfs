@@ -107,3 +107,4 @@ def _str_to_user_perm(perm_str: str) -> acl_pb2.UserPermissionEntry:
         return getattr(acl_pb2.UserPermissionEntry, upper_str)
     except AttributeError:
         print("FAILED STR TO PERM")
+
