@@ -6,6 +6,7 @@ import { DetailView } from "./details";
 import { ListView } from "../components/lists/listView";
 import { DispatchedProps } from "../app";
 import { Layout } from "antd";
+import { ColumnProps } from "../../../node_modules/antd/lib/table";
 
 const { Content } = Layout;
 
@@ -43,13 +44,19 @@ export class Records extends React.Component<DispatchedProps, RecordListState> {
     this.getAllRecords();
   }
 
-  keyFunc = (arg: RecordItem): string => {
-    return arg.id;
-  };
-
-  renderFunc = (arg: RecordItem): JSX.Element => {
-    return <Link to={`/records/details/${arg.id}`}> {arg.name} </Link>;
-  };
+  tableColumns = (): Array<ColumnProps<RecordItem>> => {
+    return [{
+      title: "File",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => <Link to={`/records/details/${record.id}`}> {record.name} </Link>,
+    },
+    {
+      title: "Actions",
+      key: "action",
+      render: (text) => <a href="javascript:;">Change permissions</a>,
+    }];
+  }
 
   render() {
     return (
@@ -62,8 +69,8 @@ export class Records extends React.Component<DispatchedProps, RecordListState> {
             render={() => (
               <ListView
                 items={this.state.records}
-                getKey={this.keyFunc}
-                renderFunc={this.renderFunc}
+                columns={this.tableColumns()}
+                keyProp="id"
                 pageTitle={this.props.pageTitle}
                 setPageTitle={this.props.setPageTitle}
               />

@@ -9,6 +9,7 @@ import { constants } from "../../config";
 import { join } from "path";
 import { IPFSFile } from "ipfs";
 import { DispatchedProps } from "../app";
+import { Button, Table, Alert } from "antd";
 
 interface MatchParams {
   record_id: string;
@@ -90,22 +91,40 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
     if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
       return <div />;
     }
-    const pKeys = _.map(this.state.recordDetails, (value, key) => {
-      return (
-        <p key={key.toString()}>
-          {key}: {value.toString()}
-        </p>
-      );
+    const pKeys = _.map(this.state.recordDetails, (value, key): { key: string, attribute: string, value: string } => {
+      return {
+        key: key.toString(),
+        attribute: key.toString(),
+        value: value.toString(),
+      };
     });
+
+    const columns = [{
+      title: "Attribute",
+      dataIndex: "attribute",
+      key: "attribute"
+    }, {
+      title: "Value",
+      dataIndex: "value",
+      key: "value"
+    }];
+
     return (
       <div>
-        {pKeys}
-        <button onClick={this.downloadRecord}> Download </button>
-        <ul>
-          {this.state.downloadMessages.map((message, idx) => {
-            return <li key={idx}> {message} </li>;
-          })}
-        </ul>
+        <Table
+          columns={columns}
+          dataSource={pKeys}
+          pagination={false} />
+        <Button
+          style={{ marginTop: 24 }}
+          type="primary"
+          icon="download"
+          onClick={this.downloadRecord}>
+          Download
+          </Button>
+        {this.state.downloadMessages.map((message, idx) => {
+          return <Alert key={idx} style={{ marginTop: 12 }} message={message} type="info" closeText="Close Now" />;
+        })}
       </div>
     );
   };
