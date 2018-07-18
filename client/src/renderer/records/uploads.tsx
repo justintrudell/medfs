@@ -1,20 +1,12 @@
 import * as React from "react";
 import * as _ from "lodash";
-import {
-  Upload,
-  Icon,
-  Layout,
-  Form,
-  Input,
-  Button,
-  message,
-  Select
-} from "antd";
+import { Upload, Icon, Layout, Form, Input, Button, Select } from "antd";
 import { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile } from "antd/lib/upload/interface";
 import { Permission, PermissionType } from "../../models/permissions";
 import { TitleProps } from "../app";
 import { SelectValue } from "../../../node_modules/antd/lib/select";
+import { Error } from "../components/notifications/error";
 
 const { Content } = Layout;
 const Dragger = Upload.Dragger;
@@ -22,6 +14,7 @@ const Dragger = Upload.Dragger;
 interface UploadState {
   permissions: Permission[];
   files: UploadFile[];
+  errorMessage: string;
 }
 
 export class Uploads extends React.Component<TitleProps, UploadState> {
@@ -34,7 +27,8 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
           permissionType: PermissionType.READ
         };
       }),
-      files: []
+      files: [],
+      errorMessage: ""
     };
   }
 
@@ -69,7 +63,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
     event.preventDefault();
     console.log(this.state);
     if (this.state.files.length !== 1) {
-      message.error("Please upload a file");
+      this.setState({ errorMessage: "Please upload a file" });
       return;
     }
   };
@@ -78,7 +72,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
 
   beforeUpload = (file: UploadFile): boolean => {
     if (this.state.files.length >= 1) {
-      message.error("Cannot upload more than one file");
+      this.setState({ errorMessage: "Cannot upload more than one file" });
       return false;
     }
     this.setState(({ files }) => ({
@@ -106,7 +100,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
             return (
               <Input.Group key={idx} className="perimssion" compact>
                 <Input
-                  style={{ width: "65%" }}
+                  style={{ width: "65%", margin: "8px 0" }}
                   type="text"
                   placeholder="Email address"
                   value={permission.userEmail}
@@ -119,7 +113,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
                   )}
                 />
                 <Select
-                  style={{ width: "35%" }}
+                  style={{ width: "35%", margin: "8px 0" }}
                   onChange={this.handleSelect(idx)}
                   defaultValue={Object.keys(PermissionType)[0]}
                 >
@@ -141,6 +135,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
             onChange={this.onChange}
             beforeUpload={this.beforeUpload}
             fileList={this.state.files}
+            style={{ padding: 8, margin: 8 }}
           >
             <p className="ant-upload-drag-icon">
               <Icon type="inbox" />
@@ -153,11 +148,12 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
           <Form.Item>
             <div>
               <Button type="primary" htmlType="submit">
-                Upload
+                <Icon type="upload" /> Upload
               </Button>
             </div>
           </Form.Item>
         </Form>
+        <Error errorMessage={this.state.errorMessage} />
       </Content>
     );
   }
