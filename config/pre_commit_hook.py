@@ -41,11 +41,8 @@ if ret.returncode == 123:
     sys.exit(1)
 elif ret.returncode == 1:
     ret = subprocess.run(black_args[:-1])
-    if len(sys.argv) == 1:
-        print_err("Files were formatted - please re-commit with these formatted files")
-        sys.exit(1)
-    else:
-        print_err("Files were formatted - please include these formatted files")
+    print_err("Files were formatted - please re-commit with these formatted files")
+    sys.exit(1)
 
 print("Linting with flake8...")
 ret = subprocess.run(
