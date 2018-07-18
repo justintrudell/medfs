@@ -12,9 +12,11 @@ import grpc
 import acl_pb2
 import acl_pb2_grpc
 
+Session = sessionmaker(db)
 
-def run():
-    Session = sessionmaker(db)
+
+# Cleans out any permissions
+def clear_db():
     session = Session()
 
     # Clear the db before we start
@@ -22,16 +24,20 @@ def run():
     for acl in acls:
         session.delete(acl)
     session.commit()
+    session.close()
 
-    permissions = session.query(Permission)
-    for permission in permissions:
-        session.delete(permission)
-    session.commit()
 
+def get_test_params():
     uid = "d1227778-23dd-4435-a239-a2132bd3d814"
     rid = "a54eb2bb-6988-4ace-8648-2f816f7291bb"
-    channel = grpc.insecure_channel("localhost:5001")
+    channel = grpc.insecure_channel("localhost:5002")
     stub = acl_pb2_grpc.AclStub(channel)
+    return (uid, rid, channel, stub)
+
+
+def test_read_permission():
+    clear_db()
+    uid, rid, channel, stub = get_test_params()
     response = stub.IsPermissionedForRead(
         acl_pb2.PermissionRequest(
             user=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
@@ -39,16 +45,14 @@ def run():
     )
     print("Greeter client received: {}, expected False".format(response.result))
 
-    test_readonly = Permission(is_readonly=True)
-    test_readwrite = Permission(is_readonly=False)
-    session.add(test_readonly)
-    session.add(test_readwrite)
-    session.commit()
+    session = Session()
+    test_readonly = session.query(Permission).filter(Permission.is_readonly == True).one() # noqa
     test_acl = Acl(
         user_id=UUID(uid), record_id=UUID(rid), permission_id=test_readonly.id
     )
     session.add(test_acl)
     session.commit()
+    session.close()
 
     response = stub.IsPermissionedForRead(
         acl_pb2.PermissionRequest(
@@ -56,7 +60,12 @@ def run():
         )
     )
     print("Greeter client received: {}, expected True".format(response.result))
+    clear_db()
 
+
+def test_write_permission():
+    clear_db()
+    uid, rid, channel, stub = get_test_params()
     response = stub.IsPermissionedForWrite(
         acl_pb2.PermissionRequest(
             user=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
@@ -64,8 +73,14 @@ def run():
     )
     print("Greeter client received: {}, expected False".format(response.result))
 
-    test_acl.permission_id = test_readwrite.id
+    session = Session()
+    test_readwrite = session.query(Permission).filter(Permission.is_readonly == False).one() # noqa
+    test_acl = Acl(
+        user_id=UUID(uid), record_id=UUID(rid), permission_id=test_readwrite.id
+    )
+    session.add(test_acl)
     session.commit()
+    session.close()
 
     response = stub.IsPermissionedForWrite(
         acl_pb2.PermissionRequest(
@@ -73,11 +88,33 @@ def run():
         )
     )
     print("Greeter client received: {}, expected True".format(response.result))
+    clear_db()
+
+
+def test_set_permission():
+    clear_db()
+    uid, rid, channel, stub = get_test_params()
+    recipient_uid = "72baaa21-0d1b-4408-8576-6c4b23dc59ca"
+
+    session = Session()
+    test_readwrite = session.query(Permission).filter(Permission.is_readonly == False).one() # noqa
+    test_acl = Acl(
+        user_id=UUID(uid), record_id=UUID(rid), permission_id=test_readwrite.id
+    )
+    session.add(test_acl)
+    session.commit()
+    session.close()
+
+    response = stub.IsPermissionedForRead(
+        acl_pb2.PermissionRequest(
+            user=acl_pb2.UserId(id=recipient_uid), record=acl_pb2.RecordId(id=rid)
+        )
+    )
+    print("Greeter client received: {}, expected False".format(response.result))
 
     request = acl_pb2.SetPermissionsForFileRequest(
         grantor=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
     )
-    recipient_uid = "72baaa21-0d1b-4408-8576-6c4b23dc59ca"
     del request.userPermMap[:]
     request.userPermMap.extend(
         [
@@ -91,14 +128,8 @@ def run():
             ),
         ]
     )
-    response = stub.SetPermissionsForFile(request)
-    print("Greeter client received: {}, expected True".format(response.result))
 
-    response = stub.IsPermissionedForRead(
-        acl_pb2.PermissionRequest(
-            user=acl_pb2.UserId(id=recipient_uid), record=acl_pb2.RecordId(id=rid)
-        )
-    )
+    response = stub.SetPermissionsForFile(request)
     print("Greeter client received: {}, expected True".format(response.result))
 
     response = stub.IsPermissionedForWrite(
@@ -133,17 +164,31 @@ def run():
         )
     )
     print("Greeter client received: {}, expected True".format(response.result))
+    clear_db()
 
-    acls = session.query(Acl)
-    for acl in acls:
-        session.delete(acl)
-    session.commit()
 
-    permissions = session.query(Permission)
-    for permission in permissions:
-        session.delete(permission)
-    session.commit()
-    session.close()
+def test_add_record():
+    clear_db()
+    uid, rid, channel, stub = get_test_params()
+    request = acl_pb2.AddRecordRequest(
+        creator=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
+    )
+    response = stub.AddRecord(request)
+    print("Greeter client received: {}, expected True".format(response.result))
+
+    response = stub.IsPermissionedForWrite(
+        acl_pb2.PermissionRequest(
+            user=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
+        )
+    )
+    print("Greeter client received: {}, expected True".format(response.result))
+    clear_db()
+
+def run():
+    test_read_permission()
+    test_write_permission()
+    test_set_permission()
+    test_add_record()
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ ssh-rec:
 	docker exec -ti medfs_record_service_1 /bin/bash
 
 ssh-acl:
-	docker-exec -ti medfs_acl_service_1 /bin/bash
+	docker exec -ti medfs_acl_service_1 /bin/bash
 
 ssh-msg:
 	docker exec -ti medfs_message_service_1 /bin/bash
