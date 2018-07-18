@@ -30,7 +30,7 @@ class IpfsWriter(FsWriter):
 
 
 class FileUploader:
-    def __init__(self, fs_writer: FsWriter):
+    def __init__(self, fs_writer: FsWriter) -> None:
         self._fs_writer = fs_writer
 
     def upload(self, file, ext) -> Record:
@@ -48,10 +48,13 @@ class FileUploader:
             upload_response = self._fs_writer.write(path)
             current_app.logger.info(upload_response)
         except Exception as e:
-            raise UploadException(e.message)
+            raise UploadException(str(e))
         finally:
             os.remove(path)
 
         return Record(
-            filename=file.filename, record_hash=upload_response["Hash"], created=now
+            id=uuid4(),
+            filename=file.filename,
+            record_hash=upload_response["Hash"],
+            created=now,
         )
