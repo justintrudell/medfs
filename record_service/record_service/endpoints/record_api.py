@@ -79,9 +79,10 @@ def upload_file():
     permissions_json = json.loads(data["permissions"])
     if permissions_json is None:
         return "Invalid JSON was passed for permissions", 400
+    permissions_dict = {dct["email"]: dct["value"] for dct in permissions_json}
     perms_with_uuid = {
         str(db.session.query(User).filter_by(email=email).one().id): value
-        for email, value in permissions_json.items()
+        for email, value in permissions_dict.items()
     }
     flask_filename = request.files["file"].filename
     file_path = _save_uploaded_file(request.files["file"])
@@ -104,7 +105,7 @@ def upload_file():
             "privateKey": private_key.decode(),
         }
     )
-    for user_uuid in perms_with_uuid.keys():
+    for user_uuid in perms_with_uuid.keys() | {current_user.get_id()}:
         queueing_api.send_message(user_uuid, msg)
 
     db.session.add(new_record)

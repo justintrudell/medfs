@@ -17,4 +17,3 @@ def send(uuid: str, message: str):
         "name": message,
     }
     queueing_api.send_message(uuid, json.dumps(msg))
-    return f"SENT {message} TO {uuid}"
