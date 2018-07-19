@@ -14,5 +14,6 @@ export const constants = {
   MESSAGE_SERVICE_ENDPOINT: `${MESSAGE_SERVICE_HOST}:${MESSAGE_SERVICE_PORT}`,
   LOGGEDIN_USER: "isLoggedIn",
   COOKIE_STORAGE: join(userDataPath, "cookies.json"),
-  DOWNLOAD_PATH: downloadPath
+  DOWNLOAD_PATH: downloadPath,
+  IS_PROD: penv.MEDFS_ENVIRONMENT === "prod"
 };
