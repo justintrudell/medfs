@@ -6,11 +6,11 @@ import { DetailView } from "./details";
 import { ListView } from "../components/lists/listView";
 import { DispatchedProps } from "../app";
 import { Layout } from "antd";
-import { ColumnProps } from "../../../node_modules/antd/lib/table";
+import { ColumnProps } from "antd/lib/table";
 
 const { Content } = Layout;
 
-type RecordListState  = {
+type RecordListState = {
   records: RecordItem[];
 };
 
@@ -18,7 +18,7 @@ export class Records extends React.Component<DispatchedProps, RecordListState> {
   constructor(props: DispatchedProps) {
     super(props);
     this.state = {
-      records: [],
+      records: []
     };
   }
 
@@ -45,39 +45,55 @@ export class Records extends React.Component<DispatchedProps, RecordListState> {
   }
 
   tableColumns = (): Array<ColumnProps<RecordItem>> => {
-    return [{
-      title: "File",
-      dataIndex: "name",
-      key: "name",
-      render: (text, record) => <Link to={`/records/details/${record.id}`}> {record.name} </Link>,
-    },
-    {
-      title: "Actions",
-      key: "action",
-      render: (text) => <a href="javascript:;">Change permissions</a>,
-    }];
-  }
+    return [
+      {
+        title: "File",
+        dataIndex: "name",
+        key: "name",
+        render: (text, record) => (
+          <Link to={`/records/details/${record.id}`}> {record.name} </Link>
+        )
+      },
+      {
+        title: "Actions",
+        key: "action",
+        render: text => <a href="javascript:;">Change permissions</a>
+      }
+    ];
+  };
 
   render() {
     return (
-      <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280 }}>
+      <Content
+        style={{
+          margin: "24px 16px",
+          padding: 24,
+          background: "#fff",
+          minHeight: 280
+        }}
+      >
         <div>
-        <Switch>
-          <Route
-            exact
-            path="/"
-            render={() => (
-              <ListView
-                items={this.state.records}
-                columns={this.tableColumns()}
-                keyProp="id"
-                pageTitle={this.props.pageTitle}
-                setPageTitle={this.props.setPageTitle}
-              />
-            )}
-          />
-          <Route path="/records/details/:record_id" render={({match}) => <DetailView {...this.props} match={match}/>} />
-        </Switch>
+          <Switch>
+            <Route
+              exact
+              path="/"
+              render={() => (
+                <ListView
+                  items={this.state.records}
+                  columns={this.tableColumns()}
+                  keyProp="id"
+                  pageTitle={this.props.pageTitle}
+                  setPageTitle={this.props.setPageTitle}
+                />
+              )}
+            />
+            <Route
+              path="/records/details/:record_id"
+              render={({ match }) => (
+                <DetailView {...this.props} match={match} />
+              )}
+            />
+          </Switch>
         </div>
       </Content>
     );

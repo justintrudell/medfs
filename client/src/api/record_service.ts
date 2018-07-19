@@ -31,14 +31,15 @@ export function get(endpoint: string, options: {} = {}): RecordServiceResponse {
 export function post(
   endpoint: string,
   data: {},
-  options: {} = {}
+  options: {} = {},
+  dataKey: keyof requestMaster.Options = "json"
 ): RecordServiceResponse {
   return new Promise((pResolve, pReject) => {
     const fullPath = resolve(constants.RECORD_SERVICE_ENDPOINT, endpoint);
     const requestOptions = {
       ...options,
       url: fullPath.toString(),
-      json: data
+      [dataKey]: data
     };
     request.post(requestOptions, (error, response, _body) => {
       if (error) {
@@ -50,7 +51,11 @@ export function post(
   });
 }
 
-export function stream(endpoint: string, uuid: string, notifyFunction: (notification?: MedFsNotification) => void): EventSource {
+export function stream(
+  endpoint: string,
+  uuid: string,
+  notifyFunction: (notification?: MedFsNotification) => void
+): EventSource {
   const sessionCookie = cookieStore.idx.localhost["/"]["session"];
   const sessionCookieStr = sessionCookie.key + "=" + sessionCookie.value;
   const rememberCookie = cookieStore.idx.localhost["/"]["remember_token"];

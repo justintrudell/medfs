@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Table } from "antd";
-import { ColumnProps } from "../../../../node_modules/antd/lib/table";
+import { ColumnProps } from "antd/lib/table";
 
 interface ListViewProps<T> {
   columns?: Array<ColumnProps<T>>;
@@ -25,7 +25,8 @@ export class ListView<T> extends React.Component<ListViewProps<T>, {}> {
       <Table
         rowKey={this.props.keyProp}
         columns={this.props.columns}
-        dataSource={this.props.items} />
+        dataSource={this.props.items}
+      />
     );
   }
 }

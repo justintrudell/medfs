@@ -1,19 +1,29 @@
 import * as React from "react";
 import * as _ from "lodash";
-import { Upload, Icon, Layout, Form, Input, Button, Select } from "antd";
+import {
+  Upload,
+  Icon,
+  Layout,
+  Form,
+  Input,
+  Button,
+  Select,
+  message
+} from "antd";
 import { UploadChangeParam } from "antd/lib/upload";
-import { UploadFile } from "antd/lib/upload/interface";
+import { RcFile } from "antd/lib/upload/interface";
 import { Permission, PermissionType } from "../../models/permissions";
 import { TitleProps } from "../app";
-import { SelectValue } from "../../../node_modules/antd/lib/select";
+import { SelectValue } from "antd/lib/select";
 import { Error } from "../components/notifications/error";
+import { uploadFile } from "../../api/records";
 
 const { Content } = Layout;
 const Dragger = Upload.Dragger;
 
 interface UploadState {
   permissions: Permission[];
-  files: UploadFile[];
+  files: RcFile[];
   errorMessage: string;
 }
 
@@ -61,16 +71,45 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
 
   handleSubmit = (event: React.FormEvent<EventTarget>): void => {
     event.preventDefault();
-    console.log(this.state);
     if (this.state.files.length !== 1) {
       this.setState({ errorMessage: "Please upload a file" });
       return;
     }
+
+    //TODO: figure out why reduce isn't working
+    const nonEmptyPerms = this.state.permissions.filter(perm => {
+      return !_.isEmpty(perm.userEmail);
+    });
+
+    const permissionRequest = nonEmptyPerms.map(perm => {
+      return {
+        email: perm.userEmail,
+        value: perm.permissionType
+      };
+    });
+
+    const file = this.state.files[0];
+    const fileName = file.name;
+    const extension = fileName.substring(fileName.lastIndexOf(".") + 1);
+
+    uploadFile(permissionRequest, extension, this.state.files[0])
+      .then(result => {
+        if (result.statusCode === 200) {
+          message.info("Successfully uploaded file");
+        } else {
+          this.setState({
+            errorMessage: `Something went wrong: ${result.body.toString()}`
+          });
+        }
+      })
+      .catch(errorMessage => {
+        this.setState({ errorMessage });
+      });
   };
 
   onChange = (_info: UploadChangeParam): void => {};
 
-  beforeUpload = (file: UploadFile): boolean => {
+  beforeUpload = (file: RcFile): boolean => {
     if (this.state.files.length >= 1) {
       this.setState({ errorMessage: "Cannot upload more than one file" });
       return false;
