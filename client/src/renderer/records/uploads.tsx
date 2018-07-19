@@ -92,20 +92,17 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
     const fileName = file.name;
     const extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
-    console.log(permissionRequest, extension, this.state.files[0]);
     uploadFile(permissionRequest, extension, this.state.files[0])
       .then(result => {
         if (result.statusCode === 200) {
           message.info("Successfully uploaded file");
         } else {
-          console.log(result);
           this.setState({
             errorMessage: `Something went wrong: ${result.body.toString()}`
           });
         }
       })
       .catch(errorMessage => {
-        console.log(errorMessage);
         this.setState({ errorMessage });
       });
   };
