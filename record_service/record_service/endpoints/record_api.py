@@ -29,7 +29,7 @@ def get_all_records_for_user() -> JsonResponse:
     acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
     permissioned_records = acl_api.get_records_for_user(
         acl_client,
-        current_user.get_id()
+        str(current_user.get_id())
     )
 
     records = (
@@ -65,7 +65,7 @@ def get_record_for_user(record_id: str) -> JsonResponse:
     acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
     if not acl_api.is_user_permissioned_for_read(
         acl_client,
-        current_user.get_id(),
+        str(current_user.get_id()),
         record_id
     ):
         return JsonResponse(message="Access denied.", status=401)
@@ -102,6 +102,9 @@ def upload_file():
         str(db.session.query(User).filter_by(email=email).one().id): value
         for email, value in permissions_dict.items()
     }
+    # Since _create_acl_permissions needs a "state of the world",
+    # we have to add ourselves to this state of the world
+    perms_with_uuid[str(current_user.get_id())] = "WRITE"
     flask_filename = request.files["file"].filename
     file_path = _save_uploaded_file(request.files["file"])
     encrypted_file_data, private_key = crypto.encrypt_file(file_path)
