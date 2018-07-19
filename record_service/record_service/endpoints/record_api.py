@@ -24,7 +24,19 @@ UPLOADER = FileUploader(IpfsWriter())
 @login_required
 def get_all_records_for_user() -> JsonResponse:
     """Lists all the records the current user owns or has access to."""
-    records = db.session.query(Record).filter_by(creator_id=current_user.id).all()
+
+    # Query ACL to get list of files user has access to
+    acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
+    permissioned_records = acl_api.get_records_for_user(
+        acl_client,
+        current_user.get_id()
+    )
+
+    records = (
+        db.session.query(Record)
+        .filter(Record.id.in_(permissioned_records.keys()))
+        .all()
+    )
 
     if records is None:
         # no records for user
@@ -34,12 +46,6 @@ def get_all_records_for_user() -> JsonResponse:
         {"id": str(r.id), "name": r.filename, "hash": r.record_hash} for r in records
     ]
 
-    # Query ACL to get list of files user has access to
-    acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
-    permissioned_records = acl_api.get_records_for_user(
-        acl_client,
-        current_user.get_id()
-    )
     data = [d for d in data if d["id"] in permissioned_records]
 
     return JsonResponse(data=data, status=200)

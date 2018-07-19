@@ -75,9 +75,10 @@ def is_user_permissioned_for_write(
 # }
 def get_records_for_user(client: acl_func.AclStub, user_uuid: str) -> Dict[str, str]:
     request = acl_pb2.GetRecordsRequest(requestor=_user_id(user_uuid))
+    response = client.GetAllRecordsForUser(request)
     ret = {}
-    for entry in request.records:
-        ret[entry.record.id] = _record_perm_to_string(request.permission)
+    for entry in response.records:
+        ret[entry.record.id] = _record_perm_to_string(entry)
 
     return ret
 
