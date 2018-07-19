@@ -24,8 +24,6 @@ def get_all_records_for_user() -> JsonResponse:
     """Lists all the records the current user owns or has access to."""
     records = db.session.query(Record).filter_by(creator_id=current_user.id).all()
 
-    # TODO: query ACL to get list of files user has access to
-
     if records is None:
         # no records for user
         return JsonResponse(message="No records found.", data=[], status=204)
@@ -33,6 +31,15 @@ def get_all_records_for_user() -> JsonResponse:
     data = [
         {"id": str(r.id), "name": r.filename, "hash": r.record_hash} for r in records
     ]
+
+    # Query ACL to get list of files user has access to
+    acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
+    permissioned_records = acl_api.get_records_for_user(
+        acl_client,
+        current_user.get_id()
+    )
+    data = [d for d in data if d["id"] in permissioned_records]
+
     return JsonResponse(data=data, status=200)
 
 
@@ -46,9 +53,14 @@ def get_record_for_user(record_id: str) -> JsonResponse:
             message=f"No record with record_id={record_id} found.", status=204
         )
 
-    # TODO query acl to check if user has read access to file
-    # if not user_has_read_access:
-    #     return JsonResponse(message="Access denied.", status=401)
+    # Query acl to check if user has read access to file
+    acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
+    if not acl_api.is_user_permissioned_for_read(
+        acl_client,
+        current_user.get_id(),
+        record_id
+    ):
+        return JsonResponse(message="Access denied.", status=401)
 
     return JsonResponse(
         data=record.to_dict(uuid_as_str=True, datetime_as_str=True), status=200
