@@ -1,7 +1,9 @@
 from flask import Blueprint, request
 from flask_login import login_required, current_user
 import json
+import os
 from typing import Dict
+from werkzeug import secure_filename
 
 import config
 from record_service.database.database import db
@@ -89,14 +91,19 @@ def upload_file():
     permissions_json = json.loads(data["permissions"])
     if permissions_json is None:
         return "Invalid JSON was passed for permissions", 400
+    permissions_dict = {dct["email"]: dct["value"] for dct in permissions_json}
     perms_with_uuid = {
         str(db.session.query(User).filter_by(email=email).one().id): value
-        for email, value in permissions_json.items()
+        for email, value in permissions_dict.items()
     }
-    encrypted_file, private_key = crypto.encrypt_file(request.files["file"])
+    flask_filename = request.files["file"].filename
+    file_path = _save_uploaded_file(request.files["file"])
+    encrypted_file_data, private_key = crypto.encrypt_file(file_path)
 
     # Upload the file to IPFS
-    new_record = UPLOADER.upload(encrypted_file, data["extension"])
+    new_record = UPLOADER.upload_bytes(
+        flask_filename, encrypted_file_data, data["extension"]
+    )
     new_record.creator_id = current_user.get_id()
 
     # Update permissions in the ACL service
@@ -107,16 +114,26 @@ def upload_file():
         {
             "type": "privateKey",
             "recordId": str(new_record.id),
-            "privateKey": private_key,
+            "privateKey": private_key.decode(),
         }
     )
-    for user_uuid in perms_with_uuid.keys():
+    for user_uuid in perms_with_uuid.keys() | {current_user.get_id()}:
         queueing_api.send_message(user_uuid, msg)
 
     db.session.add(new_record)
     db.session.commit()
 
     return str(new_record.id), 200
+
+
+def _save_uploaded_file(flask_file) -> str:
+    if not flask_file.filename:
+        raise ValueError("No filename")
+    # TODO: add header data to file
+    filename = secure_filename(flask_file.filename)
+    path = os.path.join("/tmp", filename)
+    flask_file.save(path)
+    return path
 
 
 def _create_acl_permissions(record_uuid: str, permissions: Dict[str, str]):

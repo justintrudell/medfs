@@ -49,9 +49,7 @@ def _record_perm_to_string(perm_entry: acl_pb2.RecordPermissionEntry) -> str:
 
 
 def is_user_permissioned_for_read(
-    client: acl_func.AclStub,
-    user_uuid: str,
-    record_uuid: str
+    client: acl_func.AclStub, user_uuid: str, record_uuid: str
 ) -> bool:
     request = acl_pb2.PermissionRequest(
         user=_user_id(user_uuid), record=_record_id(record_uuid)
@@ -61,9 +59,7 @@ def is_user_permissioned_for_read(
 
 
 def is_user_permissioned_for_write(
-    client: acl_func.AclStub,
-    user_uuid: str,
-    record_uuid: str
+    client: acl_func.AclStub, user_uuid: str, record_uuid: str
 ) -> bool:
     request = acl_pb2.PermissionRequest(
         user=_user_id(user_uuid), record=_record_id(record_uuid)
@@ -77,10 +73,7 @@ def is_user_permissioned_for_write(
 #   "<some_uuid>": "READ",
 #   "<some_other_uuid>": "WRITE"
 # }
-def get_records_for_user(
-    client: acl_func.AclStub,
-    user_uuid: str
-) -> Dict[str, str]:
+def get_records_for_user(client: acl_func.AclStub, user_uuid: str) -> Dict[str, str]:
     request = acl_pb2.GetRecordsRequest(requestor=_user_id(user_uuid))
     ret = {}
     for entry in request.records:
