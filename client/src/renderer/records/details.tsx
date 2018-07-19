@@ -3,7 +3,7 @@ import { match } from "react-router";
 import { get } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
-import { ipfsNode } from "../../ipfs/ipfsProvider";
+import { getIpfs } from "../../ipfs/ipfsProvider";
 import { writeFile } from "fs";
 import { constants } from "../../config";
 import { join } from "path";
@@ -54,16 +54,18 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       return;
     }
 
-    ipfsNode.files
-      .get(this.state.recordDetails.hash)
-      .then(result => {
-        result.forEach(file => {
-          this.downloadFile(file);
+    getIpfs().then(ipfs => {
+      ipfs.files
+        .get(this.state.recordDetails!.hash)
+        .then(result => {
+          result.forEach(file => {
+            this.downloadFile(file);
+          });
+        })
+        .catch(err => {
+          this.setState({ downloadMessages: [err.message] });
         });
-      })
-      .catch(err => {
-        this.setState({ downloadMessages: [err.message] });
-      });
+    });
   };
 
   downloadFile = (file: IPFSFile): void => {
@@ -91,39 +93,51 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
     if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
       return <div />;
     }
-    const pKeys = _.map(this.state.recordDetails, (value, key): { key: string, attribute: string, value: string } => {
-      return {
-        key: key.toString(),
-        attribute: key.toString(),
-        value: value.toString(),
-      };
-    });
+    const pKeys = _.map(
+      this.state.recordDetails,
+      (value, key): { key: string; attribute: string; value: string } => {
+        return {
+          key: key.toString(),
+          attribute: key.toString(),
+          value: value.toString()
+        };
+      }
+    );
 
-    const columns = [{
-      title: "Attribute",
-      dataIndex: "attribute",
-      key: "attribute"
-    }, {
-      title: "Value",
-      dataIndex: "value",
-      key: "value"
-    }];
+    const columns = [
+      {
+        title: "Attribute",
+        dataIndex: "attribute",
+        key: "attribute"
+      },
+      {
+        title: "Value",
+        dataIndex: "value",
+        key: "value"
+      }
+    ];
 
     return (
       <div>
-        <Table
-          columns={columns}
-          dataSource={pKeys}
-          pagination={false} />
+        <Table columns={columns} dataSource={pKeys} pagination={false} />
         <Button
           style={{ marginTop: 24 }}
           type="primary"
           icon="download"
-          onClick={this.downloadRecord}>
+          onClick={this.downloadRecord}
+        >
           Download
-          </Button>
+        </Button>
         {this.state.downloadMessages.map((message, idx) => {
-          return <Alert key={idx} style={{ marginTop: 12 }} message={message} type="info" closeText="Close Now" />;
+          return (
+            <Alert
+              key={idx}
+              style={{ marginTop: 12 }}
+              message={message}
+              type="info"
+              closeText="Close Now"
+            />
+          );
         })}
       </div>
     );
