@@ -10,6 +10,7 @@ import { History } from "history";
 import { withRouter } from "react-router-dom";
 import { Layout } from "antd";
 import { MedFsNotification } from "../models/notifications";
+import * as localForage from "localforage";
 
 const { Footer } = Layout;
 
@@ -53,21 +54,25 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
   };
 
   updateLogin = (userInternal?: UserInternal): void => {
-    this.setState({ userInternal }, () => {
-      if (this.props.history.location.pathname !== "/") {
-        this.props.history.push("/");
-      }
-      if (this.isLoggedIn()) {
-        const evtSource = stream(
-          "/messages/stream/",
-          this.state.userInternal!.userId,
-          this.addNotification
-        );
-        this.setState({
-          stream: evtSource
-        });
-      }
-    });
+    if (_.isEmpty(userInternal)) {
+      this.setState({
+        userInternal,
+        stream: undefined,
+        notifications: []
+      });
+      localForage.clear();
+    } else {
+      const evtSource = stream(
+        "/messages/stream/",
+        userInternal!.userId,
+        this.addNotification
+      );
+      this.setState({ userInternal, stream: evtSource });
+    }
+
+    if (this.props.history.location.pathname !== "/") {
+      this.props.history.push("/");
+    }
   };
 
   setPageTitle = (title?: string): void => {
@@ -122,9 +127,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             {...this.props}
             setPageTitle={this.setPageTitle}
           />
-          <Footer style={{ textAlign: 'center' }}>
-            medFS ©2018
-          </Footer>
+          <Footer style={{ textAlign: "center" }}>medFS ©2018</Footer>
         </Layout>
       </Layout>
     );
