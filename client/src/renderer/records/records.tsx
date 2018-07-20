@@ -25,6 +25,7 @@ export class Records extends React.Component<DispatchedProps, RecordListState> {
   getAllRecords = () => {
     getAllForUser()
       .then(response => {
+        console.log(response);
         if (response.statusCode === 200) {
           this.setState({
             records: JSON.parse(response.body).data as RecordItem[]

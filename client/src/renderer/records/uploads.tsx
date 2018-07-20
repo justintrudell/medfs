@@ -175,6 +175,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
             beforeUpload={this.beforeUpload}
             fileList={this.state.files}
             style={{ padding: 8, margin: 8 }}
+            disabled={this.state.files.length > 0}
           >
             <p className="ant-upload-drag-icon">
               <Icon type="inbox" />
