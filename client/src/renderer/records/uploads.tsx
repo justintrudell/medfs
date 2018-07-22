@@ -10,7 +10,6 @@ import {
   Select,
   message
 } from "antd";
-import { UploadChangeParam } from "antd/lib/upload";
 import { RcFile } from "antd/lib/upload/interface";
 import { Permission, PermissionType } from "../../models/permissions";
 import { TitleProps } from "../app";
@@ -107,8 +106,6 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
       });
   };
 
-  onChange = (_info: UploadChangeParam): void => {};
-
   beforeUpload = (file: RcFile): boolean => {
     if (this.state.files.length >= 1) {
       this.setState({ errorMessage: "Cannot upload more than one file" });
@@ -123,6 +120,20 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
   componentDidMount() {
     this.props.setPageTitle("Upload");
   }
+
+  addUser = () => {
+    this.setState({
+      permissions: this.state.permissions.concat([
+        { userEmail: "", permissionType: PermissionType.READ }
+      ])
+    });
+  };
+
+  removeUser = (idx: number) => () => {
+    this.setState({
+      permissions: this.state.permissions.filter((_perm, pIdx) => pIdx !== idx)
+    });
+  };
 
   render() {
     return (
@@ -139,7 +150,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
             return (
               <Input.Group key={idx} className="perimssion" compact>
                 <Input
-                  style={{ width: "65%", margin: "8px 0" }}
+                  style={{ width: "55%", margin: "8px 0" }}
                   type="text"
                   placeholder="Email address"
                   value={permission.userEmail}
@@ -164,14 +175,29 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
                     );
                   })}
                 </Select>
+
+                <Button
+                  type="primary"
+                  onClick={this.removeUser(idx)}
+                  style={{ width: "10%", margin: "8px 0" }}
+                >
+                  <Icon type="minus" />
+                </Button>
               </Input.Group>
             );
           })}
 
+          <Form.Item>
+            <div>
+              <Button type="primary" onClick={this.addUser}>
+                <Icon type="plus" />
+              </Button>
+            </div>
+          </Form.Item>
+
           <Dragger
             name="upload"
             multiple={false}
-            onChange={this.onChange}
             beforeUpload={this.beforeUpload}
             fileList={this.state.files}
             style={{ padding: 8, margin: 8 }}
