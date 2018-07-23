@@ -10,7 +10,7 @@ import {
   Select,
   message
 } from "antd";
-import { RcFile } from "antd/lib/upload/interface";
+import { RcFile, UploadFile } from "antd/lib/upload/interface";
 import { Permission, PermissionType } from "../../models/permissions";
 import { TitleProps } from "../app";
 import { SelectValue } from "antd/lib/select";
@@ -29,7 +29,11 @@ interface UploadState {
 export class Uploads extends React.Component<TitleProps, UploadState> {
   constructor(props: TitleProps) {
     super(props);
-    this.state = {
+    this.state = this.getDefaultState();
+  }
+
+  getDefaultState = (): UploadState => {
+    return {
       permissions: _.range(3).map(_v => {
         return {
           userEmail: "",
@@ -39,7 +43,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
       files: [],
       errorMessage: ""
     };
-  }
+  };
 
   handleChange = <T extends {}>(
     idx: number,
@@ -95,6 +99,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
       .then(result => {
         if (result.statusCode === 200) {
           message.info("Successfully uploaded file");
+          this.setState(this.getDefaultState());
         } else {
           this.setState({
             errorMessage: `Something went wrong: ${result.body.toString()}`
@@ -133,6 +138,10 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
     this.setState({
       permissions: this.state.permissions.filter((_perm, pIdx) => pIdx !== idx)
     });
+  };
+
+  removeFile = (_file: UploadFile) => {
+    this.setState({ files: [] });
   };
 
   render() {
@@ -202,6 +211,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
             fileList={this.state.files}
             style={{ padding: 8, margin: 8 }}
             disabled={this.state.files.length > 0}
+            onRemove={this.removeFile}
           >
             <p className="ant-upload-drag-icon">
               <Icon type="inbox" />
