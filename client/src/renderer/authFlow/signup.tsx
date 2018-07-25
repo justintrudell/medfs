@@ -4,7 +4,7 @@ import * as userAPI from "../../api/users";
 import { Error } from "../components/notifications/error";
 import { Form, Icon, Input, Button, Layout, message } from "antd";
 import { Link } from "react-router-dom";
-import { DispatchedProps } from "../app";
+import { HistoryProps } from "../app";
 
 const { Content } = Layout;
 const logo = require("../../image/logo.png");
@@ -16,8 +16,8 @@ type State = {
   errorMessage: string;
 };
 
-export class Signup extends React.Component<DispatchedProps, State> {
-  constructor(props: DispatchedProps) {
+export class Signup extends React.Component<HistoryProps, State> {
+  constructor(props: HistoryProps) {
     super(props);
     this.state = {
       email: "",
@@ -76,8 +76,8 @@ export class Signup extends React.Component<DispatchedProps, State> {
   render() {
     return (
       <Content style={{ padding: "8% 50px", textAlign: "center" }}>
-        <div style={{ width: 360, display: "inline-block" }} >
-          <div style={{ padding: 12 }} >
+        <div style={{ width: 360, display: "inline-block" }}>
+          <div style={{ padding: 12 }}>
             <img src={logo} style={{ width: 180 }} />
           </div>
           <div style={{ background: "#fff", padding: 24 }}>
@@ -85,33 +85,42 @@ export class Signup extends React.Component<DispatchedProps, State> {
             <Form onSubmit={this.handleSubmit} className="login-form">
               <Form.Item>
                 <Input
-                  prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+                  prefix={
+                    <Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />
+                  }
                   type="text"
                   placeholder="Enter Email"
                   id="email"
                   required
                   value={this.state.email}
-                  onChange={this.handleChange} />
+                  onChange={this.handleChange}
+                />
               </Form.Item>
               <Form.Item>
                 <Input
-                  prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+                  prefix={
+                    <Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />
+                  }
                   type="password"
                   placeholder="Enter Password"
                   id="password"
                   required
                   value={this.state.password}
-                  onChange={this.handleChange} />
+                  onChange={this.handleChange}
+                />
               </Form.Item>
               <Form.Item>
                 <Input
-                  prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+                  prefix={
+                    <Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />
+                  }
                   type="password"
                   placeholder="Repeat Password"
                   id="confirmPassword"
                   required
                   value={this.state.confirmPassword}
-                  onChange={this.handleChange} />
+                  onChange={this.handleChange}
+                />
               </Form.Item>
               <Error errorMessage={this.state.errorMessage} />
               <Form.Item>
@@ -119,9 +128,10 @@ export class Signup extends React.Component<DispatchedProps, State> {
                   <Button
                     type="primary"
                     htmlType="submit"
-                    className="login-form-button">
+                    className="login-form-button"
+                  >
                     Submit
-                </Button>
+                  </Button>
                 </div>
                 <Link to="/">Back to login</Link>
               </Form.Item>

@@ -1,14 +1,17 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { Logout } from "../authFlow/logout";
-import { DispatchedProps } from "../app";
+import { Logout, LogoutProps } from "../authFlow/logout";
+import { HistoryProps } from "../app";
 import { BackButton } from "./back_button";
 import { Layout, Menu, Icon } from "antd";
 
 const { Sider } = Layout;
 const logo = require("../../image/logo_white.png");
 
-export class Navigation extends React.Component<DispatchedProps, {}> {
+export class Navigation extends React.Component<
+  HistoryProps & LogoutProps,
+  {}
+> {
   render() {
     return (
       <Sider

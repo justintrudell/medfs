@@ -4,7 +4,7 @@ import { RecordItem } from "../../models/records";
 import { Switch, Route, Link } from "react-router-dom";
 import { DetailView } from "./details";
 import { ListView } from "../components/lists/listView";
-import { DispatchedProps } from "../app";
+import { updateIsLoggedIn, setPageTitle } from "../app";
 import { Layout } from "antd";
 import { ColumnProps } from "antd/lib/table";
 
@@ -14,8 +14,14 @@ type RecordListState = {
   records: RecordItem[];
 };
 
-export class Records extends React.Component<DispatchedProps, RecordListState> {
-  constructor(props: DispatchedProps) {
+export interface RecordProps {
+  updateIsLoggedIn: updateIsLoggedIn;
+  setPageTitle: setPageTitle;
+  pageTitle?: string;
+}
+
+export class Records extends React.Component<RecordProps, RecordListState> {
+  constructor(props: RecordProps) {
     super(props);
     this.state = {
       records: []

@@ -8,15 +8,17 @@ import { writeFile } from "fs";
 import { constants } from "../../config";
 import { join } from "path";
 import { IPFSFile } from "ipfs";
-import { DispatchedProps } from "../app";
+import { setPageTitle } from "../app";
 import { Button, Table, Alert } from "antd";
 
 interface MatchParams {
   record_id: string;
 }
 
-interface DetailProps extends DispatchedProps {
+interface DetailProps {
   match: match<MatchParams>;
+  setPageTitle: setPageTitle;
+  pageTitle?: string;
 }
 
 interface DetailState {

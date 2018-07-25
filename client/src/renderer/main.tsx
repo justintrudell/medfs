@@ -2,19 +2,23 @@ import * as React from "react";
 import { Switch, Route } from "react-router-dom";
 import { Login } from "./authFlow/login";
 import { Signup } from "./authFlow/signup";
-import { Records } from "./records/records";
-import { DispatchedProps } from "./app";
+import { Records, RecordProps } from "./records/records";
+import { isLoggedIn } from "./app";
 import * as localForage from "localforage";
 import { constants } from "../config";
 
 import { Uploads } from "./records/uploads";
 
+interface MainProps extends RecordProps {
+  isLoggedIn: isLoggedIn;
+}
+
 interface MainState {
   errorMessage: string;
 }
 
-export class Main extends React.Component<DispatchedProps, MainState> {
-  constructor(props: DispatchedProps) {
+export class Main extends React.Component<MainProps, MainState> {
+  constructor(props: MainProps) {
     super(props);
 
     this.state = {
