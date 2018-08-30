@@ -14,23 +14,24 @@ import * as localForage from "localforage";
 
 const { Footer } = Layout;
 
+export type updateIsLoggedIn = (userInternal?: UserInternal) => void;
+export type isLoggedIn = () => boolean;
+export type setPageTitle = (title?: string) => void;
+export type addNotification = (notification?: MedFsNotification) => void;
+
 interface AppState {
   userInternal?: UserInternal;
   stream?: EventSource;
   pageTitle?: string;
   notifications: MedFsNotification[];
-  updateIsLoggedIn: (userInternal?: UserInternal) => void;
-  isLoggedIn: () => boolean;
-  setPageTitle: (title?: string) => void;
-  addNotification: (notification?: MedFsNotification) => void;
 }
 
-export interface DispatchedProps extends AppState {
+export interface HistoryProps {
   history: History;
 }
 
 export interface TitleProps {
-  setPageTitle: (title?: string) => void;
+  setPageTitle: setPageTitle;
 }
 
 class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
@@ -41,11 +42,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
       userInternal: undefined,
       stream: undefined,
       pageTitle: undefined,
-      notifications: [],
-      updateIsLoggedIn: this.updateLogin,
-      isLoggedIn: this.isLoggedIn,
-      setPageTitle: this.setPageTitle,
-      addNotification: this.addNotification
+      notifications: []
     };
   }
 
@@ -98,7 +95,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
   componentDidMount() {
     getLogin().then(userInternal => {
       if (!_.isEmpty(userInternal)) {
-        this.state.updateIsLoggedIn(userInternal!);
+        this.updateLogin(userInternal!);
       }
     });
   }
@@ -106,7 +103,14 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
   render() {
     return (
       <Layout>
-        {this.isLoggedIn() && <Navigation {...this.state} {...this.props} />}
+        {this.isLoggedIn() && (
+          <Navigation
+            history={this.props.history}
+            updateIsLoggedIn={this.updateLogin}
+            isLoggedIn={this.isLoggedIn}
+            stream={this.state.stream}
+          />
+        )}
         <Layout
           style={{
             width: "100%",
@@ -123,8 +127,8 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             />
           )}
           <Main
-            {...this.state}
-            {...this.props}
+            updateIsLoggedIn={this.updateLogin}
+            isLoggedIn={this.isLoggedIn}
             setPageTitle={this.setPageTitle}
           />
           <Footer style={{ textAlign: "center" }}>medFS ©2018</Footer>

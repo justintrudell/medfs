@@ -1,9 +1,9 @@
 import * as React from "react";
-import { DispatchedProps } from "../app";
+import { HistoryProps } from "../app";
 import { Icon } from "antd";
 
-export class BackButton extends React.Component<DispatchedProps, {}> {
-  constructor(props: DispatchedProps) {
+export class BackButton extends React.Component<HistoryProps, {}> {
+  constructor(props: HistoryProps) {
     super(props);
   }
 

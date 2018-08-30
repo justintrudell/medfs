@@ -1,8 +1,14 @@
 import * as React from "react";
 import { executeLogout } from "../../utils/loginUtils";
-import { DispatchedProps } from "../app";
+import { updateIsLoggedIn, isLoggedIn } from "../app";
 
-export class Logout extends React.Component<DispatchedProps, {}> {
+export interface LogoutProps {
+  stream?: EventSource;
+  updateIsLoggedIn: updateIsLoggedIn;
+  isLoggedIn: isLoggedIn;
+}
+
+export class Logout extends React.Component<LogoutProps, {}> {
   logoutClick = () => {
     executeLogout().then(_result => {
       this.props.updateIsLoggedIn(undefined);
@@ -11,13 +17,22 @@ export class Logout extends React.Component<DispatchedProps, {}> {
   };
 
   render() {
-    return this.props.isLoggedIn() && (
-      <div
-        onClick={this.logoutClick}
-        style={{ position: "absolute", bottom: 0, textAlign: "center", padding: 24, width: "100%" }}
-        className="ant-menu-dark">
-        <span className="ant-menu-item">Logout</span>
-      </div>
+    return (
+      this.props.isLoggedIn() && (
+        <div
+          onClick={this.logoutClick}
+          style={{
+            position: "absolute",
+            bottom: 0,
+            textAlign: "center",
+            padding: 24,
+            width: "100%"
+          }}
+          className="ant-menu-dark"
+        >
+          <span className="ant-menu-item">Logout</span>
+        </div>
+      )
     );
   }
 }
