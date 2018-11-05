@@ -26,6 +26,9 @@ db:
 db-acl:
 	docker run -it --rm --net medfs_default --link medfs_acl_service_db_1:postgres postgres sh -c 'PGPASSWORD=password exec psql -p 5433 -h postgres -U testuser -d local_acl_service'
 
+db-rec-dump:
+	docker exec -t medfs_record_service_db_1 pg_dump local_record_service -c -U postgres > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
+
 # ------------------DOCKER-COMPOSE------------------
 
 build:

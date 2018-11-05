@@ -1,6 +1,18 @@
-class UploadException(Exception):
+class UploadError(Exception):
     pass
 
 
-class PermissionModificationException(Exception):
+class PermissionModificationError(Exception):
+    pass
+
+
+class BaseCryptoError(Exception):
+    pass
+
+
+class UnencryptedKeyProvidedError(BaseCryptoError):
+    pass
+
+
+class InvalidKeyFormatError(BaseCryptoError):
     pass

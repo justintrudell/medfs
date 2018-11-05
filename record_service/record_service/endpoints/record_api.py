@@ -11,7 +11,7 @@ from record_service.external import acl_api, queueing_api
 from record_service.models.record import Record
 from record_service.models.user import User
 from record_service.utils import crypto
-from record_service.utils.exceptions import PermissionModificationException
+from record_service.utils.exceptions import PermissionModificationError
 from record_service.utils.responses import JsonResponse
 from record_service.utils.file_uploader import FileUploader, IpfsWriter
 
@@ -28,8 +28,7 @@ def get_all_records_for_user() -> JsonResponse:
     # Query ACL to get list of files user has access to
     acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
     permissioned_records = acl_api.get_records_for_user(
-        acl_client,
-        str(current_user.get_id())
+        acl_client, str(current_user.get_id())
     )
 
     records = (
@@ -64,9 +63,7 @@ def get_record_for_user(record_id: str) -> JsonResponse:
     # Query acl to check if user has read access to file
     acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
     if not acl_api.is_user_permissioned_for_read(
-        acl_client,
-        str(current_user.get_id()),
-        record_id
+        acl_client, str(current_user.get_id()), record_id
     ):
         return JsonResponse(message="Access denied.", status=401)
 
@@ -149,9 +146,9 @@ def _create_acl_permissions(record_uuid: str, permissions: Dict[str, str]):
     acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
     ret = acl_api.add_record(acl_client, current_user.get_id(), record_uuid)
     if not ret.result:
-        raise PermissionModificationException("Failed to add record")
+        raise PermissionModificationError("Failed to add record")
     ret = acl_api.set_permissions(
         acl_client, current_user.get_id(), record_uuid, permissions
     )
     if not ret.result:
-        raise PermissionModificationException("Failed to modify permissions on record")
+        raise PermissionModificationError("Failed to modify permissions on record")
