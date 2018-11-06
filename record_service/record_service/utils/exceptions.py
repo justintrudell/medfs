@@ -16,3 +16,7 @@ class UnencryptedKeyProvidedError(BaseCryptoError):
 
 class InvalidKeyFormatError(BaseCryptoError):
     pass
+
+
+class InvalidKeyPasswordError(BaseCryptoError):
+    pass

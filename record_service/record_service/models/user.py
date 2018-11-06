@@ -7,6 +7,7 @@ from cryptography.hazmat.primitives.serialization import (
 from cryptography.hazmat.backends import default_backend
 from flask_login.mixins import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates
 
@@ -15,6 +16,7 @@ from record_service.models.base import Base
 from record_service.utils.exceptions import (
     UnencryptedKeyProvidedError,
     InvalidKeyFormatError,
+    InvalidKeyPasswordError,
 )
 
 
@@ -36,7 +38,7 @@ class User(Base, UserMixin):
         return check_password_hash(hashpw, password)
 
     @validates("public_key")
-    def validate_public_key(self, name: str, public_key: str) -> None:
+    def validate_public_key(self, name: str, public_key: str) -> str:
         try:
             load_pem_public_key(public_key.encode(), backend=default_backend())
         except ValueError:
@@ -44,8 +46,7 @@ class User(Base, UserMixin):
         return public_key
 
     @validates("private_key")
-    # TODO: Verify the password for the given PK is correct
-    def validate_private_key(self, name: str, private_key: str) -> None:
+    def validate_private_key(self, name: str, private_key: str) -> str:
         try:
             load_pem_private_key(
                 private_key.encode(), password=None, backend=default_backend()
@@ -56,3 +57,15 @@ class User(Base, UserMixin):
         except ValueError:
             raise InvalidKeyFormatError
         raise UnencryptedKeyProvidedError
+
+
+@event.listens_for(User, "init")
+def validate_password_for_private_key(target: User, args, kwargs):
+    try:
+        load_pem_private_key(
+            kwargs["private_key"].encode(),
+            password=kwargs["password"].encode(),
+            backend=default_backend(),
+        )
+    except ValueError:
+        raise InvalidKeyPasswordError

@@ -8,6 +8,7 @@ from record_service.models.user import User
 from record_service.utils.exceptions import (
     UnencryptedKeyProvidedError,
     InvalidKeyFormatError,
+    InvalidKeyPasswordError,
 )
 
 
@@ -50,6 +51,11 @@ def create_user():
         return "Success", 201
     except UnencryptedKeyProvidedError:
         return "The private key provided was unencrypted", 400
+    except InvalidKeyPasswordError:
+        return (
+            "The private key could not be decrypted with the provided password",
+            400,
+        )
     except InvalidKeyFormatError:
         return (
             "The keys provided could not be parsed, ensure they're in PEM format",
