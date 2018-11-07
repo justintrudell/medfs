@@ -5,6 +5,11 @@ from sqlalchemy.sql import exists
 
 from record_service.database.database import db
 from record_service.models.user import User
+from record_service.utils.exceptions import (
+    UnencryptedKeyProvidedError,
+    InvalidKeyFormatError,
+    InvalidKeyPasswordError,
+)
 
 
 user_api = Blueprint("user_api", __name__)
@@ -20,7 +25,10 @@ def test():
 @user_api.route("/users/create", methods=["POST"])
 def create_user():
     data = loads(request.data)
-    if not all(key in data.keys() for key in ["username", "password"]):
+    if ("username", "password", "keyPair") - data.keys() or (
+        "public",
+        "private",
+    ) - data["keyPair"].keys():
         return "Missing fields", 400
 
     # TODO: add validation around username and password
@@ -31,11 +39,31 @@ def create_user():
         return "User already exists", 400
 
     try:
-        db.session.add(User(email=user_id, password=user_pw))
+        db.session.add(
+            User(
+                email=user_id,
+                password=user_pw,
+                public_key=data["keyPair"]["public"],
+                private_key=data["keyPair"]["private"],
+            )
+        )
         db.session.commit()
         return "Success", 201
-    except Exception:
+    except UnencryptedKeyProvidedError:
+        return "The private key provided was unencrypted", 400
+    except InvalidKeyPasswordError:
+        return (
+            "The private key could not be decrypted with the provided password",
+            400,
+        )
+    except InvalidKeyFormatError:
+        return (
+            "The keys provided could not be parsed, ensure they're in PEM format",
+            400,
+        )
+    except Exception as e:
         # TODO: logging
+        print(e)
         return "Internal Server Error", 500
 
 
@@ -46,7 +74,7 @@ def update_user():
     so that we can support changing a users email address. """
     data = loads(request.data)
     # we only support password changes right now
-    if "password" not in data.keys():
+    if ("password", "privateKey") - data.keys():
         return "Missing fields", 400
 
     # TODO: do some pw validation
@@ -57,7 +85,7 @@ def update_user():
     if not u:
         return "User not found", 404
 
-    u.update(dict(password=hashpw))
+    u.update(dict(password=hashpw, private_key=data["privateKey"]))
     db.session.commit()
 
     # invalidate token

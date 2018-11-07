@@ -18,8 +18,8 @@ Flask-Cors==3.0.6
 Flask-Login==0.4.1
 Flask-SQLAlchemy==2.3.2
 greenlet==0.4.13
-grpcio==1.12.1
-grpcio-tools==1.12.1
+grpcio==1.16.0
+grpcio-tools==1.16.0
 gunicorn==19.8.1
 idna==2.7
 ipfsapi==0.4.3

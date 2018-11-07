@@ -6,7 +6,7 @@ import tempfile
 from uuid import uuid4
 
 from record_service.models.record import Record
-from record_service.utils.exceptions import UploadException
+from record_service.utils.exceptions import UploadError
 
 
 class FsWriter(ABC):
@@ -45,7 +45,7 @@ class FileUploader:
             upload_response = self._fs_writer.write(path)
             current_app.logger.info(upload_response)
         except Exception as e:
-            raise UploadException(str(e))
+            raise UploadError(str(e))
 
         return Record(
             id=uuid4(),
