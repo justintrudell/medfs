@@ -1,6 +1,6 @@
 import * as recordService from "./record_service";
 import { file } from "tmp-promise";
-var tmp = require("tmp");
+import * as tmp from "tmp";
 import util from "util";
 import fs from "fs";
 const exec = util.promisify(require("child_process").exec);
