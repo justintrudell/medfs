@@ -1,3 +1,3 @@
 #!/bin/bash
 
-openssl ec -passin file:$1 -pubout
+openssl rsa -outform PEM -pubout -passin file:$1

@@ -1,6 +1,6 @@
-from json import loads
 from flask import Blueprint, request
 from flask_login import login_required, current_user, logout_user
+import json
 from sqlalchemy.sql import exists
 
 from record_service.database.database import db
@@ -24,7 +24,7 @@ def test():
 
 @user_api.route("/users/create", methods=["POST"])
 def create_user():
-    data = loads(request.data)
+    data = json.loads(request.data)
     if ("username", "password", "keyPair") - data.keys() or (
         "public",
         "private",
@@ -39,6 +39,9 @@ def create_user():
         return "User already exists", 400
 
     try:
+        User.validate_password_for_private_key(
+            data["password"], data["keyPair"]["private"]
+        )
         db.session.add(
             User(
                 email=user_id,
@@ -72,7 +75,7 @@ def create_user():
 def update_user():
     """ Note: we may want to consider moving away from emails as PK so that
     so that we can support changing a users email address. """
-    data = loads(request.data)
+    data = json.loads(request.data)
     # we only support password changes right now
     if ("password", "privateKey") - data.keys():
         return "Missing fields", 400
@@ -92,3 +95,24 @@ def update_user():
     logout_user(current_user)
 
     return "Success", 200
+
+
+@user_api.route("/users/keys", methods=["GET"])
+@login_required
+def get_keys_for_emails():
+    """Retrieve public keys for all clients with provided email addresses."""
+    extra_args = set(request.args.keys()) - {"emails"}
+    if extra_args:
+        return f"Received unknown args {extra_args}", 400
+    emails = request.args.getlist("emails")
+    keys = {}
+    for email in emails:
+        user_obj = db.session.query(User).filter_by(email=email).one_or_none()
+        if user_obj is None:
+            msg = (
+                f"The provided user with email {email} does not have an account, and "
+                "will need to create one before receiving a public key."
+            )
+            return msg, 400
+        keys[email] = user_obj.public_key
+    return json.dumps(keys), 200

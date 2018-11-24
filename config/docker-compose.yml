@@ -1,6 +1,7 @@
 version: "3.5"
 services:
   record_service:
+    container_name: medfs_record_service_1
     restart: always
     links:
       - record_service_db
@@ -18,6 +19,7 @@ services:
       - PYTHONUNBUFFERED=0 # Causes print statements to be logged
 
   record_service_db:
+    container_name: medfs_record_service_db_1
     restart: always
     image: postgres:latest
     environment:
@@ -31,6 +33,7 @@ services:
   
 
   message_service:
+    container_name: medfs_message_service_1
     restart: always
     build: ../message_service/ 
     ports:
@@ -44,6 +47,7 @@ services:
      - PYTHONUNBUFFERED=0  # Causes print statements to be logged
 
   ipfs:
+    container_name: medfs_ipfs_1
     restart: always
     image: jbenet/go-ipfs:latest
     ports:
@@ -52,6 +56,7 @@ services:
       - "8080:8080"
 
   acl_service:
+    container_name: medfs_acl_service_1
     restart: always
     build: ../acl_service/
     links:
@@ -68,6 +73,7 @@ services:
       - PYTHONUNBUFFERED=0 # Causes print statements to be logged
 
   acl_service_db:
+    container_name: medfs_acl_service_db_1
     restart: always
     image: postgres:latest
     environment:

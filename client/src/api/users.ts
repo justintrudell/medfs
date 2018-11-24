@@ -3,6 +3,7 @@ import { file } from "tmp-promise";
 import * as tmp from "tmp";
 import util from "util";
 import fs from "fs";
+import * as querystring from "querystring";
 const exec = util.promisify(require("child_process").exec);
 // Clean up files even if uncaught exceptions occur
 tmp.setGracefulCleanup();
@@ -37,6 +38,10 @@ export function createUser(
     };
     return recordService.post(`/users/create`, data);
   })();
+}
+
+export function getKeys(emails: string[]): recordService.RecordServiceResponse {
+  return recordService.get(`/users/keys?${querystring.stringify({ emails })}`);
 }
 
 export function testEndpoint(): recordService.RecordServiceResponse {

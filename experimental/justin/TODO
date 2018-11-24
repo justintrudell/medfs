@@ -1,0 +1,3 @@
+- Cache encrypted keys client-side after generating them on record upload
+- Use cached encrypted key to decrypt file when downloading from IPFS
+- Only pass private key on account creation then just derive pubkey to drop a script
