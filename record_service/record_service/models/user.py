@@ -7,7 +7,6 @@ from cryptography.hazmat.primitives.serialization import (
 from cryptography.hazmat.backends import default_backend
 from flask_login.mixins import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates
 
@@ -37,6 +36,17 @@ class User(Base, UserMixin):
     def check_password(hashpw: str, password: str) -> bool:
         return check_password_hash(hashpw, password)
 
+    @staticmethod
+    def validate_password_for_private_key(password: str, private_key: str):
+        try:
+            load_pem_private_key(
+                private_key.encode(),
+                password=password.encode(),
+                backend=default_backend(),
+            )
+        except ValueError:
+            raise InvalidKeyPasswordError
+
     @validates("public_key")
     def validate_public_key(self, name: str, public_key: str) -> str:
         try:
@@ -57,15 +67,3 @@ class User(Base, UserMixin):
         except ValueError:
             raise InvalidKeyFormatError
         raise UnencryptedKeyProvidedError
-
-
-@event.listens_for(User, "init")
-def validate_password_for_private_key(target: User, args, kwargs):
-    try:
-        load_pem_private_key(
-            kwargs["private_key"].encode(),
-            password=kwargs["password"].encode(),
-            backend=default_backend(),
-        )
-    except ValueError:
-        raise InvalidKeyPasswordError

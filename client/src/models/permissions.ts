@@ -11,5 +11,9 @@ export interface Permission {
 // TODO, coalesce this and the above
 export interface PermissionRequest {
   email: string;
-  value: PermissionType;
+  values: {
+    permission: PermissionType;
+    encryptedAesKey: string;
+    iv: string;
+  };
 }

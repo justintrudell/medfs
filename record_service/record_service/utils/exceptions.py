@@ -6,6 +6,10 @@ class PermissionModificationError(Exception):
     pass
 
 
+class UserNotFoundError(Exception):
+    pass
+
+
 class BaseCryptoError(Exception):
     pass
 
