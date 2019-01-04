@@ -58,7 +58,8 @@ export class Records extends React.Component<RecordProps, RecordListState> {
         key: "name",
         render: (text, record) => (
           <Link to={`/records/details/${record.id}`}> {record.name} </Link>
-        )
+        ),
+        sorter: (a: RecordItem, b: RecordItem) => a.name.localeCompare(b.name)
       },
       {
         title: "Actions",
