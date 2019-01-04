@@ -3,6 +3,7 @@ export interface RecordItem {
   name: string;
   hash: string;
   aclId: string;
+  created: Date;
 }
 
 export interface RecordDetails {

@@ -32,9 +32,11 @@ export class Records extends React.Component<RecordProps, RecordListState> {
     getAllForUser()
       .then(response => {
         if (response.statusCode === 200) {
-          this.setState({
-            records: JSON.parse(response.body).data as RecordItem[]
-          });
+          const records = JSON.parse(response.body).data as RecordItem[];
+          records.forEach(
+            record => (record.created = new Date(record.created))
+          );
+          this.setState({ records });
         }
 
         if (response.statusCode === 401) {
@@ -56,7 +58,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
         title: "File",
         dataIndex: "name",
         key: "name",
-        render: (text, record) => (
+        render: (_, record) => (
           <Link to={`/records/details/${record.id}`}> {record.name} </Link>
         ),
         sorter: (a: RecordItem, b: RecordItem) => a.name.localeCompare(b.name)
@@ -64,7 +66,14 @@ export class Records extends React.Component<RecordProps, RecordListState> {
       {
         title: "Actions",
         key: "action",
-        render: text => <a href="javascript:;">Change permissions</a>
+        render: _ => <a href="javascript:;">Change permissions</a>
+      },
+      {
+        title: "Created At",
+        key: "created_at",
+        render: (_, record) => record.created.toLocaleString("en-US"),
+        sorter: (a: RecordItem, b: RecordItem) =>
+          a.created.getTime() - b.created.getTime()
       }
     ];
   };
