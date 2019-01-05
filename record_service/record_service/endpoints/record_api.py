@@ -61,7 +61,8 @@ def get_all_records_for_user() -> JsonResponse:
             "name": r.filename,
             "hash": r.record_hash,
             "created": r.created.isoformat(),
-        } for r in records
+        }
+        for r in records
     ]
 
     data = [d for d in data if d["id"] in permissioned_records]
@@ -146,8 +147,7 @@ def upload_file():
     file_path = _save_uploaded_file(request.files["file"])
 
     # Upload the file to IPFS
-    new_record = UPLOADER.upload(
-        data["filename"], file_path, data["extension"])
+    new_record = UPLOADER.upload(data["filename"], file_path, data["extension"])
     new_record.creator_id = current_user.get_id()
 
     # Update permissions in the ACL service
@@ -172,8 +172,7 @@ def upload_file():
 
 
 def _parse_permissions(permissions_json: UploadRequest) -> PermissionsDict:
-    permissions_dict = {dct["email"]: dct["values"]
-                        for dct in permissions_json}
+    permissions_dict = {dct["email"]: dct["values"] for dct in permissions_json}
     perms_with_uuid = {}
     for email, values in permissions_dict.items():
         user_obj = db.session.query(User).filter_by(email=email).one_or_none()
@@ -200,8 +199,7 @@ def _create_acl_permissions(record_uuid: str, permissions_dict: PermissionsDict)
     if not ret.result:
         raise PermissionModificationError("Failed to add record")
 
-    permissions = {key: dct["permission"]
-                   for key, dct in permissions_dict.items()}
+    permissions = {key: dct["permission"] for key, dct in permissions_dict.items()}
     # Since _create_acl_permissions needs a "state of the world",
     # we have to add ourselves to this state of the world
     permissions[user_id] = "WRITE"
@@ -209,5 +207,4 @@ def _create_acl_permissions(record_uuid: str, permissions_dict: PermissionsDict)
         acl_client, current_user.get_id(), record_uuid, permissions
     )
     if not ret.result:
-        raise PermissionModificationError(
-            "Failed to modify permissions on record")
+        raise PermissionModificationError("Failed to modify permissions on record")
