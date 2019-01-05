@@ -7,6 +7,7 @@ import { ListView } from "../components/lists/listView";
 import { updateIsLoggedIn, setPageTitle } from "../app";
 import { Layout } from "antd";
 import { ColumnProps } from "antd/lib/table";
+import { ERR_NOT_AUTHORIZED } from "../../models/errors";
 
 const { Content } = Layout;
 
@@ -30,18 +31,11 @@ export class Records extends React.Component<RecordProps, RecordListState> {
 
   getAllRecords = () => {
     getAllForUser()
-      .then(response => {
-        if (response.statusCode === 200) {
-          this.setState({
-            records: JSON.parse(response.body).data as RecordItem[]
-          });
-        }
-
-        if (response.statusCode === 401) {
+      .then(records => this.setState({ records }))
+      .catch((error: Error) => {
+        if (error.message === ERR_NOT_AUTHORIZED) {
           this.props.updateIsLoggedIn(undefined);
         }
-      })
-      .catch((error: string) => {
         console.error(error);
       });
   };
@@ -56,7 +50,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
         title: "File",
         dataIndex: "name",
         key: "name",
-        render: (text, record) => (
+        render: (_, record) => (
           <Link to={`/records/details/${record.id}`}> {record.name} </Link>
         ),
         sorter: (a: RecordItem, b: RecordItem) => a.name.localeCompare(b.name)
@@ -64,7 +58,14 @@ export class Records extends React.Component<RecordProps, RecordListState> {
       {
         title: "Actions",
         key: "action",
-        render: text => <a href="javascript:;">Change permissions</a>
+        render: _ => <a href="javascript:;">Change permissions</a>
+      },
+      {
+        title: "Created At",
+        key: "created_at",
+        render: (_, record) => record.created.toLocaleString("en-US"),
+        sorter: (a: RecordItem, b: RecordItem) =>
+          a.created.getTime() - b.created.getTime()
       }
     ];
   };

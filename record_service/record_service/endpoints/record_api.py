@@ -25,6 +25,15 @@ PermissionsDict = Dict[str, Dict[str, str]]
 UploadRequest = List[PermissionsDict]
 
 
+# Data object:
+# [
+#     {
+#         id: string,
+#         name: string,
+#         hash: string,
+#         created: string (iso format ts)
+#     }
+# ]
 @record_api.route("/records", methods=["GET"])
 @login_required
 def get_all_records_for_user() -> JsonResponse:
@@ -47,7 +56,13 @@ def get_all_records_for_user() -> JsonResponse:
         return JsonResponse(message="No records found.", data=[], status=204)
 
     data = [
-        {"id": str(r.id), "name": r.filename, "hash": r.record_hash} for r in records
+        {
+            "id": str(r.id),
+            "name": r.filename,
+            "hash": r.record_hash,
+            "created": r.created.isoformat(),
+        }
+        for r in records
     ]
 
     data = [d for d in data if d["id"] in permissioned_records]
