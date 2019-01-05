@@ -7,6 +7,7 @@ import { ListView } from "../components/lists/listView";
 import { updateIsLoggedIn, setPageTitle } from "../app";
 import { Layout } from "antd";
 import { ColumnProps } from "antd/lib/table";
+import { ERR_NOT_AUTHORIZED } from "../../models/errors";
 
 const { Content } = Layout;
 
@@ -30,20 +31,11 @@ export class Records extends React.Component<RecordProps, RecordListState> {
 
   getAllRecords = () => {
     getAllForUser()
-      .then(response => {
-        if (response.statusCode === 200) {
-          const records = JSON.parse(response.body).data as RecordItem[];
-          records.forEach(
-            record => (record.created = new Date(record.created))
-          );
-          this.setState({ records });
-        }
-
-        if (response.statusCode === 401) {
+      .then(records => this.setState({ records }))
+      .catch((error: Error) => {
+        if (error.message === ERR_NOT_AUTHORIZED) {
           this.props.updateIsLoggedIn(undefined);
         }
-      })
-      .catch((error: string) => {
         console.error(error);
       });
   };
