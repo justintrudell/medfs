@@ -37,17 +37,14 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
 
   componentDidMount() {
     get(this.props.match.params.record_id)
-      .then(result => {
-        if (result.statusCode === 200) {
-          const recordDetails: RecordDetails = result.body.data;
-          if (this.props.pageTitle !== recordDetails.filename) {
-            this.props.setPageTitle(recordDetails.filename);
-          }
-          this.setState({ recordDetails });
+      .then(recordDetails => {
+        if (this.props.pageTitle !== recordDetails.filename) {
+          this.props.setPageTitle(recordDetails.filename);
         }
+        this.setState({ recordDetails });
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
       });
   }
 

@@ -3,7 +3,7 @@ import { PermissionRequest } from "../models/permissions";
 import { tmpName } from "tmp-promise";
 import * as fs from "fs";
 import util from "util";
-import { RecordItem } from "../models/records";
+import { RecordItem, RecordDetails } from "../models/records";
 import { ERR_NOT_AUTHORIZED } from "../models/errors";
 const exec = util.promisify(require("child_process").exec);
 
@@ -32,8 +32,17 @@ export function getAllForUser(): Promise<RecordItem[]> {
   });
 }
 
-export function get(id: string): recordService.RecordServiceResponse {
-  return recordService.get(`/records/${id}`, { json: true });
+export function get(id: string): Promise<RecordDetails> {
+  return recordService.get(`/records/${id}`, { json: true }).then(response => {
+    if (response.statusCode === 200) {
+      return response.body.data;
+    }
+
+    if (response.statusCode === 401) {
+      throw new Error(ERR_NOT_AUTHORIZED);
+    }
+    throw new Error(`Unknown Error: ${response.body}`);
+  });
 }
 
 export function encryptFileAndUpload(

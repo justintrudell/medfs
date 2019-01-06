@@ -1,5 +1,5 @@
 import * as React from "react";
-import { executeLogout } from "../../utils/loginUtils";
+import { logout } from "../../api/auth";
 import { updateIsLoggedIn, isLoggedIn } from "../app";
 
 export interface LogoutProps {
@@ -10,7 +10,7 @@ export interface LogoutProps {
 
 export class Logout extends React.Component<LogoutProps, {}> {
   logoutClick = () => {
-    executeLogout().then(_result => {
+    logout().then(_result => {
       this.props.updateIsLoggedIn(undefined);
       this.props.stream!.close();
     });

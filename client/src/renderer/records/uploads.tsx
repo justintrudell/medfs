@@ -92,17 +92,8 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
 
     const emails = nonEmptyPerms.map(p => p.userEmail);
     getKeys(emails)
-      .then(result => {
-        if (result.statusCode === 200) {
-          const pubKeys = new Map<string, string>(
-            Object.entries(JSON.parse(result.body))
-          );
-          this.handleFileUpload(pubKeys, nonEmptyPerms);
-        } else {
-          this.setState({
-            errorMessage: result.body.toString()
-          });
-        }
+      .then(pubKeys => {
+        this.handleFileUpload(pubKeys, nonEmptyPerms);
       })
       .catch(errorMessage => this.setState({ errorMessage }));
   };
