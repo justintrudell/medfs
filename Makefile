@@ -29,6 +29,9 @@ db-acl:
 db-rec-dump:
 	docker exec -t medfs_record_service_db_1 pg_dump local_record_service -c --if-exists -U testuser > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
+console-rec:
+	docker exec -it medfs_record_service_1 python3 -i -m record_service.utils.console 
+ 
 # ------------------DOCKER-COMPOSE------------------
 
 build:
