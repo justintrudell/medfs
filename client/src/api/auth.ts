@@ -24,7 +24,7 @@ export function logout(): Promise<boolean> {
       return response.statusCode === 200;
     })
     .catch(error => {
-      console.log(error);
+      console.error(error);
       return false;
     });
 
@@ -34,7 +34,7 @@ export function logout(): Promise<boolean> {
       return true;
     })
     .catch(error => {
-      console.log(error);
+      console.error(error);
       return false;
     });
 
