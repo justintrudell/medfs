@@ -41,20 +41,12 @@ export class Login extends React.Component<LoginProps, LoginState> {
 
     authAPI
       .login(this.state.email, this.state.password)
-      .then(response => {
-        if (response.statusCode === 401) {
-          this.setState({ errorMessage: "Please try again!" });
-          return;
-        } else if (response.statusCode === 200) {
-          const userInternal: UserInternal = {
-            email: this.state.email,
-            userId: response.body.data.userId
-          };
-          this.props.loginCallback(userInternal);
-        } else {
-          console.log(response);
-          message.error("Something went wrong!");
-        }
+      .then(userId => {
+        const userInternal: UserInternal = {
+          email: this.state.email,
+          userId
+        };
+        this.props.loginCallback(userInternal);
       })
       .catch(errorMessage => {
         message.error(errorMessage);
@@ -63,9 +55,9 @@ export class Login extends React.Component<LoginProps, LoginState> {
 
   render() {
     return (
-      <Content style={{ padding: "10% 50px", textAlign: "center"}}>
-        <div style={{ width: 360, display: "inline-block" }} >
-          <div style={{ padding: 12 }} >
+      <Content style={{ padding: "10% 50px", textAlign: "center" }}>
+        <div style={{ width: 360, display: "inline-block" }}>
+          <div style={{ padding: 12 }}>
             <img src={logo} style={{ width: 180 }} />
           </div>
           <div style={{ background: "#fff", padding: 24 }}>
@@ -73,27 +65,37 @@ export class Login extends React.Component<LoginProps, LoginState> {
             <Form onSubmit={this.handleSubmit} className="login-form">
               <Form.Item>
                 <Input
-                  prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+                  prefix={
+                    <Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />
+                  }
                   placeholder="Email"
                   value={this.state.email}
                   onChange={this.handleChange}
                   id="email"
-                  required />
+                  required
+                />
               </Form.Item>
               <Form.Item>
                 <Input
-                  prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+                  prefix={
+                    <Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />
+                  }
                   type="password"
                   placeholder="Password"
                   value={this.state.password}
                   onChange={this.handleChange}
                   id="password"
-                  required />
+                  required
+                />
               </Form.Item>
               <Error errorMessage={this.state.errorMessage} />
               <Form.Item>
                 <div>
-                  <Button type="primary" htmlType="submit" className="login-form-button">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="login-form-button"
+                  >
                     Log in
                   </Button>
                 </div>
