@@ -4,9 +4,6 @@ import { Login } from "./authFlow/login";
 import { Signup } from "./authFlow/signup";
 import { Records, RecordProps } from "./records/records";
 import { isLoggedIn } from "./app";
-import * as localForage from "localforage";
-import { constants } from "../config";
-
 import { Uploads } from "./records/uploads";
 
 interface MainProps extends RecordProps {
@@ -27,7 +24,6 @@ export class Main extends React.Component<MainProps, MainState> {
   }
 
   handleLogin = (userInternal: UserInternal | undefined): void => {
-    localForage.setItem(constants.LOGGEDIN_USER, userInternal);
     this.props.updateIsLoggedIn(userInternal);
   };
 

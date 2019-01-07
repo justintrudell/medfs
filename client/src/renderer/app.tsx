@@ -11,6 +11,7 @@ import { withRouter } from "react-router-dom";
 import { Layout } from "antd";
 import { MedFsNotification } from "../models/notifications";
 import * as localForage from "localforage";
+import { constants } from "../config";
 
 const { Footer } = Layout;
 
@@ -64,6 +65,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
         userInternal!.userId,
         this.addNotification
       );
+      localForage.setItem(constants.LOGGEDIN_USER, userInternal);
       this.setState({ userInternal, stream: evtSource });
     }
 
