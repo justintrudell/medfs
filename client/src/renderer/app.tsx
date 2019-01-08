@@ -2,7 +2,7 @@ import * as React from "react";
 import { Main } from "./main";
 import { Navigation } from "./home/navigation";
 import { MedFsHeader } from "./home/header";
-import { getLogin } from "../utils/loginUtils";
+import { getLogin, setLogin, clearLogin } from "../utils/loginUtils";
 import { stream } from "../api/record_service";
 import * as _ from "lodash";
 import { RouteComponentProps } from "react-router";
@@ -10,8 +10,7 @@ import { History } from "history";
 import { withRouter } from "react-router-dom";
 import { Layout } from "antd";
 import { MedFsNotification } from "../models/notifications";
-import * as localForage from "localforage";
-import { constants } from "../config";
+import { UserInternal } from "../models/users";
 
 const { Footer } = Layout;
 
@@ -51,21 +50,28 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
     return !_.isEmpty(this.state.userInternal);
   };
 
-  updateLogin = (userInternal?: UserInternal): void => {
+  updateLogin = (
+    userInternal: UserInternal | undefined,
+    needsUpdate: boolean
+  ): void => {
     if (_.isEmpty(userInternal)) {
       this.setState({
         userInternal,
         stream: undefined,
         notifications: []
       });
-      localForage.clear();
+
+      clearLogin().catch(err => console.error(err));
     } else {
       const evtSource = stream(
         "/messages/stream/",
         userInternal!.userId,
         this.addNotification
       );
-      localForage.setItem(constants.LOGGEDIN_USER, userInternal);
+      if (needsUpdate) {
+        setLogin(userInternal!).catch(err => console.error(err));
+      }
+
       this.setState({ userInternal, stream: evtSource });
     }
 
@@ -97,7 +103,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
   componentDidMount() {
     getLogin().then(userInternal => {
       if (!_.isEmpty(userInternal)) {
-        this.updateLogin(userInternal!);
+        this.updateLogin(userInternal!, false);
       }
     });
   }
@@ -108,7 +114,9 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
         {this.isLoggedIn() && (
           <Navigation
             history={this.props.history}
-            updateIsLoggedIn={this.updateLogin}
+            updateIsLoggedIn={userInternal =>
+              this.updateLogin(userInternal, true)
+            }
             isLoggedIn={this.isLoggedIn}
             stream={this.state.stream}
           />
@@ -129,7 +137,9 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             />
           )}
           <Main
-            updateIsLoggedIn={this.updateLogin}
+            updateIsLoggedIn={userInternal =>
+              this.updateLogin(userInternal, true)
+            }
             isLoggedIn={this.isLoggedIn}
             setPageTitle={this.setPageTitle}
           />

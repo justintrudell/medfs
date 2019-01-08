@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import * as authAPI from "../../api/auth";
 import { Error } from "../components/notifications/error";
 import { Form, Icon, Input, Button, Layout, message } from "antd";
+import { UserInternal } from "../../models/users";
 
 const { Content } = Layout;
 const logo = require("../../image/logo.png");

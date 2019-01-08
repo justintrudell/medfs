@@ -5,6 +5,7 @@ import { Signup } from "./authFlow/signup";
 import { Records, RecordProps } from "./records/records";
 import { isLoggedIn } from "./app";
 import { Uploads } from "./records/uploads";
+import { UserInternal } from "../models/users";
 
 interface MainProps extends RecordProps {
   isLoggedIn: isLoggedIn;

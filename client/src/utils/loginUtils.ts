@@ -1,13 +1,37 @@
-import * as localForage from "localforage";
-import { constants } from "../config";
-import * as _ from "lodash";
+import { UserInternal, userDB } from "../models/users";
 
 export function getLogin(): Promise<UserInternal | null> {
-  return localForage.getItem(constants.LOGGEDIN_USER).then(item => {
-    if (_.isEmpty(item)) {
-      return null;
-    } else {
-      return item as UserInternal;
-    }
+  return new Promise((resolve, reject) => {
+    userDB.findOne({}, (err, doc) => {
+      if (err) {
+        reject(err);
+      }
+
+      resolve(doc as UserInternal | null);
+    });
+  });
+}
+
+export function setLogin(user: UserInternal): Promise<UserInternal> {
+  return new Promise((resolve, reject) => {
+    userDB.insert(user, (err, doc) => {
+      if (err) {
+        reject(err);
+      }
+
+      resolve(doc);
+    });
+  });
+}
+
+export function clearLogin(): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    userDB.remove({}, { multi: true }, (err, _) => {
+      if (err) {
+        reject(err);
+      }
+
+      resolve(true);
+    });
   });
 }
