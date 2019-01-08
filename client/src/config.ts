@@ -15,5 +15,6 @@ export const constants = {
   LOGGEDIN_USER: "isLoggedIn",
   COOKIE_STORAGE: join(userDataPath, "cookies.json"),
   DOWNLOAD_PATH: downloadPath,
-  IS_PROD: penv.MEDFS_ENVIRONMENT === "prod"
+  IS_PROD: penv.MEDFS_ENVIRONMENT === "prod",
+  GET_DB_PATH: (dbName: string) => join(userDataPath, "medfs_db", dbName)
 };
