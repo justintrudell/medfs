@@ -1,9 +1,10 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as authAPI from "../../api/auth";
-import { Error } from "../components/notifications/error";
+import { Error as ErrorComponent } from "../components/notifications/error";
 import { Form, Icon, Input, Button, Layout, message } from "antd";
 import { UserInternal } from "../../models/users";
+import { ERR_NOT_AUTHORIZED } from "../../models/errors";
 
 const { Content } = Layout;
 const logo = require("../../image/logo.png");
@@ -49,8 +50,12 @@ export class Login extends React.Component<LoginProps, LoginState> {
         };
         this.props.loginCallback(userInternal);
       })
-      .catch(errorMessage => {
-        message.error(errorMessage);
+      .catch((error: Error) => {
+        if (error.message === ERR_NOT_AUTHORIZED) {
+          message.error("Invalid username/password");
+        } else {
+          message.error(error.toString());
+        }
       });
   }
 
@@ -89,7 +94,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
                   required
                 />
               </Form.Item>
-              <Error errorMessage={this.state.errorMessage} />
+              <ErrorComponent errorMessage={this.state.errorMessage} />
               <Form.Item>
                 <div>
                   <Button
