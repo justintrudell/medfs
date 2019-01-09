@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
+import { Spin } from "antd";
 import * as authAPI from "../../api/auth";
 import { Error as ErrorComponent } from "../components/notifications/error";
 import { Form, Icon, Input, Button, Layout, message } from "antd";
@@ -13,6 +14,7 @@ type LoginState = {
   email: string;
   password: string;
   errorMessage: string;
+  loading: boolean;
 };
 
 interface LoginProps {
@@ -25,22 +27,25 @@ export class Login extends React.Component<LoginProps, LoginState> {
     this.state = {
       email: "",
       password: "",
-      errorMessage: ""
+      errorMessage: "",
+      loading: false
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(event: React.FormEvent<EventTarget>) {
+  handleChange = (stateItem: "email" | "password") => (
+    event: React.FormEvent<EventTarget>
+  ) => {
     const target = event.target as HTMLInputElement;
-    const toAdd = { [target.id]: target.value } as LoginState;
+    const toAdd = { ...this.state, [stateItem]: target.value };
     this.setState(toAdd);
-  }
+  };
 
   handleSubmit(event: React.FormEvent<EventTarget>) {
     event.preventDefault();
-
+    this.setState({ loading: true });
     authAPI
       .login(this.state.email, this.state.password)
       .then(userId => {
@@ -48,6 +53,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
           email: this.state.email,
           userId
         };
+        this.setState({ loading: false });
         this.props.loginCallback(userInternal);
       })
       .catch((error: Error) => {
@@ -56,10 +62,26 @@ export class Login extends React.Component<LoginProps, LoginState> {
         } else {
           message.error(error.toString());
         }
+        this.setState({ loading: false });
       });
   }
 
   render() {
+    if (this.state.loading) {
+      return (
+        <Content style={{ padding: "10% 50px", textAlign: "center" }}>
+          <div style={{ width: 360, display: "inline-block" }}>
+            <div style={{ padding: 12 }}>
+              <img src={logo} style={{ width: 180 }} />
+            </div>
+            <div style={{ background: "#fff", padding: 24 }}>
+              <Spin />
+            </div>
+          </div>
+        </Content>
+      );
+    }
+
     return (
       <Content style={{ padding: "10% 50px", textAlign: "center" }}>
         <div style={{ width: 360, display: "inline-block" }}>
@@ -76,7 +98,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
                   }
                   placeholder="Email"
                   value={this.state.email}
-                  onChange={this.handleChange}
+                  onChange={this.handleChange("email")}
                   id="email"
                   required
                 />
@@ -89,7 +111,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
                   type="password"
                   placeholder="Password"
                   value={this.state.password}
-                  onChange={this.handleChange}
+                  onChange={this.handleChange("password")}
                   id="password"
                   required
                 />
