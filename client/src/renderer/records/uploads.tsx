@@ -21,6 +21,7 @@ import { SelectValue } from "antd/lib/select";
 import { Error } from "../components/notifications/error";
 import { encryptFileAndUpload } from "../../api/records";
 import { getKeys } from "../../api/users";
+import { getLogin } from "../../utils/loginUtils";
 import * as crypto from "crypto";
 
 const { Content } = Layout;
@@ -90,12 +91,23 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
       return !_.isEmpty(perm.userEmail);
     });
 
-    const emails = nonEmptyPerms.map(p => p.userEmail);
-    getKeys(emails)
-      .then(pubKeys => {
-        this.handleFileUpload(pubKeys, nonEmptyPerms);
-      })
-      .catch(errorMessage => this.setState({ errorMessage }));
+    getLogin().then(userInternal => {
+      if (!_.isEmpty(userInternal)) {
+        // Add ourselves so we can receive the key to decode
+        nonEmptyPerms.push({
+          userEmail: userInternal!.email,
+          permissionType: PermissionType.WRITE
+        });
+
+        const emails = nonEmptyPerms.map(p => p.userEmail);
+        getKeys(emails)
+          .then(pubKeys => {
+            this.handleFileUpload(pubKeys, nonEmptyPerms);
+          })
+          .catch(errorMessage => this.setState({ errorMessage }));
+      }
+    });
+
   };
 
   handleFileUpload(keys: Map<string, string>, perms: Permission[]) {
