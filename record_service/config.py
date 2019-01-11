@@ -18,3 +18,7 @@ ENVIRONMENT = environ.get("ENVIRONMENT")
 
 # Interval at which we poll the SQS queues (in seconds)
 SQS_POLLING_INTERVAL_S = environ.get("SQS_POLLING_INTERVAL_S")
+
+# Host/port that we'll reach out to IPFS through
+IPFS_HOST = environ.get("IPFS_HOST")
+IPFS_PORT = environ.get("IPFS_PORT")
