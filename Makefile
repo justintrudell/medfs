@@ -56,3 +56,9 @@ start:
 	docker-compose -f config/docker-compose.yml -p medfs up -d $(c)
 
 # ----------------END DOCKER-COMPOSE----------------
+
+push: grpc-acl grpc-rec build
+	./config/push.sh
+
+deploy:
+	./config/deploy/deploy.sh
