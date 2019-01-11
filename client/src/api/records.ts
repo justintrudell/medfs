@@ -55,7 +55,9 @@ export function encryptFileAndUpload(
   return (async () => {
     const encFilePath = await tmpName();
     await exec(
-      `src/scripts/encrypt_file.sh ${file.path} ${encFilePath} ${aesKey} ${iv}`
+      `src/scripts/encrypt_file.sh "${
+        file.path
+      }" "${encFilePath}" "${aesKey}" "${iv}"`
     );
     const form = {
       permissions: JSON.stringify(permissions),
