@@ -4,6 +4,7 @@ from flask import current_app
 import ipfsapi
 import tempfile
 from uuid import uuid4
+from config import IPFS_HOST, IPFS_PORT
 
 from record_service.models.record import Record
 from record_service.utils.exceptions import UploadError
@@ -22,7 +23,7 @@ class MockWriter(FsWriter):
 
 class IpfsWriter(FsWriter):
     def __init__(self):
-        self._client = ipfsapi.connect(host="ipfs", port=5001)
+        self._client = ipfsapi.connect(host=IPFS_HOST, port=IPFS_PORT)
 
     def write(self, fp: str) -> dict:
         return self._client.add(fp)
