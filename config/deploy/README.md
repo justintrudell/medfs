@@ -23,7 +23,7 @@ This doc outlines how to set up a deployment pipeline and then deploy to it. You
 3. We'll need to configure the ecs-cli to pick up our cluster:
    ```
    ecs-cli configure profile --profile-name medfs --access-key $AWS_ACCESS_KEY --secret-key $AWS_SECRET_KEY
-   ecs-cli configure --cluster medfs --region us-east-1 --config-name medfs --default-launch-type FARGATE
+   ecs-cli configure --cluster medfs --region us-east-1 --default-launch-type FARGATE
    ```
 
 ## Deployment
