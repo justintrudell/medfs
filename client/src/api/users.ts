@@ -23,10 +23,10 @@ export function createUser(
       prefix: "medfstmp-"
     });
     await util.promisify(fs.writeFile)(path, password);
-    const privKey = await exec(`src/scripts/gen_pk.sh ${path}`);
+    const privKey = await exec(`src/scripts/gen_pk.sh "${path}"`);
     // TODO: Figure out how to pipe privKey into stdin instead of echo
     const pubKey = await exec(
-      `echo "${privKey}" | src/scripts/extract_pub.sh ${path}`
+      `echo "${privKey}" | src/scripts/extract_pub.sh "${path}"`
     );
     cleanup();
     const data = {
