@@ -91,7 +91,6 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
       this.setState(prevState => ({
         notifications: [...prevState.notifications, notification]
       }));
-      // Cache this value
     }
   };
 
