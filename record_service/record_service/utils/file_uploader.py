@@ -23,10 +23,17 @@ class MockWriter(FsWriter):
 
 class IpfsWriter(FsWriter):
     def __init__(self):
-        self._client = ipfsapi.connect(host=IPFS_HOST, port=IPFS_PORT)
+        self._client = None
+
+    # Lazily connect to handle case where record-srv deploys before IPFS
+    @property
+    def client(self):
+        if self._client is None:
+            self._client = ipfsapi.connect(host=IPFS_HOST, port=IPFS_PORT)
+        return self._client
 
     def write(self, fp: str) -> dict:
-        return self._client.add(fp)
+        return self.client.add(fp)
 
 
 class FileUploader:
