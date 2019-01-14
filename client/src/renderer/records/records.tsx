@@ -5,14 +5,20 @@ import { Switch, Route, Link } from "react-router-dom";
 import { DetailView } from "./details";
 import { ListView } from "../components/lists/listView";
 import { updateIsLoggedIn, setPageTitle } from "../app";
-import { Layout } from "antd";
+import { Layout, Button } from "antd";
+import { PermissionsModal } from "../components/modals/permissions";
 import { ColumnProps } from "antd/lib/table";
 import { ERR_NOT_AUTHORIZED } from "../../models/errors";
+import { Permission } from "../../models/permissions";
+import { getUsersForRecord } from "../../api/permissions";
 
 const { Content } = Layout;
 
 type RecordListState = {
   records: RecordItem[];
+  permissionsModalVisible: boolean;
+  currentRecord?: RecordItem;
+  currentPermissions: Permission[];
 };
 
 export interface RecordProps {
@@ -25,7 +31,9 @@ export class Records extends React.Component<RecordProps, RecordListState> {
   constructor(props: RecordProps) {
     super(props);
     this.state = {
-      records: []
+      records: [],
+      permissionsModalVisible: false,
+      currentPermissions: []
     };
   }
 
@@ -58,7 +66,11 @@ export class Records extends React.Component<RecordProps, RecordListState> {
       {
         title: "Actions",
         key: "action",
-        render: _ => <a href="javascript:;">Change permissions</a>
+        render: (_, record) => (
+          <Button onClick={() => this.showPermissionsModal(record)}>
+            Change permissions
+          </Button>
+        )
       },
       {
         title: "Created At",
@@ -68,6 +80,27 @@ export class Records extends React.Component<RecordProps, RecordListState> {
           a.created.getTime() - b.created.getTime()
       }
     ];
+  };
+
+  showPermissionsModal = (record: RecordItem) => {
+    getUsersForRecord(record.id)
+      .then((permissions: Permission[]) => {
+        this.setState({
+          permissionsModalVisible: true,
+          currentRecord: record,
+          currentPermissions: permissions
+        });
+      })
+      .catch((error: Error) => {
+        console.log(error);
+      });
+  };
+
+  hidePermissionsModal = (): void => {
+    this.setState({
+      permissionsModalVisible: false,
+      currentPermissions: []
+    });
   };
 
   render() {
@@ -103,6 +136,12 @@ export class Records extends React.Component<RecordProps, RecordListState> {
             />
           </Switch>
         </div>
+        <PermissionsModal
+          visible={this.state.permissionsModalVisible}
+          record={this.state.currentRecord}
+          permissions={this.state.currentPermissions}
+          hideModalCallback={this.hidePermissionsModal}
+        />
       </Content>
     );
   }

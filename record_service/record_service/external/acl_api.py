@@ -83,6 +83,15 @@ def get_records_for_user(client: acl_func.AclStub, user_uuid: str) -> Dict[str, 
     return ret
 
 
+def get_users_for_record(
+    client: acl_func.AclStub,
+    record_uuid: str,
+) -> acl_pb2.ListOfUsers:
+    req = acl_pb2.GetUsersRequest(record=_record_id(record_uuid))
+    response = client.GetAllUsersForRecord(req)
+    return [(entry.user.id, _user_perm_to_string(entry)) for entry in response.users]
+
+
 def _user_id(user_uuid: str) -> acl_pb2.UserId:
     if isinstance(user_uuid, uuid.UUID):
         user_uuid = str(user_uuid)
@@ -101,3 +110,12 @@ def _str_to_user_perm(perm_str: str) -> acl_pb2.UserPermissionEntry:
         return getattr(acl_pb2.UserPermissionEntry, upper_str)
     except AttributeError:
         print("FAILED STR TO PERM")
+
+
+def _user_perm_to_string(perm_entry: acl_pb2.UserPermissionEntry) -> str:
+        if perm_entry.permission == acl_pb2.UserPermissionEntry.READ:
+            return "READ"
+        elif perm_entry.permission == acl_pb2.UserPermissionEntry.WRITE:
+            return "WRITE"
+        else:
+            return "UNKNOWN"
