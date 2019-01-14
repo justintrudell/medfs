@@ -2,9 +2,11 @@ import * as React from "react";
 import { Modal, Form, Input, Button, Select, Icon } from "antd";
 import { RecordItem } from "../../../models/records";
 import { Permission, PermissionType } from "../../../models/permissions";
+import * as _ from "lodash";
 
 type PermissionsModalState = {
   currentPermissions: Permission[];
+  okButtonDisabled: boolean;
 };
 
 export interface PermissionsModalProps {
@@ -22,24 +24,66 @@ export class PermissionsModal extends React.Component<
     super(props);
 
     this.state = {
-      currentPermissions: []
+      currentPermissions: [],
+      okButtonDisabled: true
     };
   }
 
   componentDidUpdate(prevProps: PermissionsModalProps) {
     if (this.props !== prevProps) {
       this.setState({
-        currentPermissions: this.props.permissions
+        currentPermissions: this.props.permissions,
+        okButtonDisabled: true,
       });
     }
   }
 
   handleOk = () => {
+    // TODO: Handle Save here - blocked by not saving keys
     this.props.hideModalCallback();
   };
 
   handleCancel = () => {
     this.props.hideModalCallback();
+  };
+
+  handleRemove = (idx: number) => {
+    const permissions = this.state.currentPermissions.filter(
+      (_, pIdx) => pIdx !== idx
+    );
+    this.setState({
+      currentPermissions: permissions,
+      okButtonDisabled: _.isEqual(permissions, this.props.permissions)
+    });
+  };
+
+  addUser = () => {
+    this.setState({
+      currentPermissions: this.state.currentPermissions.concat([
+        { userEmail: "", permissionType: PermissionType.READ }
+      ])
+    });
+  };
+
+  handleChange = <T extends {}>(
+    idx: number,
+    key: keyof Permission,
+    extractPermission: (elem: HTMLInputElement) => T
+  ) => (event: React.FormEvent<EventTarget>): void => {
+    const permissions = this.state.currentPermissions.map(
+      (permission, pidx) => {
+        if (idx !== pidx) {
+          return permission;
+        }
+
+        const target = event.target as HTMLInputElement;
+        return { ...permission, [key]: extractPermission(target) };
+      }
+    );
+    this.setState({
+      currentPermissions: permissions,
+      okButtonDisabled: _.isEqual(permissions, this.props.permissions)
+    });
   };
 
   render() {
@@ -50,6 +94,8 @@ export class PermissionsModal extends React.Component<
         }`}
         visible={this.props.visible}
         onOk={this.handleOk}
+        okText="Save"
+        okButtonProps={{ disabled: this.state.okButtonDisabled }}
         onCancel={this.handleCancel}
       >
         <Form>
@@ -59,8 +105,15 @@ export class PermissionsModal extends React.Component<
                 <Input
                   style={{ width: "55%", margin: "8px 0" }}
                   type="text"
-                  defaultValue={permission.userEmail}
-                  disabled={true}
+                  placeholder="Email address"
+                  value={permission.userEmail}
+                  onChange={this.handleChange(
+                    idx,
+                    "userEmail",
+                    (elem: HTMLInputElement): string => {
+                      return elem.value;
+                    }
+                  )}
                 />
                 <Select
                   style={{ width: "35%", margin: "8px 0" }}
@@ -78,12 +131,21 @@ export class PermissionsModal extends React.Component<
                 <Button
                   type="primary"
                   style={{ width: "10%", margin: "8px 0" }}
+                  onClick={() => this.handleRemove(idx)}
                 >
                   <Icon type="minus" />
                 </Button>
               </Input.Group>
             );
           })}
+
+          <Form.Item>
+            <div>
+              <Button type="primary" onClick={this.addUser}>
+                <Icon type="plus" />
+              </Button>
+            </div>
+          </Form.Item>
         </Form>
       </Modal>
     );
