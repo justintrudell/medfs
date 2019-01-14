@@ -1,8 +1,10 @@
 from abc import ABC
 from datetime import datetime
 from flask import current_app
+from werkzeug import secure_filename
 import ipfsapi
 import tempfile
+import os
 from uuid import uuid4
 from config import IPFS_HOST, IPFS_PORT
 
@@ -40,6 +42,15 @@ class FileUploader:
     def __init__(self, fs_writer: FsWriter) -> None:
         self._fs_writer = fs_writer
 
+    def _save_temp_file(self, flask_file) -> str:
+        if not flask_file.filename:
+            raise ValueError("No filename on uploaded file")
+        # TODO: add header data to file
+        filename = secure_filename(flask_file.filename)
+        path = os.path.join("/tmp", filename)
+        flask_file.save(path)
+        return path
+
     def upload_bytes(self, flask_filename: str, data: bytes, ext: str) -> Record:
         """Helper to upload bytes rather than a file."""
         with tempfile.NamedTemporaryFile() as tmp_f:
@@ -47,7 +58,8 @@ class FileUploader:
             tmp_f.flush()
             return self.upload(flask_filename, tmp_f.name, ext)
 
-    def upload(self, filename: str, path: str, ext: str) -> Record:
+    def upload(self, flask_file, filename: str, ext: str) -> Record:
+        path = self._save_temp_file(flask_file)
         now = datetime.now()
         try:
             upload_response = self._fs_writer.write(path)
