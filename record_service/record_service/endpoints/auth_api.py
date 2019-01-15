@@ -1,7 +1,7 @@
 from json import loads
 
 from flask import Blueprint, request
-from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
 from record_service.database.database import db
 from record_service.models.user import User
@@ -54,3 +54,14 @@ def is_logged_in():
     given the provided cookies.
     """
     return "Success", 200
+
+@auth_api.route("/get_pk", methods=["GET"])
+@login_required
+def get_pk():
+    """
+    Returns the user's private key, encrypted by the current user's password.
+    """
+    user = db.session.query(User).get(current_user.get_id())
+    data = dict()
+    data["private_key"] = user.private_key
+    return JsonResponse(data=data, status=200)
