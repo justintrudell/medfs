@@ -6,6 +6,7 @@ import { Error as ErrorComponent } from "../components/notifications/error";
 import { Form, Icon, Input, Button, Layout, message } from "antd";
 import { UserInternal } from "../../models/users";
 import { ERR_NOT_AUTHORIZED } from "../../models/errors";
+import { setPk, getPk } from "../../utils/pkUtils";
 
 const { Content } = Layout;
 const logo = require("../../image/logo.png");
@@ -55,6 +56,10 @@ export class Login extends React.Component<LoginProps, LoginState> {
         };
         this.setState({ loading: false });
         this.props.loginCallback(userInternal);
+        return authAPI.retrieve_pk(this.state.password)
+      })
+      .then(pk => {
+        return setPk({private_key: pk});
       })
       .catch((error: Error) => {
         if (error.message === ERR_NOT_AUTHORIZED) {
