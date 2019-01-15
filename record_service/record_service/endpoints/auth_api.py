@@ -60,6 +60,7 @@ def is_logged_in():
 def get_pk():
     """
     Returns the user's private key, encrypted by the current user's password.
+    We call this on each client login.
     """
     user = db.session.query(User).get(current_user.get_id())
     data = dict()
