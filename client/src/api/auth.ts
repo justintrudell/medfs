@@ -1,5 +1,6 @@
 import * as recordService from "./record_service";
 import { clearLogin } from "../utils/loginUtils";
+import { clearPk } from "../utils/pkUtils";
 import { ERR_NOT_AUTHORIZED } from "../models/errors";
 import { file } from "tmp-promise";
 import util from "util";
@@ -63,12 +64,17 @@ export function logout(): Promise<boolean> {
       return false;
     });
 
-  const clearPromise = clearLogin().catch(error => {
+  const clearLoginPromise = clearLogin().catch(error => {
     console.error(error);
     return false;
   });
 
-  return Promise.all([logoutPromise, clearPromise]).then(result => {
+  const clearPkPromise = clearPk().catch(error => {
+    console.error(error);
+    return false;
+  });
+
+  return Promise.all([logoutPromise, clearLoginPromise, clearPkPromise]).then(result => {
     return result["0"] && result["1"];
   });
 }
