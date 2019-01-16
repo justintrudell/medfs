@@ -9,6 +9,7 @@ import config
 from record_service.database.database import db
 from record_service.external import acl_api, queueing_api
 from record_service.models.record import Record
+from record_service.models.record_key import RecordKey
 
 from record_service.utils.responses import JsonResponse
 from record_service.utils.file_uploader import FileUploader, IpfsWriter
@@ -144,17 +145,27 @@ def upload_file():
 
     # Upload the file to IPFS
     new_record = UPLOADER.upload(
-        request.files["file"],
-        data["filename"],
-        data["extension"],
+        request.files["file"], data["filename"], data["extension"]
     )
     new_record.creator_id = current_user.get_id()
 
     # Update permissions in the ACL service
     create_acl_permissions(current_user.get_id(), str(new_record.id), perms_with_uuid)
 
-    # Push out keys to message service
+    # Add record first so we can reference it as a foreign key
+    db.session.add(new_record)
+    db.session.commit()
+
+    # Store keys locally then push them out to message service
     for user_uuid, values in perms_with_uuid.items():
+        db.session.add(
+            RecordKey(
+                record_id=new_record.id,
+                user_id=user_uuid,
+                encrypted_key=values["encryptedAesKey"],
+                iv=values["iv"],
+            )
+        )
         msg = json.dumps(
             {
                 "type": "privateKey",
@@ -164,8 +175,6 @@ def upload_file():
             }
         )
         queueing_api.send_message(user_uuid, msg)
-
-    db.session.add(new_record)
     db.session.commit()
 
     return str(new_record.id), 200

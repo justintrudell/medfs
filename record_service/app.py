@@ -13,6 +13,7 @@ from record_service.utils.constants import SECRET_KEY
 from record_service.models.base import Base
 from record_service.models.user import User  # noqa F401
 from record_service.models.record import Record  # noqa F401
+from record_service.models.record_key import RecordKey  # noqa F401
 
 # API Endpoints
 from record_service.endpoints.auth_api import auth_api

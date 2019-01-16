@@ -15,9 +15,5 @@ def receive_messages(uuid: str) -> List[Any]:
     try:
         queue = sqs.get_queue_by_name(QueueName=queue_name)
     except sqs.meta.client.exceptions.QueueDoesNotExist as e:
-        print(
-            f"The specified queue for UUID {uuid} did not exist when polling "
-            "- assuming no messages have yet been sent"
-        )
         return []
     return queue.receive_messages()
