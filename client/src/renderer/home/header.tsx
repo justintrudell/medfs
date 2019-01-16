@@ -71,7 +71,7 @@ export class MedFsHeader extends React.Component<
         <Row type="flex" align="middle">
           <Col span={2}>
             <div className="logo">
-              <img src={logo} style={{ width: 60 }} />
+              <img src={logo} style={{ width: 40 }} />
             </div>
           </Col>
           <Col span={20}>

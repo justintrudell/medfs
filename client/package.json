@@ -9,14 +9,14 @@
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null",
     "console": "yarn build && node",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "rebuild": "electron-rebuild"
+    "rebuild": "rm -rf node_modules && yarn && electron-rebuild"
   },
   "dependencies": {
     "@types/ipfs": "https://github.com/vishalkuo/types-ipfs",
     "@types/lodash": "^4.14.110",
     "@types/prop-types": "^15.5.8",
     "@types/tmp": "^0.0.33",
-    "antd": "^3.7.0",
+    "antd": "3.12.3",
     "eventsource": "^1.0.5",
     "ipfs": "^0.29.3",
     "leveldown": "^4.0.1",
