@@ -1,10 +1,13 @@
 import * as recordService from "./record_service";
+import * as _ from "lodash";
 import { PermissionRequest } from "../models/permissions";
 import { tmpName } from "tmp-promise";
 import * as fs from "fs";
 import util from "util";
-import { RecordItem, RecordDetails } from "../models/records";
+import { RecordItem, RecordDetails, RecordKey } from "../models/records";
 import { ERR_NOT_AUTHORIZED } from "../models/errors";
+import * as crypto from "crypto";
+import { getLogin } from "../utils/loginUtils";
 const exec = util.promisify(require("child_process").exec);
 
 type RecordServiceResponse = {
@@ -16,6 +19,25 @@ type RecordServiceResponse = {
 
 function normalizeRecord(resp: RecordServiceResponse): RecordItem {
   return { ...resp, created: new Date(resp.created) };
+}
+
+function decryptAesKey(aesKey: string): Promise<string> {
+  return new Promise((resolve, reject) =>
+    getLogin().then(userInternal => {
+      if (!_.isEmpty(userInternal)) {
+        resolve(
+          crypto
+            .privateDecrypt(
+              userInternal!.privateKey,
+              Buffer.from(aesKey, "hex")
+            )
+            .toString("hex")
+        );
+      } else {
+        reject("User not logged in");
+      }
+    })
+  );
 }
 
 export function getAllForUser(): Promise<RecordItem[]> {
@@ -67,4 +89,25 @@ export function encryptFileAndUpload(
     };
     return recordService.post("/records", form, {}, "formData");
   })();
+}
+
+// Returns the AES key and IV for a specified record
+export function getKeyForRecord(record: string): Promise<RecordKey> {
+  return recordService.get(`/record_keys/${record}`).then(response => {
+    if (response.statusCode === 200) {
+      const ret = JSON.parse(response.body).data;
+      return (async () => {
+        // Decrypt AES key using user's private key
+        const decryptedKey = await decryptAesKey(ret.encryptedAesKey);
+        return {
+          aesKey: decryptedKey,
+          iv: ret.iv
+        };
+      })();
+    }
+    if (response.statusCode === 401) {
+      throw new Error(ERR_NOT_AUTHORIZED);
+    }
+    throw new Error(`Unknown Error: ${response.body}`);
+  });
 }
