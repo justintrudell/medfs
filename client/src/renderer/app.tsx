@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Main } from "./main";
-import { Navigation } from "./home/navigation";
 import { MedFsHeader } from "./home/header";
 import { getLogin, setLogin, clearLogin } from "../utils/loginUtils";
 import { stream } from "../api/record_service";
@@ -12,7 +11,7 @@ import { Layout } from "antd";
 import { MedFsNotification } from "../models/notifications";
 import { UserInternal } from "../models/users";
 
-const { Footer } = Layout;
+const { Content } = Layout;
 
 export type updateIsLoggedIn = (userInternal?: UserInternal) => void;
 export type isLoggedIn = () => boolean;
@@ -110,32 +109,22 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
 
   render() {
     return (
-      <Layout>
+      <Layout
+        style={{
+          width: "100%",
+          minHeight: "100vh",
+          overflow: "visible"
+        }}
+      >
         {this.isLoggedIn() && (
-          <Navigation
+          <MedFsHeader
             history={this.props.history}
-            updateIsLoggedIn={userInternal =>
-              this.updateLogin(userInternal, true)
-            }
-            isLoggedIn={this.isLoggedIn}
-            stream={this.state.stream}
+            notifications={this.state.notifications}
+            pageTitle={this.state.pageTitle}
+            clearNotifications={this.clearNotifications}
           />
         )}
-        <Layout
-          style={{
-            width: "100%",
-            minHeight: "100vh",
-            marginLeft: this.isLoggedIn() ? 200 : 0,
-            overflow: "visible"
-          }}
-        >
-          {this.isLoggedIn() && (
-            <MedFsHeader
-              notifications={this.state.notifications}
-              pageTitle={this.state.pageTitle}
-              clearNotifications={this.clearNotifications}
-            />
-          )}
+        <Content style={{ paddingTop: "60px" }}>
           <Main
             updateIsLoggedIn={userInternal =>
               this.updateLogin(userInternal, true)
@@ -143,8 +132,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             isLoggedIn={this.isLoggedIn}
             setPageTitle={this.setPageTitle}
           />
-          <Footer style={{ textAlign: "center" }}>medFS ©2018</Footer>
-        </Layout>
+        </Content>
       </Layout>
     );
   }
