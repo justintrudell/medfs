@@ -37,7 +37,11 @@ def login():
     # sets the token in the response header, alternatively we can also return
     # the token in the response body
     login_user(u, remember=remember_me)
-    return JsonResponse(data={"userId": str(u.id)}, message="Success", status=200)
+    data = {
+        "userId": str(u.id),
+        "privateKey": u.private_key
+    }
+    return JsonResponse(data=data, message="Success", status=200)
 
 
 @auth_api.route("/logout", methods=["POST"])
@@ -54,15 +58,3 @@ def is_logged_in():
     given the provided cookies.
     """
     return "Success", 200
-
-@auth_api.route("/get_pk", methods=["GET"])
-@login_required
-def get_pk():
-    """
-    Returns the user's private key, encrypted by the current user's password.
-    We call this on each client login.
-    """
-    user = db.session.query(User).get(current_user.get_id())
-    data = dict()
-    data["private_key"] = user.private_key
-    return JsonResponse(data=data, status=200)

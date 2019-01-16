@@ -4,6 +4,7 @@ import { constants } from "../config";
 export interface UserInternal {
   userId: string;
   email: string;
+  privateKey: string;
 }
 
 export const userDB = new Datastore({
