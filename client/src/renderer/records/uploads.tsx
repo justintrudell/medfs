@@ -104,10 +104,9 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
           .then(pubKeys => {
             this.handleFileUpload(pubKeys, nonEmptyPerms);
           })
-          .catch(errorMessage => this.setState({ errorMessage }));
+          .catch((e: Error) => this.setState({ errorMessage: e.toString() }));
       }
     });
-
   };
 
   handleFileUpload(keys: Map<string, string>, perms: Permission[]) {
@@ -212,7 +211,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
           margin: "24px 16px",
           padding: 24,
           background: "#fff",
-          minHeight: 280
+          height: "85vh"
         }}
       >
         <Form onSubmit={this.handleSubmit}>

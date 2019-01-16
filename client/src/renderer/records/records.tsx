@@ -110,7 +110,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
           margin: "24px 16px",
           padding: 24,
           background: "#fff",
-          minHeight: 280
+          height: "85vh"
         }}
       >
         <div>
