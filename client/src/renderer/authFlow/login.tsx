@@ -48,13 +48,18 @@ export class Login extends React.Component<LoginProps, LoginState> {
     this.setState({ loading: true });
     authAPI
       .login(this.state.email, this.state.password)
-      .then(userId => {
-        const userInternal: UserInternal = {
-          email: this.state.email,
-          userId
-        };
-        this.setState({ loading: false });
-        this.props.loginCallback(userInternal);
+      .then(loginDetails => {
+        authAPI
+          .decryptPk(loginDetails.privateKey, this.state.password)
+          .then(decryptedPk => {
+            const userInternal: UserInternal = {
+              email: this.state.email,
+              userId: loginDetails.userId,
+              privateKey: decryptedPk
+            };
+            this.setState({ loading: false });
+            this.props.loginCallback(userInternal);
+          })
       })
       .catch((error: Error) => {
         if (error.message === ERR_NOT_AUTHORIZED) {

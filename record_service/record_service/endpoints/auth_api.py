@@ -1,7 +1,7 @@
 from json import loads
 
 from flask import Blueprint, request
-from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
 from record_service.database.database import db
 from record_service.models.user import User
@@ -37,7 +37,11 @@ def login():
     # sets the token in the response header, alternatively we can also return
     # the token in the response body
     login_user(u, remember=remember_me)
-    return JsonResponse(data={"userId": str(u.id)}, message="Success", status=200)
+    data = {
+        "userId": str(u.id),
+        "privateKey": u.private_key
+    }
+    return JsonResponse(data=data, message="Success", status=200)
 
 
 @auth_api.route("/logout", methods=["POST"])

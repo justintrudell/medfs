@@ -1,12 +1,24 @@
 import * as recordService from "./record_service";
 import { clearLogin } from "../utils/loginUtils";
 import { ERR_NOT_AUTHORIZED } from "../models/errors";
+import { file } from "tmp-promise";
+import util from "util";
+import fs from "fs";
+const exec = util.promisify(require("child_process").exec);
 
-export function login(username: string, password: string): Promise<string> {
+export interface LoginDetails {
+  userId: string;
+  privateKey: string;
+}
+
+export function login(username: string, password: string): Promise<LoginDetails> {
   const data = { username, password, remember_me: true };
   return recordService.post(`/login`, data).then(response => {
     if (response.statusCode === 200) {
-      return response.body.data.userId;
+      return {
+        userId: response.body.data.userId,
+        privateKey: response.body.data.privateKey
+      };
     }
 
     if (response.statusCode === 401) {
@@ -15,6 +27,29 @@ export function login(username: string, password: string): Promise<string> {
 
     throw new Error(`Unknown Error: ${response.body}`);
   });
+}
+
+// Private key is encrypted with the user's password
+export function decryptPk(privateKey: string, password: string): Promise<string> {
+  return (async () => {
+    const { path: pkPath, cleanup: pkFire } = await file({
+      mode: 0o644,
+      prefix: "medfstmp-"
+    });
+    await util.promisify(fs.writeFile)(pkPath, privateKey);
+
+    const { path: passwordPath, cleanup: passwordCleanup } = await file({
+      mode: 0o644,
+      prefix: "medfstmp-"
+    });
+    await util.promisify(fs.writeFile)(passwordPath, password);
+
+    const decryptedPk = await exec(`src/scripts/decrypt_pk.sh "${pkPath}" "${passwordPath}"`);
+
+    pkFire();
+    passwordCleanup();
+    return decryptedPk;
+  })();
 }
 
 export function logout(): Promise<boolean> {
@@ -28,12 +63,12 @@ export function logout(): Promise<boolean> {
       return false;
     });
 
-  const clearPromise = clearLogin().catch(error => {
+  const clearLoginPromise = clearLogin().catch(error => {
     console.error(error);
     return false;
   });
 
-  return Promise.all([logoutPromise, clearPromise]).then(result => {
+  return Promise.all([logoutPromise, clearLoginPromise]).then(result => {
     return result["0"] && result["1"];
   });
 }
