@@ -58,8 +58,6 @@ export class Login extends React.Component<LoginProps, LoginState> {
               privateKey: decryptedPk
             };
             this.setState({ loading: false });
-            console.log(loginDetails.privateKey);
-            console.log(decryptedPk);
             this.props.loginCallback(userInternal);
           })
       })
