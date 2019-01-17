@@ -20,6 +20,7 @@ from record_service.endpoints.auth_api import auth_api
 from record_service.endpoints.message_api import message_api
 from record_service.endpoints.permission_api import permission_api
 from record_service.endpoints.record_api import record_api
+from record_service.endpoints.record_key_api import record_key_api
 from record_service.endpoints.user_api import user_api
 from record_service.endpoints.healthcheck import healthcheck
 
@@ -44,7 +45,15 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
 app.secret_key = SECRET_KEY
 
-apis = [auth_api, message_api, permission_api, record_api, user_api, healthcheck]
+apis = [
+    auth_api,
+    message_api,
+    permission_api,
+    record_api,
+    record_key_api,
+    user_api,
+    healthcheck,
+]
 [app.register_blueprint(api) for api in apis]
 
 db.init_app(app)

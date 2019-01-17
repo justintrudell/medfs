@@ -14,3 +14,8 @@ export interface RecordDetails {
   createdAt: Date;
   archived: boolean;
 }
+
+export interface RecordKey {
+  aesKey: string;
+  iv: string;
+}

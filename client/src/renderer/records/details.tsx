@@ -1,6 +1,6 @@
 import * as React from "react";
 import { match } from "react-router";
-import { get } from "../../api/records";
+import { get, getKeyForRecord } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
 import { getIpfs } from "../../ipfs/ipfsProvider";
@@ -10,6 +10,9 @@ import { join } from "path";
 import { IPFSFile } from "ipfs";
 import { setPageTitle } from "../app";
 import { Button, Table, Alert } from "antd";
+import { file } from "tmp-promise";
+import util from "util";
+const exec = util.promisify(require("child_process").exec);
 
 interface MatchParams {
   record_id: string;
@@ -67,23 +70,43 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
     });
   };
 
+  decryptFile = (encryptedContent: string): Promise<string> => {
+    return (async () => {
+      const keyAndIv = await getKeyForRecord(this.state.recordDetails!.id);
+      const { path: encPath, cleanup: encCleanup } = await file({
+        mode: 0o644,
+        prefix: "medfstmp-"
+      });
+      await util.promisify(writeFile)(encPath, encryptedContent);
+      const decryptedContents = await exec(
+        `src/scripts/decrypt_file.sh "${encPath}" "${keyAndIv.aesKey}" "${
+          keyAndIv.iv
+        }"`
+      );
+      encCleanup();
+      return decryptedContents;
+    })();
+  };
+
   downloadFile = (file: IPFSFile): void => {
     if (file.content) {
       const filePath = join(
         constants.DOWNLOAD_PATH,
         this.state.recordDetails!.filename
       );
-      writeFile(filePath, file.content, err => {
-        if (err) {
-          this.setState({ downloadMessages: [err.message] });
-        } else {
-          this.setState(prevState => ({
-            downloadMessages: [
-              ...prevState.downloadMessages,
-              `Downloaded to ${filePath}`
-            ]
-          }));
-        }
+      this.decryptFile(file.content as string).then(decryptedContents => {
+        writeFile(filePath, decryptedContents, err => {
+          if (err) {
+            this.setState({ downloadMessages: [err.message] });
+          } else {
+            this.setState(prevState => ({
+              downloadMessages: [
+                ...prevState.downloadMessages,
+                `Downloaded to ${filePath}`
+              ]
+            }));
+          }
+        });
       });
     }
   };

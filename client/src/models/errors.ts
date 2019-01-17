@@ -1,1 +1,2 @@
 export const ERR_NOT_AUTHORIZED = "NOT_AUTHORIZED";
+export const ERR_NOT_LOGGED_IN = "NOT_LOGGED_IN";
