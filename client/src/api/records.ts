@@ -5,7 +5,7 @@ import { tmpName } from "tmp-promise";
 import * as fs from "fs";
 import util from "util";
 import { RecordItem, RecordDetails, RecordKey } from "../models/records";
-import { ERR_NOT_AUTHORIZED } from "../models/errors";
+import { ERR_NOT_AUTHORIZED, ERR_NOT_LOGGED_IN } from "../models/errors";
 import * as crypto from "crypto";
 import { getLogin } from "../utils/loginUtils";
 const exec = util.promisify(require("child_process").exec);
@@ -34,7 +34,7 @@ function decryptAesKey(aesKey: string): Promise<string> {
             .toString("hex")
         );
       } else {
-        reject("User not logged in");
+        reject(ERR_NOT_LOGGED_IN);
       }
     })
   );
