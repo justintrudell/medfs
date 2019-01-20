@@ -1,10 +1,17 @@
 from json import loads
 
 from flask import Blueprint, request
-from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+from flask_login import (
+    LoginManager,
+    login_required,
+    login_user,
+    logout_user,
+    current_user,
+)
 
 from record_service.database.database import db
 from record_service.models.user import User
+from record_service.models.doctor import Doctor
 from record_service.utils.responses import JsonResponse
 
 
@@ -17,6 +24,14 @@ def load_user(user_id: str) -> User:
     return db.session.query(User).get(user_id)
 
 
+# [
+#     Data object:
+#     {
+#         userId: string,
+#         privateKey: string,
+#         isDoctor: bool,
+#     }
+# ]
 @auth_api.route("/login", methods=["POST"])
 def login():
     data = loads(request.data)
@@ -32,6 +47,9 @@ def login():
     if not User.check_password(u.password, data["password"]):
         return "Invalid password", 401
 
+    # Find out if person is a doctor or patient. For now, we assume only one of the two.
+    doctor = db.session.query(Doctor).filter(Doctor.user_id == u.id).first()
+
     remember_me = data.get("remember_me", False)
 
     # sets the token in the response header, alternatively we can also return
@@ -39,7 +57,8 @@ def login():
     login_user(u, remember=remember_me)
     data = {
         "userId": str(u.id),
-        "privateKey": u.private_key
+        "privateKey": u.private_key,
+        "isDoctor": doctor is not None,
     }
     return JsonResponse(data=data, message="Success", status=200)
 

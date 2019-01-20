@@ -4,16 +4,20 @@ import * as userAPI from "../../api/users";
 import { Error } from "../components/notifications/error";
 import { Form, Icon, Input, Button, Layout, message } from "antd";
 import { Link } from "react-router-dom";
+import { Radio } from "antd";
 import { HistoryProps } from "../app";
 
 const { Content } = Layout;
 const logo = require("../../image/logo.png");
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
 
 type State = {
   email: string;
   password: string;
   confirmPassword: string;
   errorMessage: string;
+  userType: string;
 };
 
 export class Signup extends React.Component<HistoryProps, State> {
@@ -23,7 +27,8 @@ export class Signup extends React.Component<HistoryProps, State> {
       email: "",
       password: "",
       confirmPassword: "",
-      errorMessage: ""
+      errorMessage: "",
+      userType: "patient"
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -57,7 +62,11 @@ export class Signup extends React.Component<HistoryProps, State> {
     }
 
     userAPI
-      .createUser(this.state.email, this.state.password)
+      .createUser(
+        this.state.email,
+        this.state.password,
+        _.isEqual(this.state.userType, "doctor")
+      )
       .then(response => {
         if (response.statusCode === 201) {
           message.success("Success!");
@@ -67,9 +76,9 @@ export class Signup extends React.Component<HistoryProps, State> {
           console.log(response);
         }
       })
-      .catch(error => {
-        message.error(error);
-        console.log(error);
+      .catch((error: Error) => {
+        message.error(error.toString());
+        console.error(error);
       });
   }
 
@@ -82,6 +91,15 @@ export class Signup extends React.Component<HistoryProps, State> {
           </div>
           <div style={{ background: "#fff", padding: 24 }}>
             <h3>Register</h3>
+            <div style={{ padding: 12 }}>
+              <RadioGroup
+                onChange={e => this.setState({ userType: e.target.value })}
+                defaultValue={this.state.userType}
+              >
+                <RadioButton value="patient">Patient</RadioButton>
+                <RadioButton value="doctor">Doctor</RadioButton>
+              </RadioGroup>
+            </div>
             <Form onSubmit={this.handleSubmit} className="login-form">
               <Form.Item>
                 <Input

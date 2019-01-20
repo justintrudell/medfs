@@ -59,7 +59,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
             };
             this.setState({ loading: false });
             this.props.loginCallback(userInternal);
-          })
+          });
       })
       .catch((error: Error) => {
         if (error.message === ERR_NOT_AUTHORIZED) {
