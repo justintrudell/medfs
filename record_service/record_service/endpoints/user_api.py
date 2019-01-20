@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from flask_login import login_required, current_user, logout_user
 import json
 from sqlalchemy.sql import exists
+from record_service.models.doctor import Doctor
 
 from record_service.database.database import db
 from record_service.models.user import User
@@ -25,7 +26,7 @@ def test():
 @user_api.route("/users/create", methods=["POST"])
 def create_user():
     data = json.loads(request.data)
-    if ("username", "password", "keyPair") - data.keys() or (
+    if ("username", "password", "keyPair", "isDoctor") - data.keys() or (
         "public",
         "private",
     ) - data["keyPair"].keys():
@@ -42,14 +43,16 @@ def create_user():
         User.validate_password_for_private_key(
             data["password"], data["keyPair"]["private"]
         )
-        db.session.add(
-            User(
-                email=user_id,
-                password=user_pw,
-                public_key=data["keyPair"]["public"],
-                private_key=data["keyPair"]["private"],
-            )
+        user = User(
+            email=user_id,
+            password=user_pw,
+            public_key=data["keyPair"]["public"],
+            private_key=data["keyPair"]["private"],
         )
+        db.session.add(user)
+        db.session.commit()
+        if data["isDoctor"] == True:
+            db.session.add(Doctor(user_id=user.id))
         db.session.commit()
         return "Success", 201
     except UnencryptedKeyProvidedError:

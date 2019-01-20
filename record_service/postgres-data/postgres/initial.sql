@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.1 (Debian 11.1-1.pgdg90+1)
--- Dumped by pg_dump version 11.1 (Debian 11.1-1.pgdg90+1)
+-- Dumped from database version 10.4 (Debian 10.4-2.pgdg90+1)
+-- Dumped by pg_dump version 10.4 (Debian 10.4-2.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -18,15 +18,90 @@ SET row_security = off;
 ALTER TABLE IF EXISTS ONLY public.records DROP CONSTRAINT IF EXISTS records_creator_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.record_keys DROP CONSTRAINT IF EXISTS record_keys_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.record_keys DROP CONSTRAINT IF EXISTS record_keys_record_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.patients DROP CONSTRAINT IF EXISTS patients_user_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.doctors DROP CONSTRAINT IF EXISTS doctors_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.users DROP CONSTRAINT IF EXISTS users_pkey;
 ALTER TABLE IF EXISTS ONLY public.records DROP CONSTRAINT IF EXISTS records_pkey;
 ALTER TABLE IF EXISTS ONLY public.record_keys DROP CONSTRAINT IF EXISTS record_keys_pkey;
+ALTER TABLE IF EXISTS ONLY public.patients DROP CONSTRAINT IF EXISTS patients_pkey;
+ALTER TABLE IF EXISTS ONLY public.patient_doctors DROP CONSTRAINT IF EXISTS patient_doctors_pkey;
+ALTER TABLE IF EXISTS ONLY public.doctors DROP CONSTRAINT IF EXISTS doctors_pkey;
 DROP TABLE IF EXISTS public.users;
 DROP TABLE IF EXISTS public.records;
 DROP TABLE IF EXISTS public.record_keys;
+DROP TABLE IF EXISTS public.patients;
+DROP TABLE IF EXISTS public.patient_doctors;
+DROP TABLE IF EXISTS public.doctors;
+DROP EXTENSION IF EXISTS plpgsql;
+DROP SCHEMA IF EXISTS public;
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA public;
+
+
+ALTER SCHEMA public OWNER TO postgres;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
+
+--
+-- Name: doctors; Type: TABLE; Schema: public; Owner: testuser
+--
+
+CREATE TABLE public.doctors (
+    user_id uuid NOT NULL
+);
+
+
+ALTER TABLE public.doctors OWNER TO testuser;
+
+--
+-- Name: patient_doctors; Type: TABLE; Schema: public; Owner: testuser
+--
+
+CREATE TABLE public.patient_doctors (
+    patient_id uuid NOT NULL,
+    doctor_id uuid NOT NULL
+);
+
+
+ALTER TABLE public.patient_doctors OWNER TO testuser;
+
+--
+-- Name: patients; Type: TABLE; Schema: public; Owner: testuser
+--
+
+CREATE TABLE public.patients (
+    user_id uuid NOT NULL,
+    primary_physician uuid
+);
+
+
+ALTER TABLE public.patients OWNER TO testuser;
 
 --
 -- Name: record_keys; Type: TABLE; Schema: public; Owner: testuser
@@ -74,6 +149,30 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO testuser;
 
 --
+-- Data for Name: doctors; Type: TABLE DATA; Schema: public; Owner: testuser
+--
+
+COPY public.doctors (user_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: patient_doctors; Type: TABLE DATA; Schema: public; Owner: testuser
+--
+
+COPY public.patient_doctors (patient_id, doctor_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: patients; Type: TABLE DATA; Schema: public; Owner: testuser
+--
+
+COPY public.patients (user_id, primary_physician) FROM stdin;
+\.
+
+
+--
 -- Data for Name: record_keys; Type: TABLE DATA; Schema: public; Owner: testuser
 --
 
@@ -112,6 +211,30 @@ COPY public.users (id, email, password, public_key, private_key) FROM stdin;
 
 
 --
+-- Name: doctors doctors_pkey; Type: CONSTRAINT; Schema: public; Owner: testuser
+--
+
+ALTER TABLE ONLY public.doctors
+    ADD CONSTRAINT doctors_pkey PRIMARY KEY (user_id);
+
+
+--
+-- Name: patient_doctors patient_doctors_pkey; Type: CONSTRAINT; Schema: public; Owner: testuser
+--
+
+ALTER TABLE ONLY public.patient_doctors
+    ADD CONSTRAINT patient_doctors_pkey PRIMARY KEY (patient_id, doctor_id);
+
+
+--
+-- Name: patients patients_pkey; Type: CONSTRAINT; Schema: public; Owner: testuser
+--
+
+ALTER TABLE ONLY public.patients
+    ADD CONSTRAINT patients_pkey PRIMARY KEY (user_id);
+
+
+--
 -- Name: record_keys record_keys_pkey; Type: CONSTRAINT; Schema: public; Owner: testuser
 --
 
@@ -136,6 +259,22 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: doctors doctors_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: testuser
+--
+
+ALTER TABLE ONLY public.doctors
+    ADD CONSTRAINT doctors_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: patients patients_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: testuser
+--
+
+ALTER TABLE ONLY public.patients
+    ADD CONSTRAINT patients_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: record_keys record_keys_record_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: testuser
 --
 
@@ -157,6 +296,13 @@ ALTER TABLE ONLY public.record_keys
 
 ALTER TABLE ONLY public.records
     ADD CONSTRAINT records_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id);
+
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
+--
+
+GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --

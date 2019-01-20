@@ -15,7 +15,8 @@ export function getUser(userId: number): recordService.RecordServiceResponse {
 
 export function createUser(
   username: string,
-  password: string
+  password: string,
+  isDoctor: boolean
 ): recordService.RecordServiceResponse {
   return (async () => {
     const { path, cleanup } = await file({
@@ -26,16 +27,17 @@ export function createUser(
     const privKey = await exec(`src/scripts/gen_pk.sh "${path}"`);
     // TODO: Figure out how to pipe privKey into stdin instead of echo
     const pubKey = await exec(
-      `echo "${privKey}" | src/scripts/extract_pub.sh "${path}"`
+      `echo "${privKey.stdout}" | src/scripts/extract_pub.sh "${path}"`
     );
     cleanup();
     const data = {
       username,
       password,
       keyPair: {
-        private: privKey,
-        public: pubKey
-      }
+        private: privKey.stdout,
+        public: pubKey.stdout
+      },
+      isDoctor
     };
     return recordService.post(`/users/create`, data);
   })();
