@@ -103,8 +103,10 @@ export class MedFsHeader extends React.Component<
                 </Link>
               </Menu.Item>
               <Menu.Item key="settings">
-                <Icon type="setting" />
-                <span className="nav-text">Settings</span>
+                <Link to="/settings">
+                  <Icon type="setting" />
+                  <span className="nav-text">Settings</span>
+                </Link>
               </Menu.Item>
             </Menu>
           </Col>
