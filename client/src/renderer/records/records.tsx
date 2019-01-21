@@ -5,14 +5,12 @@ import { Switch, Route, Link } from "react-router-dom";
 import { DetailView } from "./details";
 import { ListView } from "../components/lists/listView";
 import { updateIsLoggedIn, setPageTitle } from "../app";
-import { Layout, Button } from "antd";
+import { Button } from "antd";
 import { PermissionsModal } from "../components/modals/permissions";
 import { ColumnProps } from "antd/lib/table";
 import { ERR_NOT_AUTHORIZED } from "../../models/errors";
 import { Permission } from "../../models/permissions";
 import { getUsersForRecord } from "../../api/permissions";
-
-const { Content } = Layout;
 
 type RecordListState = {
   records: RecordItem[];
@@ -105,14 +103,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
 
   render() {
     return (
-      <Content
-        style={{
-          margin: "24px 16px",
-          padding: 24,
-          background: "#fff",
-          height: "85vh"
-        }}
-      >
+      <div>
         <div>
           <Switch>
             <Route
@@ -142,7 +133,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
           permissions={this.state.currentPermissions}
           hideModalCallback={this.hidePermissionsModal}
         />
-      </Content>
+      </div>
     );
   }
 }

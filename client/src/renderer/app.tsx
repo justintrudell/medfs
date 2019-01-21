@@ -124,13 +124,14 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             clearNotifications={this.clearNotifications}
           />
         )}
-        <Content style={{ paddingTop: "60px" }}>
+        <Content style={{ paddingTop: this.isLoggedIn() ? "60px" : "30px" }}>
           <Main
             updateIsLoggedIn={userInternal =>
               this.updateLogin(userInternal, true)
             }
             isLoggedIn={this.isLoggedIn}
             setPageTitle={this.setPageTitle}
+            stream={this.state.stream}
           />
         </Content>
       </Layout>

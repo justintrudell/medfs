@@ -1,15 +1,6 @@
 import * as React from "react";
 import * as _ from "lodash";
-import {
-  Upload,
-  Icon,
-  Layout,
-  Form,
-  Input,
-  Button,
-  Select,
-  message
-} from "antd";
+import { Upload, Icon, Form, Input, Button, Select, message } from "antd";
 import { RcFile, UploadFile } from "antd/lib/upload/interface";
 import {
   Permission,
@@ -24,7 +15,6 @@ import { getKeys } from "../../api/users";
 import { getLogin } from "../../utils/loginUtils";
 import * as crypto from "crypto";
 
-const { Content } = Layout;
 const Dragger = Upload.Dragger;
 
 interface UploadState {
@@ -206,14 +196,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
 
   render() {
     return (
-      <Content
-        style={{
-          margin: "24px 16px",
-          padding: 24,
-          background: "#fff",
-          height: "85vh"
-        }}
-      >
+      <div>
         <Form onSubmit={this.handleSubmit}>
           {this.state.permissions.map((permission, idx) => {
             return (
@@ -290,7 +273,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
           </Form.Item>
         </Form>
         <Error errorMessage={this.state.errorMessage} />
-      </Content>
+      </div>
     );
   }
 }
