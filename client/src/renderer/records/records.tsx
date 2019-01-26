@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Card, Row, Col } from "antd";
 import { getAllForUser } from "../../api/records";
 import { RecordItem } from "../../models/records";
 import { Switch, Route, Link } from "react-router-dom";
@@ -62,13 +63,12 @@ export class Records extends React.Component<RecordProps, RecordListState> {
         sorter: (a: RecordItem, b: RecordItem) => a.name.localeCompare(b.name)
       },
       {
-        title: "Actions",
-        key: "action",
-        render: (_, record) => (
-          <Button onClick={() => this.showPermissionsModal(record)}>
-            Change permissions
-          </Button>
-        )
+        title: "Shared With",
+        dataIndex: "shared_with",
+        key: "shared_with",
+        render: (_, record) => {
+          return record.permissionedUsers.map(u => u.email).toString();
+        }
       },
       {
         title: "Created At",
@@ -76,6 +76,30 @@ export class Records extends React.Component<RecordProps, RecordListState> {
         render: (_, record) => record.created.toLocaleString("en-US"),
         sorter: (a: RecordItem, b: RecordItem) =>
           a.created.getTime() - b.created.getTime()
+      },
+      {
+        title: "Actions",
+        key: "action",
+        render: (_, record) => (
+          <Row type="flex" justify="start" align="middle">
+            <Col span={3}>
+              <Button
+                type="primary"
+                shape="circle"
+                icon="download"
+                size="small"
+              />
+            </Col>
+            <Col span={5}>
+              <Button onClick={() => {}}>Edit</Button>
+            </Col>
+            <Col span={5}>
+              <Button onClick={() => this.showPermissionsModal(record)}>
+                Change permissions
+              </Button>
+            </Col>
+          </Row>
+        )
       }
     ];
   };
@@ -105,27 +129,29 @@ export class Records extends React.Component<RecordProps, RecordListState> {
     return (
       <div>
         <div>
-          <Switch>
-            <Route
-              exact
-              path="/"
-              render={() => (
-                <ListView
-                  items={this.state.records}
-                  columns={this.tableColumns()}
-                  keyProp="id"
-                  pageTitle={this.props.pageTitle}
-                  setPageTitle={this.props.setPageTitle}
-                />
-              )}
-            />
-            <Route
-              path="/records/details/:record_id"
-              render={({ match }) => (
-                <DetailView {...this.props} match={match} />
-              )}
-            />
-          </Switch>
+          <Card title="My Documents">
+            <Switch>
+              <Route
+                exact
+                path="/"
+                render={() => (
+                  <ListView
+                    items={this.state.records}
+                    columns={this.tableColumns()}
+                    keyProp="id"
+                    pageTitle={this.props.pageTitle}
+                    setPageTitle={this.props.setPageTitle}
+                  />
+                )}
+              />
+              <Route
+                path="/records/details/:record_id"
+                render={({ match }) => (
+                  <DetailView {...this.props} match={match} />
+                )}
+              />
+            </Switch>
+          </Card>
         </div>
         <PermissionsModal
           visible={this.state.permissionsModalVisible}
