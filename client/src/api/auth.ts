@@ -11,7 +11,10 @@ export interface LoginDetails {
   privateKey: string;
 }
 
-export function login(username: string, password: string): Promise<LoginDetails> {
+export function login(
+  username: string,
+  password: string
+): Promise<LoginDetails> {
   const data = { username, password, remember_me: true };
   return recordService.post(`/login`, data).then(response => {
     if (response.statusCode === 200) {
@@ -30,7 +33,10 @@ export function login(username: string, password: string): Promise<LoginDetails>
 }
 
 // Private key is encrypted with the user's password
-export function decryptPk(privateKey: string, password: string): Promise<string> {
+export function decryptPk(
+  privateKey: string,
+  password: string
+): Promise<string> {
   return (async () => {
     const { path: pkPath, cleanup: pkFire } = await file({
       mode: 0o644,
@@ -44,11 +50,13 @@ export function decryptPk(privateKey: string, password: string): Promise<string>
     });
     await util.promisify(fs.writeFile)(passwordPath, password);
 
-    const decryptedPk = await exec(`src/scripts/decrypt_pk.sh "${pkPath}" "${passwordPath}"`);
+    const decryptedPk = await exec(
+      `src/scripts/decrypt_pk.sh "${pkPath}" "${passwordPath}"`
+    );
 
     pkFire();
     passwordCleanup();
-    return decryptedPk;
+    return decryptedPk.stdout;
   })();
 }
 
