@@ -84,7 +84,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
         }"`
       );
       encCleanup();
-      return decryptedContents;
+      return decryptedContents.stdout;
     })();
   };
 
