@@ -1,5 +1,6 @@
 import * as React from "react";
 import { match } from "react-router";
+import { Link } from "react-router-dom";
 import { get, getKeyForRecord } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
@@ -150,6 +151,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
         >
           Download
         </Button>
+        <Link to="/preview">Preview</Link>
         {this.state.downloadMessages.map((message, idx) => {
           return (
             <Alert

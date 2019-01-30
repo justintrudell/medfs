@@ -5,6 +5,7 @@ import { Signup } from "./authFlow/signup";
 import { Records, RecordProps } from "./records/records";
 import { isLoggedIn } from "./app";
 import { Uploads } from "./records/uploads";
+import { Preview } from "./records/preview";
 import { Layout } from "antd";
 import { UserInternal } from "../models/users";
 import { SettingsPage } from "./home/settings_page";
@@ -44,6 +45,7 @@ export class Main extends React.Component<MainProps, MainState> {
         }}
       >
         <Switch>
+          <Route exact path="/preview" component={Preview} />
           <Route exact path="/signup" component={Signup} />
           <Route
             exact
