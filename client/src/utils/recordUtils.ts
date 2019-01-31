@@ -2,7 +2,6 @@ import { getIpfs } from "../ipfs/ipfsProvider"
 import { getKeyForRecord } from "../api/records"
 import { file } from "tmp-promise";
 import { IPFSFile } from "ipfs";
-import assert from "assert";
 import util from "util";
 const exec = util.promisify(require("child_process").exec);
 const writeFile = util.promisify(require("fs").writeFile);
@@ -16,7 +15,9 @@ export async function downloadRecord(recordHash: string, recordId: string) : Pro
   try {
     const ipfs = await getIpfs();
     const files = await ipfs.files.get(recordHash);
-    assert(files.length == 1, `More than one file found for hash: ${recordHash}`);
+    if (files.length != 1) {
+      Promise.reject(new Error(`More than one file found for hash: ${recordHash}`));
+    }
     return downloadFile(files[0], recordId);
   }
   catch (err) {
