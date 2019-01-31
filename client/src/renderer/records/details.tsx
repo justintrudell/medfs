@@ -4,12 +4,13 @@ import { get } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
 import { downloadRecord } from "../../utils/recordUtils"
-import { copyFile } from "fs";
 import { constants } from "../../config";
 import { join, dirname } from "path";
 import { setPageTitle } from "../app";
 import { Button, Table, Alert } from "antd";
 import { shell } from "electron"
+import util from "util"
+const copyFile = util.promisify(require("fs").copyFile);
 
 export interface MatchParams {
   record_id: string;
@@ -49,22 +50,9 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
   }
 
   openTmpFile = () => {
-    if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
-      return;
-    }
-    downloadRecord(this.state.recordDetails.hash, this.state.recordDetails.id)
-      .then(tmpFile => {
-        const tmpFilePath = join(
-          dirname(tmpFile.path),
-          "medfstmp-" + this.state.recordDetails!.filename
-        );
-        copyFile(tmpFile.path, tmpFilePath, (err) => {
-          if (err) {
-            this.setState({ downloadMessages: [err.message] });
-          }
-          shell.openItem(tmpFilePath)
-        });
-        tmpFile.cleanup()
+    this.saveCopyOfTmpFile(false)
+      .then(filePath => {
+        shell.openItem(filePath);
       })
       .catch(err => {
         this.setState({ downloadMessages: [err.message] });
@@ -72,31 +60,40 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
   }
 
   saveRecordToDownloads = () => {
-    if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
-      return;
-    }
-    downloadRecord(this.state.recordDetails.hash, this.state.recordDetails.id)
-      .then(tmpFile => {
-        const downloadsFilePath = join(
-          constants.DOWNLOAD_PATH,
-          this.state.recordDetails!.filename
-        );
-        copyFile(tmpFile.path, downloadsFilePath, (err) => {
-          if (err) {
-            this.setState({ downloadMessages: [err.message] });
-          }
-          tmpFile.cleanup();
-          this.setState(prevState => ({
-            downloadMessages: [
-              ...prevState.downloadMessages,
-              `Downloaded to ${downloadsFilePath}`
-            ]
-          }));
-        });
+    this.saveCopyOfTmpFile(true)
+      .then(filePath => {
+        this.setState(prevState => ({
+          downloadMessages: [
+            ...prevState.downloadMessages,
+            `Downloaded to ${filePath}`
+          ]
+        }));
       })
       .catch(err => {
         this.setState({ downloadMessages: [err.message] });
       });
+  }
+
+  saveCopyOfTmpFile = (isDownload: boolean) => {
+    if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
+      return Promise.reject(new Error("No record details"));
+    }
+
+    return (async () => {
+      try {
+        const tmpFile = await downloadRecord(this.state.recordDetails!.hash, this.state.recordDetails!.id);
+        const pathToSaveTo = join(
+          (isDownload) ? constants.DOWNLOAD_PATH : dirname(tmpFile.path),
+          ((isDownload) ? "" : "medfstmp-") + this.state.recordDetails!.filename
+        );
+        await copyFile(tmpFile.path, pathToSaveTo);
+        tmpFile.cleanup()
+        return pathToSaveTo;
+      }
+      catch (err) {
+        return Promise.reject(err);
+      }
+    })();
   }
 
   getToRender = (): JSX.Element => {
