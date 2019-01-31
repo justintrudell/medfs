@@ -62,14 +62,14 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
           if (err) {
             this.setState({ downloadMessages: [err.message] });
           }
+          tmpFile.cleanup();
+          this.setState(prevState => ({
+            downloadMessages: [
+              ...prevState.downloadMessages,
+              `Downloaded to ${downloadsFilePath}`
+            ]
+          }));
         });
-        tmpFile.cleanup();
-        this.setState(prevState => ({
-          downloadMessages: [
-            ...prevState.downloadMessages,
-            `Downloaded to ${downloadsFilePath}`
-          ]
-        }));
       })
       .catch(err => {
         this.setState({ downloadMessages: [err.message] });
