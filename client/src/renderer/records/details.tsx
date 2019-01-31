@@ -1,19 +1,15 @@
 import * as React from "react";
 import { match } from "react-router";
 import { Link } from "react-router-dom";
-import { get, getKeyForRecord } from "../../api/records";
+import { get } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
-import { getIpfs } from "../../ipfs/ipfsProvider";
-import { writeFile } from "fs";
+import { downloadRecord } from "../../utils/recordUtils"
+import { copyFile } from "fs";
 import { constants } from "../../config";
 import { join } from "path";
-import { IPFSFile } from "ipfs";
 import { setPageTitle } from "../app";
 import { Button, Table, Alert } from "antd";
-import { file } from "tmp-promise";
-import util from "util";
-const exec = util.promisify(require("child_process").exec);
 
 export interface MatchParams {
   record_id: string;
@@ -52,65 +48,33 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       });
   }
 
-  downloadRecord = () => {
+  saveRecordToDownloads = () => {
     if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
       return;
     }
-
-    getIpfs().then(ipfs => {
-      ipfs.files
-        .get(this.state.recordDetails!.hash)
-        .then(result => {
-          result.forEach(file => {
-            this.downloadFile(file);
-          });
-        })
-        .catch(err => {
-          this.setState({ downloadMessages: [err.message] });
-        });
-    });
-  };
-
-  decryptFile = (encryptedContent: string): Promise<string> => {
-    return (async () => {
-      const keyAndIv = await getKeyForRecord(this.state.recordDetails!.id);
-      const { path: encPath, cleanup: encCleanup } = await file({
-        mode: 0o644,
-        prefix: "medfstmp-"
-      });
-      await util.promisify(writeFile)(encPath, encryptedContent);
-      const decryptedContents = await exec(
-        `src/scripts/decrypt_file.sh "${encPath}" "${keyAndIv.aesKey}" "${
-          keyAndIv.iv
-        }"`
-      );
-      encCleanup();
-      return decryptedContents.stdout;
-    })();
-  };
-
-  downloadFile = (file: IPFSFile): void => {
-    if (file.content) {
-      const filePath = join(
-        constants.DOWNLOAD_PATH,
-        this.state.recordDetails!.filename
-      );
-      this.decryptFile(file.content as string).then(decryptedContents => {
-        writeFile(filePath, decryptedContents, err => {
+    downloadRecord(this.state.recordDetails.hash, this.state.recordDetails.id)
+      .then(tmpFile => {
+        const downloadsFilePath = join(
+          constants.DOWNLOAD_PATH,
+          this.state.recordDetails!.filename
+        );
+        copyFile(tmpFile.path, downloadsFilePath, (err) => {
           if (err) {
             this.setState({ downloadMessages: [err.message] });
-          } else {
-            this.setState(prevState => ({
-              downloadMessages: [
-                ...prevState.downloadMessages,
-                `Downloaded to ${filePath}`
-              ]
-            }));
           }
         });
+        tmpFile.cleanup();
+        this.setState(prevState => ({
+          downloadMessages: [
+            ...prevState.downloadMessages,
+            `Downloaded to ${downloadsFilePath}`
+          ]
+        }));
+      })
+      .catch(err => {
+        this.setState({ downloadMessages: [err.message] });
       });
-    }
-  };
+  }
 
   getToRender = (): JSX.Element => {
     if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
@@ -147,7 +111,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
           style={{ marginTop: 24 }}
           type="primary"
           icon="download"
-          onClick={this.downloadRecord}
+          onClick={this.saveRecordToDownloads}
         >
           Download
         </Button>
