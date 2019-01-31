@@ -12,7 +12,7 @@ import { shell } from "electron"
 import util from "util"
 const copyFile = util.promisify(require("fs").copyFile);
 
-export interface MatchParams {
+interface MatchParams {
   record_id: string;
 }
 

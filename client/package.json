@@ -24,7 +24,6 @@
     "nedb": "^1.8.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
-    "react-file-viewer": "^1.1.0",
     "react-router-dom": "^4.3.1",
     "request": "2.87.0",
     "set-cookie-parser": "^2.2.0",
