@@ -15,7 +15,7 @@ import { file } from "tmp-promise";
 import util from "util";
 const exec = util.promisify(require("child_process").exec);
 
-interface MatchParams {
+export interface MatchParams {
   record_id: string;
 }
 
@@ -151,7 +151,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
         >
           Download
         </Button>
-        <Link to="/preview">Preview</Link>
+        <Link to={`/records/preview/${this.state.recordDetails.id}`}>Preview</Link>
         {this.state.downloadMessages.map((message, idx) => {
           return (
             <Alert

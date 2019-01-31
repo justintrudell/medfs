@@ -1,15 +1,25 @@
-import React, { Component } from 'react';
+import React from 'react';
 import FileViewer from 'react-file-viewer';
+import { match } from "react-router";
+import { MatchParams } from "./details";
 
-const file = 'http://example.com/image.png'
-const type = 'png'
+const file = 'https://i.imgur.com/px9w5Q1.jpg'
+const type = 'jpeg'
 
-export class Preview extends Component {
+interface PreviewProps {
+  match: match<MatchParams>;
+}
+
+export class Preview extends React.Component<PreviewProps> {
+  constructor(props: PreviewProps) {
+    super(props);
+  }
   render() {
     return (
       <FileViewer
         fileType={type}
-        filePath={file}/>
+        filePath={file}
+      />
     );
   }
 }
