@@ -136,7 +136,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
           Download
         </Button>
         <Button
-          style={{ marginTop: 24, marginLeft: 24 }}
+          style={{ marginTop: 24, marginLeft: 12 }}
           type="primary"
           icon="download"
           onClick={this.openTmpFile}
