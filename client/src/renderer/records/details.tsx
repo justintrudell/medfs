@@ -47,7 +47,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       .catch(error => {
         console.error(error);
       });
-  }
+  };
 
   openTmpFile = () => {
     this.saveCopyOfTmpFile(false)
@@ -57,7 +57,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       .catch(err => {
         this.setState({ downloadMessages: [err.message] });
       });
-  }
+  };
 
   saveRecordToDownloads = () => {
     this.saveCopyOfTmpFile(true)
@@ -72,7 +72,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       .catch(err => {
         this.setState({ downloadMessages: [err.message] });
       });
-  }
+  };
 
   saveCopyOfTmpFile = (isDownload: boolean) => {
     if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
@@ -94,7 +94,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
         return Promise.reject(err);
       }
     })();
-  }
+  };
 
   getToRender = (): JSX.Element => {
     if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
