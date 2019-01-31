@@ -1,15 +1,15 @@
 import * as React from "react";
 import { match } from "react-router";
-import { Link } from "react-router-dom";
 import { get } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
 import { downloadRecord } from "../../utils/recordUtils"
 import { copyFile } from "fs";
 import { constants } from "../../config";
-import { join } from "path";
+import { join, dirname } from "path";
 import { setPageTitle } from "../app";
 import { Button, Table, Alert } from "antd";
+import { shell } from "electron"
 
 export interface MatchParams {
   record_id: string;
@@ -45,6 +45,29 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       })
       .catch(error => {
         console.error(error);
+      });
+  }
+
+  openTmpFile = () => {
+    if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
+      return;
+    }
+    downloadRecord(this.state.recordDetails.hash, this.state.recordDetails.id)
+      .then(tmpFile => {
+        const tmpFilePath = join(
+          dirname(tmpFile.path),
+          "medfstmp-" + this.state.recordDetails!.filename
+        );
+        copyFile(tmpFile.path, tmpFilePath, (err) => {
+          if (err) {
+            this.setState({ downloadMessages: [err.message] });
+          }
+          shell.openItem(tmpFilePath)
+        });
+        tmpFile.cleanup()
+      })
+      .catch(err => {
+        this.setState({ downloadMessages: [err.message] });
       });
   }
 
@@ -115,7 +138,14 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
         >
           Download
         </Button>
-        <Link to={`/records/preview/${this.state.recordDetails.id}`}>Preview</Link>
+        <Button
+          style={{ marginTop: 24, marginLeft: 24 }}
+          type="primary"
+          icon="download"
+          onClick={this.openTmpFile}
+        >
+          Preview
+        </Button>
         {this.state.downloadMessages.map((message, idx) => {
           return (
             <Alert

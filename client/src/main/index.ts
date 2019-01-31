@@ -21,7 +21,7 @@ function ensurePath() {
 
 function createMainWindow() {
   // Construct new BrowserWindow
-  const window = new BrowserWindow({ width: 1000, height: 800 });
+  const window = new BrowserWindow({ width: 1000, height: 800, webPreferences: { webSecurity: false }});
 
   // Set url for `win`
   // points to `webpack-dev-server` in development

@@ -3,7 +3,6 @@ import { getAllForUser } from "../../api/records";
 import { RecordItem } from "../../models/records";
 import { Switch, Route, Link } from "react-router-dom";
 import { DetailView } from "./details";
-import { Preview } from "./preview";
 import { ListView } from "../components/lists/listView";
 import { updateIsLoggedIn, setPageTitle } from "../app";
 import { Button } from "antd";
@@ -118,12 +117,6 @@ export class Records extends React.Component<RecordProps, RecordListState> {
                   pageTitle={this.props.pageTitle}
                   setPageTitle={this.props.setPageTitle}
                 />
-              )}
-            />
-            <Route
-              path="/records/preview/:record_id"
-              render={({ match }) => (
-                <Preview match={match} />
               )}
             />
             <Route
