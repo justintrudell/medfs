@@ -10,6 +10,7 @@ from record_service.database.database import db
 from record_service.external import acl_api, queueing_api
 from record_service.models.record import Record
 from record_service.models.record_key import RecordKey
+from record_service.models.user import User
 
 from record_service.utils.responses import JsonResponse
 from record_service.utils.file_uploader import FileUploader, IpfsWriter
@@ -29,7 +30,8 @@ UPLOADER = FileUploader(IpfsWriter())
 #         id: string,
 #         name: string,
 #         hash: string,
-#         created: string (iso format ts)
+#         created: string (iso format ts),
+#         permissioned_users: [{id, email}]
 #     }
 # ]
 @record_api.route("/records", methods=["GET"])
@@ -64,6 +66,17 @@ def get_all_records_for_user() -> JsonResponse:
     ]
 
     data = [d for d in data if d["id"] in permissioned_records]
+    # Not the most performant but we're dealing with O(10) entries right now
+    for d in data:
+        permissioned_user_ids = [
+            u[0] for u in acl_api.get_users_for_record(acl_client, d["id"])
+        ]
+        d["permissioned_users"] = [
+            {"id": str(u.id), "email": u.email}
+            for u in db.session.query(User)
+            .filter(User.id.in_(permissioned_user_ids))
+            .all()
+        ]
 
     return JsonResponse(data=data, status=200)
 

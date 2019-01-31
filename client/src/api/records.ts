@@ -15,10 +15,15 @@ type RecordServiceResponse = {
   name: string;
   hash: string;
   created: string;
+  permissioned_users: [{ id: string; email: string }];
 };
 
 function normalizeRecord(resp: RecordServiceResponse): RecordItem {
-  return { ...resp, created: new Date(resp.created) };
+  return {
+    ...resp,
+    created: new Date(resp.created),
+    permissionedUsers: resp.permissioned_users
+  };
 }
 
 function decryptAesKey(aesKey: string): Promise<string> {
