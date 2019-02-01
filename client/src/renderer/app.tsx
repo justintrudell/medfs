@@ -10,11 +10,13 @@ import { withRouter } from "react-router-dom";
 import { Layout } from "antd";
 import { MedFsNotification } from "../models/notifications";
 import { UserInternal } from "../models/users";
+import { logout } from "../api/auth";
 
 const { Content } = Layout;
 
 export type updateIsLoggedIn = (userInternal?: UserInternal) => void;
 export type isLoggedIn = () => boolean;
+export type isDoctor = () => boolean;
 export type setPageTitle = (title?: string) => void;
 export type addNotification = (notification?: MedFsNotification) => void;
 
@@ -47,6 +49,14 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
 
   isLoggedIn = (): boolean => {
     return !_.isEmpty(this.state.userInternal);
+  };
+
+  isDoctor = (): boolean => {
+    return (
+      this.isLoggedIn() &&
+      this.state.userInternal !== undefined &&
+      this.state.userInternal.isDoctor
+    );
   };
 
   updateLogin = (
@@ -107,6 +117,20 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
     });
   }
 
+  handleLogout = () => {
+    logout()
+      .then(res => {
+        if (!res) {
+          console.error("Something went wrong");
+        }
+        this.state.stream!.close();
+        this.updateLogin(undefined, true);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  };
+
   render() {
     return (
       <Layout
@@ -122,9 +146,11 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             notifications={this.state.notifications}
             pageTitle={this.state.pageTitle}
             clearNotifications={this.clearNotifications}
+            isDoctor={this.isDoctor}
+            logout={this.handleLogout}
           />
         )}
-        <Content style={{ paddingTop: this.isLoggedIn() ? "60px" : "30px" }}>
+        <Content style={{ paddingTop: this.isLoggedIn() ? "0" : "30px" }}>
           <Main
             updateIsLoggedIn={userInternal =>
               this.updateLogin(userInternal, true)

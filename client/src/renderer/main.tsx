@@ -37,9 +37,7 @@ export class Main extends React.Component<MainProps, MainState> {
     return (
       <Content
         style={{
-          margin: "24px 16px",
           padding: 24,
-          background: "#fff",
           height: "85vh"
         }}
       >
@@ -55,16 +53,7 @@ export class Main extends React.Component<MainProps, MainState> {
             path="/uploads"
             render={() => <Uploads setPageTitle={this.props.setPageTitle} />}
           />
-          <Route
-            exact
-            path="/settings"
-            render={() => (
-              <SettingsPage
-                updateIsLoggedIn={this.props.updateIsLoggedIn}
-                stream={this.props.stream}
-              />
-            )}
-          />
+          <Route exact path="/settings" render={() => <SettingsPage />} />
           <Route
             path="/"
             render={() =>
