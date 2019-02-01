@@ -126,6 +126,20 @@ export class MedFsHeader extends React.Component<
     );
   }
 
+  dashboardMenuItem() {
+    if (!this.props.isDoctor()) {
+      return;
+    }
+
+    return (
+      <Menu.Item key="home">
+        <Link to="/">
+          <span className="nav-text">Dashboard</span>
+        </Link>
+      </Menu.Item>
+    );
+  }
+
   render() {
     return (
       <Header
@@ -164,11 +178,7 @@ export class MedFsHeader extends React.Component<
             </div>
           </Menu.Item>
 
-          <Menu.Item key="home">
-            <Link to="/">
-              <span className="nav-text">Dashboard</span>
-            </Link>
-          </Menu.Item>
+          {this.dashboardMenuItem()}
 
           {this.patientsMenuItem()}
         </Menu>

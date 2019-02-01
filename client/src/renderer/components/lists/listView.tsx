@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Table } from "antd";
+import { Table, Empty } from "antd";
 import { ColumnProps } from "antd/lib/table";
 
 interface ListViewProps<T> {
@@ -19,7 +19,7 @@ export class ListView<T> extends React.Component<ListViewProps<T>, {}> {
 
   render() {
     if (!this.props.items.length) {
-      return <p> No items found </p>;
+      return <Empty description="No documents found." />;
     }
     return (
       <Table
