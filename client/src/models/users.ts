@@ -5,6 +5,7 @@ export interface UserInternal {
   userId: string;
   email: string;
   privateKey: string;
+  isDoctor: boolean;
 }
 
 export const userDB = new Datastore({

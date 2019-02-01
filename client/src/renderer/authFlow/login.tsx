@@ -55,7 +55,8 @@ export class Login extends React.Component<LoginProps, LoginState> {
             const userInternal: UserInternal = {
               email: this.state.email,
               userId: loginDetails.userId,
-              privateKey: decryptedPk
+              privateKey: decryptedPk,
+              isDoctor: loginDetails.isDoctor
             };
             this.setState({ loading: false });
             this.props.loginCallback(userInternal);

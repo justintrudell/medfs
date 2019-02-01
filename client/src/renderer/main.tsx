@@ -3,17 +3,19 @@ import { Switch, Route } from "react-router-dom";
 import { Login } from "./authFlow/login";
 import { Signup } from "./authFlow/signup";
 import { Records, RecordProps } from "./records/records";
-import { isLoggedIn } from "./app";
+import { isLoggedIn, isDoctor } from "./app";
 import { Uploads } from "./records/uploads";
 import { Layout } from "antd";
 import { UserInternal } from "../models/users";
 import { SettingsPage } from "./home/settings_page";
+import { Patients } from "./patients/patients";
 
 const { Content } = Layout;
 
 interface MainProps extends RecordProps {
   isLoggedIn: isLoggedIn;
   stream?: EventSource;
+  isDoctor: isDoctor;
 }
 
 interface MainState {
@@ -37,9 +39,7 @@ export class Main extends React.Component<MainProps, MainState> {
     return (
       <Content
         style={{
-          margin: "24px 16px",
           padding: 24,
-          background: "#fff",
           height: "85vh"
         }}
       >
@@ -55,16 +55,14 @@ export class Main extends React.Component<MainProps, MainState> {
             path="/uploads"
             render={() => <Uploads setPageTitle={this.props.setPageTitle} />}
           />
-          <Route
-            exact
-            path="/settings"
-            render={() => (
-              <SettingsPage
-                updateIsLoggedIn={this.props.updateIsLoggedIn}
-                stream={this.props.stream}
-              />
-            )}
-          />
+          <Route exact path="/settings" render={() => <SettingsPage />} />
+          {this.props.isDoctor() && (
+            <Route
+              exact
+              path="/patients"
+              render={() => <Patients {...this.props} />}
+            />
+          )}
           <Route
             path="/"
             render={() =>

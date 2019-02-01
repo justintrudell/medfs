@@ -7,7 +7,7 @@ import { downloadRecord } from "../../utils/recordUtils"
 import { constants } from "../../config";
 import { join, dirname } from "path";
 import { setPageTitle } from "../app";
-import { Button, Table, Alert } from "antd";
+import { Button, Table, Alert, Card } from "antd";
 import { shell } from "electron"
 import util from "util"
 const copyFile = util.promisify(require("fs").copyFile);
@@ -125,7 +125,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
     ];
 
     return (
-      <div>
+      <Card title={this.state.recordDetails.filename}>
         <Table columns={columns} dataSource={pKeys} pagination={false} />
         <Button
           style={{ marginTop: 24 }}
@@ -154,7 +154,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
             />
           );
         })}
-      </div>
+      </Card>
     );
   };
 

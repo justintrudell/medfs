@@ -3,6 +3,7 @@ export interface RecordItem {
   name: string;
   hash: string;
   created: Date;
+  permissionedUsers: [{ id: string; email: string }];
 }
 
 export interface RecordDetails {

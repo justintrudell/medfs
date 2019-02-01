@@ -1,15 +1,11 @@
 import * as React from "react";
-import { Spin, Card, Button } from "antd";
+import { Spin, Card } from "antd";
 import * as _ from "lodash";
 import { getLogin } from "../../utils/loginUtils";
-import { logout } from "../../api/auth";
 import { ERR_UNKNOWN } from "../../models/errors";
 import { UserInternal } from "../../models/users";
-import { updateIsLoggedIn } from "../app";
 
 interface Props {
-  stream?: EventSource;
-  updateIsLoggedIn: updateIsLoggedIn;
 }
 
 interface State {
@@ -42,20 +38,6 @@ export class SettingsPage extends React.Component<Props, State> {
       });
   }
 
-  handleLogout = () => {
-    logout()
-      .then(res => {
-        if (!res) {
-          console.error("Something went wrong");
-        }
-        this.props.stream!.close();
-        this.props.updateIsLoggedIn(undefined);
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  };
-
   render() {
     if (this.state.isLoading) {
       return <Spin />;
@@ -63,9 +45,6 @@ export class SettingsPage extends React.Component<Props, State> {
     return (
       <Card title="Your Settings">
         <p>Email: {this.state.user!.email}</p>
-        <Button onClick={this.handleLogout} type="danger">
-          Logout
-        </Button>
       </Card>
     );
   }
