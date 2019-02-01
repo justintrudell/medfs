@@ -158,6 +158,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             isLoggedIn={this.isLoggedIn}
             setPageTitle={this.setPageTitle}
             stream={this.state.stream}
+            isDoctor={this.isDoctor}
           />
         </Content>
       </Layout>
