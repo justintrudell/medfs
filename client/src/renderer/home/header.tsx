@@ -4,7 +4,7 @@ import { Layout, Icon, Badge, Menu, Dropdown } from "antd";
 import "antd/dist/antd.css";
 import { MedFsNotification } from "../../models/notifications";
 import { HistoryProps } from "../app";
-import { Row, Col } from "antd";
+import * as _ from "lodash";
 
 const { Header } = Layout;
 const logo = require("../../image/logo_white.png");
@@ -13,6 +13,8 @@ interface HeaderProps {
   notifications: MedFsNotification[];
   pageTitle?: string;
   clearNotifications: (visible?: boolean) => void;
+  isDoctor: () => boolean;
+  logout: () => void;
 }
 
 export class MedFsHeader extends React.Component<
@@ -30,7 +32,7 @@ export class MedFsHeader extends React.Component<
   notificationMenu() {
     // TODO: do something with the private keys
     const menuItems = (
-      <Menu>
+      <Menu style={{ borderRadius: "0px", textAlign: "center" }}>
         {this.props.notifications.map(item => {
           return (
             <Menu.Item key={this.getKey(item)}>
@@ -50,11 +52,77 @@ export class MedFsHeader extends React.Component<
         onVisibleChange={this.props.clearNotifications}
       >
         <Badge dot={this.props.notifications.length > 0}>
-          <a>
-            <Icon type="notification" />
+          <a href="#">
+            <Icon
+              type="inbox"
+              style={{
+                color: "#fff",
+                padding: "8px",
+                border: " 1px solid #fff",
+                fontSize: "24px",
+                borderRadius: "100%"
+              }}
+            />
           </a>
         </Badge>
       </Dropdown>
+    );
+  }
+
+  settingsMenu() {
+    const menuItems = (
+      <Menu
+        style={{ minWidth: "100px", borderRadius: "0px", textAlign: "center" }}
+      >
+        <Menu.Item key="settings">
+          <Link to="/settings">
+            <span className="nav-text">Settings</span>
+          </Link>
+        </Menu.Item>
+        <Menu.Item key="logout">
+          <div
+            onClick={() => {
+              this.props.logout();
+            }}
+          >
+            <span className="nav-text">Logout</span>
+          </div>
+        </Menu.Item>
+      </Menu>
+    );
+
+    return (
+      <Dropdown
+        overlay={menuItems}
+        trigger={["click"]}
+        placement={"bottomCenter"}
+      >
+        <Icon
+          type="user"
+          style={{
+            color: "#fff",
+            padding: "8px",
+            border: " 1px solid #fff",
+            fontSize: "24px",
+            borderRadius: "100%"
+          }}
+        />
+      </Dropdown>
+    );
+  }
+
+  patientsMenuItem() {
+    if (!this.props.isDoctor()) {
+      return;
+    }
+
+    return (
+      <Menu.Item key="patients">
+        {/* TODO CHANGE THIS ONCE WE MAKE THE PATIENT VIEW */}
+        <Link to="/">
+          <span className="nav-text">Patients</span>
+        </Link>
+      </Menu.Item>
     );
   }
 
@@ -62,56 +130,68 @@ export class MedFsHeader extends React.Component<
     return (
       <Header
         style={{
-          position: "fixed",
-          zIndex: 1,
-          width: "100%",
           marginBottom: "12px"
         }}
       >
-        <Row type="flex" align="middle">
-          <Col span={2}>
-            <div className="logo">
-              <img src={logo} style={{ width: 40 }} />
-            </div>
-          </Col>
-          <Col span={20}>
-            <Menu
-              theme="dark"
-              mode="horizontal"
-              selectable={false}
-              selectedKeys={[]}
-            >
-              <Menu.Item key="back_button">
-                <div
-                  onClick={() => {
-                    this.props.history.goBack();
-                  }}
-                >
-                  <Icon type="left" />
-                </div>
-              </Menu.Item>
-              <Menu.Item key="home">
+        <Menu
+          theme="dark"
+          mode="horizontal"
+          defaultSelectedKeys={[]}
+          selectable={false}
+          style={{ lineHeight: "64px", position: "fixed", zIndex: 1 }}
+          inlineIndent={0}
+        >
+          <Menu.Item key="dashboard">
+            <div>
+              <div
+                onClick={() => {
+                  this.props.history.goBack();
+                }}
+                style={{
+                  display: "inline-block",
+                  float: "left",
+                  paddingRight: "16px"
+                }}
+              >
+                <Icon type="left" />
+              </div>
+
+              <div className="logo" style={{ display: "inline-block" }}>
                 <Link to="/">
-                  <Icon type="home" />
-                  <span className="nav-text">Home</span>
+                  <img src={logo} style={{ width: 80 }} />
                 </Link>
-              </Menu.Item>
-              <Menu.Item key="uploads">
-                <Link to="/uploads">
-                  <Icon type="file-add" />
-                  <span className="nav-text">Uploads</span>
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="settings">
-                <Link to="/settings">
-                  <Icon type="setting" />
-                  <span className="nav-text">Settings</span>
-                </Link>
-              </Menu.Item>
-            </Menu>
-          </Col>
-          <Col span={2}>{this.notificationMenu()}</Col>
-        </Row>
+              </div>
+            </div>
+          </Menu.Item>
+
+          <Menu.Item key="home">
+            <Link to="/">
+              <span className="nav-text">Dashboard</span>
+            </Link>
+          </Menu.Item>
+
+          {this.patientsMenuItem()}
+        </Menu>
+
+        <div
+          style={{
+            display: "inline-block",
+            float: "right",
+            margin: "4px 0 0 6px"
+          }}
+        >
+          {this.settingsMenu()}
+        </div>
+
+        <div
+          style={{
+            display: "inline-block",
+            float: "right",
+            margin: "4px 6px 0 0"
+          }}
+        >
+          {this.notificationMenu()}
+        </div>
       </Header>
     );
   }

@@ -9,6 +9,7 @@ const exec = util.promisify(require("child_process").exec);
 export interface LoginDetails {
   userId: string;
   privateKey: string;
+  isDoctor: boolean;
 }
 
 export function login(
@@ -20,7 +21,8 @@ export function login(
     if (response.statusCode === 200) {
       return {
         userId: response.body.data.userId,
-        privateKey: response.body.data.privateKey
+        privateKey: response.body.data.privateKey,
+        isDoctor: response.body.data.isDoctor
       };
     }
 
