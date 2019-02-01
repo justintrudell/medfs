@@ -9,7 +9,7 @@ import { constants } from "../../config";
 import { join } from "path";
 import { IPFSFile } from "ipfs";
 import { setPageTitle } from "../app";
-import { Button, Table, Alert } from "antd";
+import { Card, Button, Table, Alert } from "antd";
 import { file } from "tmp-promise";
 import util from "util";
 const exec = util.promisify(require("child_process").exec);
@@ -140,7 +140,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
     ];
 
     return (
-      <div>
+      <Card title={this.state.recordDetails.filename}>
         <Table columns={columns} dataSource={pKeys} pagination={false} />
         <Button
           style={{ marginTop: 24 }}
@@ -161,7 +161,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
             />
           );
         })}
-      </div>
+      </Card>
     );
   };
 
