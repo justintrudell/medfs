@@ -119,7 +119,7 @@ export class MedFsHeader extends React.Component<
     return (
       <Menu.Item key="patients">
         {/* TODO CHANGE THIS ONCE WE MAKE THE PATIENT VIEW */}
-        <Link to="/">
+        <Link to="/patients">
           <span className="nav-text">Patients</span>
         </Link>
       </Menu.Item>
