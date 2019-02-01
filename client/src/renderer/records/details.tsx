@@ -1,18 +1,16 @@
 import * as React from "react";
 import { match } from "react-router";
-import { get, getKeyForRecord } from "../../api/records";
+import { get } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
-import { getIpfs } from "../../ipfs/ipfsProvider";
-import { writeFile } from "fs";
+import { downloadRecord } from "../../utils/recordUtils"
 import { constants } from "../../config";
-import { join } from "path";
-import { IPFSFile } from "ipfs";
+import { join, dirname } from "path";
 import { setPageTitle } from "../app";
-import { Card, Button, Table, Alert } from "antd";
-import { file } from "tmp-promise";
-import util from "util";
-const exec = util.promisify(require("child_process").exec);
+import { Button, Table, Alert, Card } from "antd";
+import { shell } from "electron"
+import util from "util"
+const copyFile = util.promisify(require("fs").copyFile);
 
 interface MatchParams {
   record_id: string;
@@ -49,66 +47,53 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       .catch(error => {
         console.error(error);
       });
-  }
+  };
 
-  downloadRecord = () => {
+  openTmpFile = () => {
+    this.saveCopyOfTmpFile(false)
+      .then(filePath => {
+        shell.openItem(filePath);
+      })
+      .catch(err => {
+        this.setState({ downloadMessages: [err.message] });
+      });
+  };
+
+  saveRecordToDownloads = () => {
+    this.saveCopyOfTmpFile(true)
+      .then(filePath => {
+        this.setState(prevState => ({
+          downloadMessages: [
+            ...prevState.downloadMessages,
+            `Downloaded to ${filePath}`
+          ]
+        }));
+      })
+      .catch(err => {
+        this.setState({ downloadMessages: [err.message] });
+      });
+  };
+
+  saveCopyOfTmpFile = (isDownload: boolean) => {
     if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
-      return;
+      return Promise.reject(new Error("No record details"));
     }
 
-    getIpfs().then(ipfs => {
-      ipfs.files
-        .get(this.state.recordDetails!.hash)
-        .then(result => {
-          result.forEach(file => {
-            this.downloadFile(file);
-          });
-        })
-        .catch(err => {
-          this.setState({ downloadMessages: [err.message] });
-        });
-    });
-  };
-
-  decryptFile = (encryptedContent: string): Promise<string> => {
     return (async () => {
-      const keyAndIv = await getKeyForRecord(this.state.recordDetails!.id);
-      const { path: encPath, cleanup: encCleanup } = await file({
-        mode: 0o644,
-        prefix: "medfstmp-"
-      });
-      await util.promisify(writeFile)(encPath, encryptedContent);
-      const decryptedContents = await exec(
-        `src/scripts/decrypt_file.sh "${encPath}" "${keyAndIv.aesKey}" "${
-          keyAndIv.iv
-        }"`
-      );
-      encCleanup();
-      return decryptedContents.stdout;
+      try {
+        const tmpFile = await downloadRecord(this.state.recordDetails!.hash, this.state.recordDetails!.id);
+        const pathToSaveTo = join(
+          (isDownload) ? constants.DOWNLOAD_PATH : dirname(tmpFile.path),
+          ((isDownload) ? "" : "medfstmp-") + this.state.recordDetails!.filename
+        );
+        await copyFile(tmpFile.path, pathToSaveTo);
+        tmpFile.cleanup()
+        return pathToSaveTo;
+      }
+      catch (err) {
+        return Promise.reject(err);
+      }
     })();
-  };
-
-  downloadFile = (file: IPFSFile): void => {
-    if (file.content) {
-      const filePath = join(
-        constants.DOWNLOAD_PATH,
-        this.state.recordDetails!.filename
-      );
-      this.decryptFile(file.content as string).then(decryptedContents => {
-        writeFile(filePath, decryptedContents, err => {
-          if (err) {
-            this.setState({ downloadMessages: [err.message] });
-          } else {
-            this.setState(prevState => ({
-              downloadMessages: [
-                ...prevState.downloadMessages,
-                `Downloaded to ${filePath}`
-              ]
-            }));
-          }
-        });
-      });
-    }
   };
 
   getToRender = (): JSX.Element => {
@@ -146,9 +131,17 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
           style={{ marginTop: 24 }}
           type="primary"
           icon="download"
-          onClick={this.downloadRecord}
+          onClick={this.saveRecordToDownloads}
         >
           Download
+        </Button>
+        <Button
+          style={{ marginTop: 24, marginLeft: 12 }}
+          type="primary"
+          icon="download"
+          onClick={this.openTmpFile}
+        >
+          Preview
         </Button>
         {this.state.downloadMessages.map((message, idx) => {
           return (
