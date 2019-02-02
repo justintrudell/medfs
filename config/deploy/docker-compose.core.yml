@@ -16,22 +16,6 @@ services:
         awslogs-region: us-east-1
         awslogs-stream-prefix: record_service
 
-  message_service:
-    ports:
-      - "5004:5004"
-    env_file:
-      - message_service.env
-      - secrets/message_service_secrets.env
-    environment:
-      - PYTHONUNBUFFERED=0 # Causes print statements to be logged
-    image: "361641763854.dkr.ecr.us-east-1.amazonaws.com/message_service:latest"
-    logging:
-      driver: awslogs
-      options:
-        awslogs-group: medfs
-        awslogs-region: us-east-1
-        awslogs-stream-prefix: message_service
-
   ipfs:
     image: jbenet/go-ipfs:latest
     ports:
