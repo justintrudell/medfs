@@ -13,7 +13,7 @@ const request = requestMaster.defaults({ jar });
 
 export function get(endpoint: string, options: {} = {}): RecordServiceResponse {
   return new Promise((pResolve, pReject) => {
-    const fullPath = resolve(constants.RECORD_SERVICE_ENDPOINT, endpoint);
+    const fullPath = resolve(constants.record_service_endpoint(), endpoint);
     const requestOptions = {
       ...options,
       url: fullPath.toString()
@@ -35,7 +35,7 @@ export function post(
   dataKey: keyof requestMaster.Options = "json"
 ): RecordServiceResponse {
   return new Promise((pResolve, pReject) => {
-    const fullPath = resolve(constants.RECORD_SERVICE_ENDPOINT, endpoint);
+    const fullPath = resolve(constants.record_service_endpoint(), endpoint);
     const requestOptions = {
       ...options,
       url: fullPath.toString(),
@@ -65,7 +65,7 @@ export function stream(
     headers: { Cookie: [sessionCookieStr, rememberCookieStr] }
   };
   const evtSource = new newEventSource(
-    resolve(constants.MESSAGE_SERVICE_ENDPOINT, endpoint + uuid),
+    resolve(constants.message_service_endpoint(), endpoint + uuid),
     eventSourceInitDict
   );
   evtSource.onmessage = (e: { data: string }) => {
