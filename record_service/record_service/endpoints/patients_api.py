@@ -58,6 +58,7 @@ def get_all_patients() -> JsonResponse:
     ) \
         .join(User, User.id == PatientDoctors.patient_id) \
         .filter(PatientDoctors.doctor_id == current_user.get_id()) \
+        .filter(PatientDoctors.accepted == True) \
         .all()
     data = [{
         "id": str(patient.patient_id),
