@@ -1,3 +1,4 @@
 export const ERR_NOT_AUTHORIZED = "NOT_AUTHORIZED";
 export const ERR_NOT_LOGGED_IN = "NOT_LOGGED_IN";
 export const ERR_UNKNOWN = "UNKNOWN_ERROR";
+export const ERR_USER_NOT_FOUND = "USER_NOT_FOUND";
