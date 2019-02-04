@@ -20,4 +20,4 @@ class PatientDoctors(Base):
         UUID(as_uuid=True), db.ForeignKey(Doctor.user_id), primary_key=True
     )
     accepted = db.Column(db.Boolean, default=False, nullable=False)
-    date_added = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    date_added = db.Column(db.DateTime, default=datetime.now, nullable=False)
