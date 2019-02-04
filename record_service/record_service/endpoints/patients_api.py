@@ -1,12 +1,10 @@
-from flask import Blueprint, request, current_app
+from flask import Blueprint, request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError
 
 from record_service.database.database import db
 from record_service.models.user import User
-from record_service.models.patient import Patient
 from record_service.models.patient_doctors import PatientDoctors
-from record_service.models.doctor import Doctor
 
 from record_service.utils.decorators import doctor_required
 from record_service.utils.responses import JsonResponse
@@ -26,7 +24,7 @@ def add_patient() -> JsonResponse:
 
     patient = db.session.query(User) \
         .filter(User.email == patient_email) \
-        .one_or_none()    
+        .one_or_none()
     if not patient:
         # TODO: add logic to send email to create account
         return JsonResponse(message="User not found.", status=404)
@@ -66,5 +64,5 @@ def get_all_patients() -> JsonResponse:
         "email": patient.email,
         "dateAdded": patient.date_added.isoformat(),
     } for patient in patients]
-    
+
     return JsonResponse(data=data, status=200)
