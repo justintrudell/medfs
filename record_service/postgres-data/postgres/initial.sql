@@ -85,7 +85,9 @@ ALTER TABLE public.doctors OWNER TO testuser;
 
 CREATE TABLE public.patient_doctors (
     patient_id uuid NOT NULL,
-    doctor_id uuid NOT NULL
+    doctor_id uuid NOT NULL,
+    accepted boolean DEFAULT false NOT NULL,
+    date_added timestamp without time zone NOT NULL
 );
 
 
@@ -160,7 +162,7 @@ COPY public.doctors (user_id) FROM stdin;
 -- Data for Name: patient_doctors; Type: TABLE DATA; Schema: public; Owner: testuser
 --
 
-COPY public.patient_doctors (patient_id, doctor_id) FROM stdin;
+COPY public.patient_doctors (patient_id, doctor_id, accepted, date_added) FROM stdin;
 \.
 
 

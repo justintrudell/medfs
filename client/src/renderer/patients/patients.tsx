@@ -1,22 +1,19 @@
 import * as React from "react";
-import { Card } from "antd";
 import { Link } from "react-router-dom";
 import { ListView } from "../components/lists/listView";
-import { Button, Modal, Form, Input } from "antd";
+import { Card, Button, Modal, Form, Input, message } from "antd";
 import { ColumnProps } from "antd/lib/table";
+import { PatientInfo } from "../../models/patients";
+import { addPatient, getPatients } from "../../api/patients";
+import * as _ from "lodash";
 
 type PatientListState = {
   patients: PatientInfo[];
   addPatientsModalVisible: boolean;
+  newPatient: string;
 };
 
 type PatientListProps = {};
-
-interface PatientInfo {
-  id: string;
-  name: string;
-  dateAdded: Date;
-}
 
 export class Patients extends React.Component<
   PatientListProps,
@@ -26,25 +23,19 @@ export class Patients extends React.Component<
     super(props);
     this.state = {
       patients: [],
-      addPatientsModalVisible: false
+      addPatientsModalVisible: false,
+      newPatient: ""
     };
   }
 
   getPatients() {
-    // TODO: create endpoints for this
-    this.setState({
-      patients: [
-        {
-          id: "12344",
-          name: "John Doe",
-          dateAdded: new Date(Date.now())
-        },
-        {
-          id: "12345",
-          name: "Mary Jane",
-          dateAdded: new Date(Date.now())
-        }
-      ]
+    getPatients().then(patients => {
+      this.setState({
+        patients
+      });
+    }).catch(errorMessage => {
+      console.log(errorMessage);
+      message.error("Could not get patients");
     });
   }
 
@@ -55,12 +46,12 @@ export class Patients extends React.Component<
   tableColumns = (): Array<ColumnProps<PatientInfo>> => {
     return [
       {
-        title: "Name",
-        key: "name",
+        title: "Email",
+        key: "email",
         render: (_, patient) => (
-          <Link to={`/patient/details/${patient.id}`}> {patient.name} </Link>
+          <Link to={`/patient/details/${patient.id}`}> {patient.email} </Link>
         ),
-        sorter: (a: PatientInfo, b: PatientInfo) => a.name.localeCompare(b.name)
+        sorter: (a: PatientInfo, b: PatientInfo) => a.email.localeCompare(b.email)
       },
       {
         title: "Date Added",
@@ -84,9 +75,34 @@ export class Patients extends React.Component<
     });
   };
 
-  handleOk = (): void => {
-    // TODO: backend api endpoint for creating doctor patient
+  resetView = (): void => {
+    this.setState({
+      newPatient: ""
+    });
     this.hideAddPatientsModal();
+  }
+
+  handleOk = (): void => {
+    if (this.state.newPatient !== undefined && !_.isEmpty(this.state.newPatient)) {
+      addPatient(this.state.newPatient).then(m => {
+        this.resetView();
+        this.getPatients();
+        message.success(m);
+      }).catch(errorMessage => {
+        console.log(errorMessage);
+        this.resetView();
+        message.error("Something went wrong");
+      });
+    }
+    else {
+      this.resetView();
+    }
+  };
+
+  handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    this.setState({
+      newPatient: e.target.value
+    });
   };
 
   render() {
@@ -123,7 +139,12 @@ export class Patients extends React.Component<
         >
           <Form>
             <Form.Item>
-              <Input type="text" placeholder="Patient ID" />
+              <Input
+                type="text"
+                placeholder="Patient ID"
+                value={this.state.newPatient}
+                onChange={this.handleChange}
+              />
             </Form.Item>
           </Form>
         </Modal>
