@@ -34,7 +34,7 @@ export class Patients extends React.Component<
         patients
       });
     }).catch(errorMessage => {
-      console.log(errorMessage);
+      console.error(errorMessage);
       message.error("Could not get patients");
     });
   }
@@ -89,7 +89,7 @@ export class Patients extends React.Component<
         this.getPatients();
         message.success(m);
       }).catch(errorMessage => {
-        console.log(errorMessage);
+        console.error(errorMessage);
         this.resetView();
         message.error("Something went wrong");
       });

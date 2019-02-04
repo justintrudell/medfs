@@ -36,9 +36,7 @@ function coercePatientInfo(response: PatientInfoResponse): PatientInfo {
 export function getPatients(): Promise<PatientInfo[]> {
   return recordService.get("/patients/get", { json: true }).then(response => {
     if (response.statusCode === 200) {
-      console.log(response.body.data);
       const patients = response.body.data as PatientInfoResponse[];
-      console.log(patients);
       return patients.map(item => coercePatientInfo(item));
     }
     if (response.statusCode === 401) {
