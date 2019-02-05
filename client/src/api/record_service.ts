@@ -56,9 +56,11 @@ export function stream(
   uuid: string,
   notifyFunction: (notification?: MedFsNotification) => void
 ): EventSource {
-  const sessionCookie = cookieStore.idx.localhost["/"]["session"];
+  const sessionCookie =
+    cookieStore.idx[constants.message_cookie_endpoint()]["/"]["session"];
   const sessionCookieStr = sessionCookie.key + "=" + sessionCookie.value;
-  const rememberCookie = cookieStore.idx.localhost["/"]["remember_token"];
+  const rememberCookie =
+    cookieStore.idx[constants.message_cookie_endpoint()]["/"]["remember_token"];
   const rememberCookieStr = rememberCookie.key + "=" + rememberCookie.value;
 
   const eventSourceInitDict = {

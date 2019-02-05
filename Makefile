@@ -62,3 +62,9 @@ push: grpc-acl grpc-rec build
 
 deploy:
 	./config/deploy/deploy.sh
+
+deploy-core:
+	./config/deploy/deploy.sh core
+
+deploy-msg:
+	./config/deploy/deploy.sh msg 
