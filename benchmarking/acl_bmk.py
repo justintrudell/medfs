@@ -16,7 +16,7 @@ def benchmark_read_permission():
     uid, rid, channel, stub = get_test_params()
 
     start = time.time()
-    for i in range(1000):
+    for i in range(NUM_ITERS):
         response = stub.IsPermissionedForRead(
             acl_pb2.PermissionRequest(
                 user=acl_pb2.UserId(id=uid), record=acl_pb2.RecordId(id=rid)
