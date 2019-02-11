@@ -77,6 +77,6 @@ deploy-msg:
 	./config/deploy/deploy.sh msg 
 
 # ----------------BENCHMARK-------------------------
-benchmark:
+benchmark: grpc-bmk
 	python benchmarking/acl_bmk.py
 # ----------------END BENCHMARK---------------------
