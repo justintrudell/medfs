@@ -12,6 +12,4 @@ class Patient(Base):
     __tablename__ = "patients"
 
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey(User.id), primary_key=True)
-    primary_physician = db.Column(
-        UUID(as_uuid=True), db.ForeignKey(Doctor.user_id), primary_key=True
-    )
+    primary_physician = db.Column(UUID(as_uuid=True), db.ForeignKey(Doctor.user_id))
