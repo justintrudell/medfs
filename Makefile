@@ -20,6 +20,13 @@ grpc-acl:
 	rm -f acl_service/service/acl_pb2*.py
 	python3 -m grpc_tools.protoc -I acl_service/protos --python_out=acl_service/service --grpc_python_out=acl_service/service acl_service/protos/acl.proto
 
+grpc-bmk:
+	mkdir -p benchmarking/protos/
+	cp acl_service/protos/acl.proto benchmarking/protos/
+	rm -f benchmarking/acl_pb2*
+	python3 -m grpc_tools.protoc -I benchmarking/protos --python_out=benchmarking --grpc_python_out=benchmarking benchmarking/protos/acl.proto
+	rm -rf benchmarking/protos
+
 db:
 	docker run -it --rm --net medfs_default --link medfs_record_service_db_1:postgres postgres sh -c 'PGPASSWORD=password exec psql -h postgres -U testuser -d local_record_service'
 
@@ -68,3 +75,8 @@ deploy-core:
 
 deploy-msg:
 	./config/deploy/deploy.sh msg 
+
+# ----------------BENCHMARK-------------------------
+benchmark: grpc-bmk
+	python benchmarking/acl_bmk.py
+# ----------------END BENCHMARK---------------------
