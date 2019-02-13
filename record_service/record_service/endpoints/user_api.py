@@ -2,10 +2,11 @@ from flask import Blueprint, request
 from flask_login import login_required, current_user, logout_user
 import json
 from sqlalchemy.sql import exists
-from record_service.models.doctor import Doctor
 
 from record_service.database.database import db
 from record_service.models.user import User
+from record_service.models.doctor import Doctor
+from record_service.models.patient import Patient
 from record_service.utils.exceptions import (
     UnencryptedKeyProvidedError,
     InvalidKeyFormatError,
@@ -53,6 +54,8 @@ def create_user():
         db.session.commit()
         if data["isDoctor"] is True:
             db.session.add(Doctor(user_id=user.id))
+        else:
+            db.session.add(Patient(user_id=user.id))
         db.session.commit()
         return "Success", 201
     except UnencryptedKeyProvidedError:

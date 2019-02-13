@@ -1,6 +1,8 @@
 import * as recordService from "./record_service";
 import { DoctorPatientInfo, PatientInfo, BloodType, Sex } from "../models/patients";
 import { ERR_NOT_AUTHORIZED, ERR_USER_NOT_FOUND } from "../models/errors";
+import { RecordItem } from "../models/records";
+import { getAllForUser } from "./records";
 
 type DoctorPatientInfoResponse = {
   id: string;
@@ -99,4 +101,8 @@ export function updatePatientInfo(info: PatientInfo): Promise<string> {
     }
     throw new Error(`Unknown error: ${response.body}`);
   });
+}
+
+export function getAllForPatient(patientId: string): Promise<RecordItem[]> {
+  return getAllForUser(patientId);
 }
