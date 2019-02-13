@@ -141,10 +141,6 @@ export class MedFsHeader extends React.Component<
   }
 
   dashboardMenuItem() {
-    if (!this.props.isDoctor()) {
-      return;
-    }
-
     return (
       <Menu.Item key="home">
         <Link to="/">
