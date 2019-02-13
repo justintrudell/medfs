@@ -22,9 +22,7 @@ def add_patient() -> JsonResponse:
 
     patient_email = data["email"]
 
-    patient = db.session.query(User) \
-        .filter(User.email == patient_email) \
-        .one_or_none()
+    patient = db.session.query(User).filter(User.email == patient_email).one_or_none()
     if not patient:
         # TODO: add logic to send email to create account
         return JsonResponse(message="User not found.", status=404)
@@ -42,28 +40,27 @@ def add_patient() -> JsonResponse:
         return JsonResponse(message="success", status=200)
     except IntegrityError:
         # patient-doctor relationship already exists
-        return JsonResponse(
-            message="Patient-Doctor exists already.",
-            status=302,
-        )
+        return JsonResponse(message="Patient-Doctor exists already.", status=302)
 
 
 @patients_api.route("/get", methods=["GET"])
 @login_required
 @doctor_required
 def get_all_patients() -> JsonResponse:
-    patients = db.session.query(
-        *PatientDoctors.__table__.columns,
-        User.email,
-    ) \
-        .join(User, User.id == PatientDoctors.patient_id) \
-        .filter(PatientDoctors.doctor_id == current_user.get_id()) \
-        .filter(PatientDoctors.accepted == True) \
+    patients = (
+        db.session.query(*PatientDoctors.__table__.columns, User.email)
+        .join(User, User.id == PatientDoctors.patient_id)
+        .filter(PatientDoctors.doctor_id == current_user.get_id())
+        .filter(PatientDoctors.accepted == True)  # noqa E712
         .all()
-    data = [{
-        "id": str(patient.patient_id),
-        "email": patient.email,
-        "dateAdded": patient.date_added.isoformat(),
-    } for patient in patients]
+    )
+    data = [
+        {
+            "id": str(patient.patient_id),
+            "email": patient.email,
+            "dateAdded": patient.date_added.isoformat(),
+        }
+        for patient in patients
+    ]
 
     return JsonResponse(data=data, status=200)

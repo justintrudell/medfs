@@ -182,6 +182,7 @@ def upload_file():
         msg = json.dumps(
             {
                 "type": "privateKey",
+                "email": db.session.query(User).get(user_uuid).email,
                 "recordId": str(new_record.id),
                 "encryptedAesKey": values["encryptedAesKey"],
                 "iv": values["iv"],

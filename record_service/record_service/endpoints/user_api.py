@@ -51,7 +51,7 @@ def create_user():
         )
         db.session.add(user)
         db.session.commit()
-        if data["isDoctor"] == True:
+        if data["isDoctor"] is True:
             db.session.add(Doctor(user_id=user.id))
         db.session.commit()
         return "Success", 201
