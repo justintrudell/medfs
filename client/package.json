@@ -16,7 +16,7 @@
     "@types/lodash": "^4.14.110",
     "@types/prop-types": "^15.5.8",
     "@types/tmp": "^0.0.33",
-    "antd": "3.12.3",
+    "antd": "3.13.2",
     "eventsource": "^1.0.5",
     "ipfs": "^0.29.3",
     "leveldown": "^4.0.1",

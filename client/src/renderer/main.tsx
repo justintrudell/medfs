@@ -9,7 +9,7 @@ import { Layout } from "antd";
 import { UserInternal } from "../models/users";
 import { SettingsPage } from "./home/settings_page";
 import { Patients } from "./patients/patients";
-
+import { PatientDetails} from "./patients/patient_details";
 const { Content } = Layout;
 
 interface MainProps extends RecordProps {
@@ -61,6 +61,12 @@ export class Main extends React.Component<MainProps, MainState> {
               exact
               path="/patients"
               render={() => <Patients {...this.props} />}
+            />
+          )}
+          {this.props.isDoctor() && (
+            <Route
+              path="/patients/:patient_id"
+              render={({ match }) => <PatientDetails {...this.props} match={match} />}
             />
           )}
           <Route

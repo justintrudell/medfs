@@ -128,10 +128,11 @@ export class SettingsPage extends React.Component<Props, State> {
     });
   }
 
-  render() {
-    if (this.state.isLoading) {
-      return <Spin />;
+  getPatientInfoForm = () => {
+    if (this.state.user!.isDoctor) {
+      return;
     }
+
     const formItemLayout = {
       labelCol: {
         sm: { span: 4 },
@@ -150,43 +151,64 @@ export class SettingsPage extends React.Component<Props, State> {
     };
 
     return (
+      <div>
+        <Form.Item {...formItemLayout} label="First Name">
+          <Input placeholder="Vishal" value={this.getFirstName()} onChange={this.handleFirstNameChange} />
+        </Form.Item>
+        <Form.Item {...formItemLayout} label="Last Name">
+          <Input placeholder="Kuo" value={this.getLastName()} onChange={this.handleLastNameChange} />
+        </Form.Item>
+        <Form.Item {...formItemLayout} label="Date of Birth" >
+          <DatePicker value={this.getDateOfBirth()} onChange={this.handleDOBChange} />
+        </Form.Item>
+        <Form.Item {...formItemLayout} label="Blood Type">
+          <Select id="blood" value={this.getBloodType()} key="bloodtype" placeholder="--" onChange={this.handleBloodTypeChange}>
+            {Object.values(BloodType).map(key => {
+              return (
+                <Select.Option value={key}>{key}</Select.Option>
+              );
+            })}
+          </Select>
+        </Form.Item>
+        <Form.Item {...formItemLayout} label="Sex">
+          <Select id="sex" key="sex" value={this.getSex()} placeholder="--" onChange={this.handleSexChange}>
+            {Object.values(Sex).map(key => {
+              return (
+                <Select.Option value={key}>{key}</Select.Option>
+              );
+            })}
+          </Select>
+        </Form.Item>
+        <Form.Item {...tailFormItemLayout}>
+          <Button onClick={this.handleSubmit} type="primary" htmlType="submit" className="login-form-button">
+            Save
+          </Button>
+        </Form.Item>
+      </div>
+
+    );
+  }
+
+  render() {
+    if (this.state.isLoading) {
+      return <Spin />;
+    }
+    const formItemLayout = {
+      labelCol: {
+        sm: { span: 4 },
+      },
+      wrapperCol: {
+        sm: { span: 8 },
+      },
+    };
+
+    return (
       <Card title="Your Settings">
         <Form>
           <Form.Item {...formItemLayout} label="E-mail">
             <Input placeholder="me@medfs.com" value={this.state.user!.email} disabled={true} />
           </Form.Item>
-          <Form.Item {...formItemLayout}  label="First Name">
-            <Input placeholder="Vishal" value={this.getFirstName()} onChange={this.handleFirstNameChange}/>
-          </Form.Item>
-          <Form.Item {...formItemLayout} label="Last Name">
-            <Input placeholder="Kuo" value={this.getLastName()} onChange={this.handleLastNameChange}/>
-          </Form.Item>
-          <Form.Item {...formItemLayout} label="Date of Birth" >
-            <DatePicker value={this.getDateOfBirth()} onChange={this.handleDOBChange}/>
-          </Form.Item>
-          <Form.Item {...formItemLayout} label="Blood Type">
-            <Select id="blood" value={this.getBloodType()} key="bloodtype" placeholder="--" onChange={this.handleBloodTypeChange}>
-              {Object.values(BloodType).map(key => {
-                return (
-                  <Select.Option value={key}>{key}</Select.Option>
-                );
-              })}
-            </Select>
-          </Form.Item>
-          <Form.Item {...formItemLayout} label="Sex">
-            <Select id="sex" key="sex" value={this.getSex()} placeholder="--" onChange={this.handleSexChange}>
-              {Object.values(Sex).map(key => {
-                return (
-                  <Select.Option value={key}>{key}</Select.Option>
-                );
-              })}
-            </Select>
-          </Form.Item>
-          <Form.Item {...tailFormItemLayout}>
-            <Button onClick={this.handleSubmit} type="primary" htmlType="submit" className="login-form-button">
-              Save
-            </Button>
-          </Form.Item>
+          {this.getPatientInfoForm()}
         </Form>
       </Card>
     );
