@@ -45,8 +45,9 @@ function decryptAesKey(aesKey: string): Promise<string> {
   );
 }
 
-export function getAllForUser(): Promise<RecordItem[]> {
-  return recordService.get(`/records`).then(response => {
+export function getAllForUser(userId?: string): Promise<RecordItem[]> {
+  const url = _.isEmpty(userId) ? `/records` : `/patients/records/${userId}`;
+  return recordService.get(url).then(response => {
     if (response.statusCode === 200) {
       const records = JSON.parse(response.body).data as RecordServiceResponse[];
       return records.map(normalizeRecord);

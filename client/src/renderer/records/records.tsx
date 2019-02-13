@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Card, Divider } from "antd";
+import { Card } from "antd";
 import { getAllForUser } from "../../api/records";
 import { RecordItem } from "../../models/records";
 import { Switch, Route, Link } from "react-router-dom";
@@ -13,7 +13,7 @@ import { ERR_NOT_AUTHORIZED } from "../../models/errors";
 import { Permission } from "../../models/permissions";
 import { getUsersForRecord } from "../../api/permissions";
 
-type RecordListState = {
+export type RecordListState = {
   records: RecordItem[];
   permissionsModalVisible: boolean;
   currentRecord?: RecordItem;
@@ -82,8 +82,9 @@ export class Records extends React.Component<RecordProps, RecordListState> {
         key: "action",
         render: (_, record) => (
           <span>
-            <a href="javascript:;">Download</a>
-            <Divider type="vertical" />
+            {/* TODO: add download link back once its functional */}
+            {/* <a href="javascript:;">Download</a>
+            <Divider type="vertical" /> */}
             <a
               href="javascript:;"
               onClick={() => this.showPermissionsModal(record)}

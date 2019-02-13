@@ -4,14 +4,17 @@ from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 from typing import Dict
 
+import config
 from record_service.database.database import db
 from record_service.models.user import User
 from record_service.models.patient_doctors import PatientDoctors
 from record_service.models.patient import Patient, BloodType, Sex
 from record_service.models.doctor import Doctor
+from record_service.models.record import Record
 
 from record_service.utils.decorators import doctor_required
 from record_service.utils.responses import JsonResponse
+from record_service.external import acl_api
 
 patients_api = Blueprint("patients_api", __name__, url_prefix="/patients")
 
@@ -84,12 +87,8 @@ def update_patient_info() -> JsonResponse:
         return JsonResponse(message="Bad Request", status=400)
 
     patient_info = db.session.query(Patient).get(current_user.get_id())
-    new_patient_info = False
-    if patient_info is None:
-        patient_info = Patient(
-            user_id=current_user.get_id()
-        )
-        new_patient_info = True
+    if not patient_info:
+        return JsonResponse(message="User not found", status=404)
 
     data = request.get_json()
 
@@ -120,10 +119,7 @@ def update_patient_info() -> JsonResponse:
     if data.get("lastName"):
         patient_info.last_name = data["lastName"]
 
-    if new_patient_info:
-        db.session.add(patient_info)
-    else:
-        db.session.merge(patient_info)
+    db.session.merge(patient_info)
     db.session.commit()
 
     return JsonResponse(message="Success", status=200)
@@ -183,3 +179,63 @@ def _get_patient_info(patient_id: str) -> Dict[str, str]:
         "firstName": patient.first_name,
         "lastName": patient.last_name,
     }
+
+
+@patients_api.route("/records/<string:patient_id>")
+@login_required
+@doctor_required
+def get_all_records_for_patient(patient_id: str) -> JsonResponse:
+    # lil' smoke check to make sure the patient is associated with doctor
+    # should be handled by ACL service but it's fine
+    doctor_patient = db.session.query(PatientDoctors) \
+        .filter(PatientDoctors.patient_id == patient_id,
+                PatientDoctors.doctor_id == current_user.get_id()) \
+        .one_or_none()
+    if doctor_patient is None:
+        return JsonResponse(message="Forbidden", status=403)
+
+    # Query ACL to get list of files user has access to
+    acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
+    doctor_records = acl_api.get_records_for_user(
+        acl_client, str(current_user.get_id())
+    )
+
+    # Also get all the files
+    patient_records = acl_api.get_records_for_user(acl_client, patient_id)
+
+    record_intersection = list(
+        set(doctor_records.keys()).intersection(set(patient_records.keys()))
+    )
+
+    records = (
+        db.session.query(Record)
+        .filter(Record.id.in_(record_intersection))
+        .all()
+    )
+
+    if records is None:
+        return JsonResponse(message="No records found.", data=[], status=204)
+
+    data = [
+        {
+            "id": str(r.id),
+            "name": r.filename,
+            "hash": r.record_hash,
+            "created": r.created.isoformat(),
+        }
+        for r in records
+    ]
+
+    # Not the most performant but we're dealing with O(10) entries right now
+    for d in data:
+        permissioned_user_ids = [
+            u[0] for u in acl_api.get_users_for_record(acl_client, d["id"])
+        ]
+        d["permissioned_users"] = [
+            {"id": str(u.id), "email": u.email}
+            for u in db.session.query(User)
+            .filter(User.id.in_(permissioned_user_ids))
+            .all()
+        ]
+
+    return JsonResponse(data=data, status=200)
