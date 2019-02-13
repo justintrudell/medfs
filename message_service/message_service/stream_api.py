@@ -2,9 +2,10 @@ import asyncio
 from aiohttp import web
 from aiohttp_sse import sse_response
 import json
+import logging
+import re
 import requests
 from typing import Any, Optional
-import logging
 
 import config
 from message_service import queueing_api, email
@@ -47,7 +48,10 @@ async def stream(request):
                 await resp.send(encoded_msg)
                 # Delete the message from the queue
                 message.delete()
-                email.send_notification_email(json.loads(encoded_msg)["email"])
+                email_addr = json.loads(encoded_msg)["email"]
+                # Perform some basic email validation
+                if re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email_addr):
+                    email.send_notification_email(email_addr)
             await asyncio.sleep(
                 int(config.SQS_POLLING_INTERVAL_S), loop=request.app.loop
             )
