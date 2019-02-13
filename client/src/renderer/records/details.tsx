@@ -3,13 +3,13 @@ import { match } from "react-router";
 import { get } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
-import { downloadRecord } from "../../utils/recordUtils"
+import { downloadRecord } from "../../utils/recordUtils";
 import { constants } from "../../config";
 import { join, dirname } from "path";
 import { setPageTitle } from "../app";
 import { Button, Table, Alert, Card } from "antd";
-import { shell } from "electron"
-import util from "util"
+import { shell } from "electron";
+import util from "util";
 const copyFile = util.promisify(require("fs").copyFile);
 
 interface MatchParams {
@@ -47,7 +47,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       .catch(error => {
         console.error(error);
       });
-  };
+  }
 
   openTmpFile = () => {
     this.saveCopyOfTmpFile(false)
@@ -87,7 +87,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
           ((isDownload) ? "" : "medfstmp-") + this.state.recordDetails!.filename
         );
         await copyFile(tmpFile.path, pathToSaveTo);
-        tmpFile.cleanup()
+        tmpFile.cleanup();
         return pathToSaveTo;
       }
       catch (err) {

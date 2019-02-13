@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 import { ListView } from "../components/lists/listView";
 import { Card, Button, Modal, Form, Input, message } from "antd";
 import { ColumnProps } from "antd/lib/table";
-import { PatientInfo } from "../../models/patients";
+import { DoctorPatientInfo } from "../../models/patients";
 import { addPatient, getPatients } from "../../api/patients";
 import * as _ from "lodash";
 
 type PatientListState = {
-  patients: PatientInfo[];
+  patients: DoctorPatientInfo[];
   addPatientsModalVisible: boolean;
   newPatient: string;
 };
@@ -43,7 +43,7 @@ export class Patients extends React.Component<
     this.getPatients();
   }
 
-  tableColumns = (): Array<ColumnProps<PatientInfo>> => {
+  tableColumns = (): Array<ColumnProps<DoctorPatientInfo>> => {
     return [
       {
         title: "Email",
@@ -51,13 +51,13 @@ export class Patients extends React.Component<
         render: (_, patient) => (
           <Link to={`/patient/details/${patient.id}`}> {patient.email} </Link>
         ),
-        sorter: (a: PatientInfo, b: PatientInfo) => a.email.localeCompare(b.email)
+        sorter: (a: DoctorPatientInfo, b: DoctorPatientInfo) => a.email.localeCompare(b.email)
       },
       {
         title: "Date Added",
         key: "date_added",
         render: (_, patient) => patient.dateAdded.toLocaleString("en-US"),
-        sorter: (a: PatientInfo, b: PatientInfo) =>
+        sorter: (a: DoctorPatientInfo, b: DoctorPatientInfo) =>
           a.dateAdded.getTime() - b.dateAdded.getTime()
       }
     ];
