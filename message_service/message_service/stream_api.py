@@ -4,9 +4,13 @@ from aiohttp_sse import sse_response
 import json
 import requests
 from typing import Any, Optional
+import logging
 
 import config
-from message_service import queueing_api
+from message_service import queueing_api, email
+
+
+log = logging.getLogger()
 
 
 class ServerSentEvent:
@@ -39,9 +43,11 @@ async def stream(request):
     async with sse_response(request) as resp:
         while True:
             for message in queueing_api.receive_messages(user_uuid):
-                await resp.send(ServerSentEvent(message).encode())
+                encoded_msg = ServerSentEvent(message).encode()
+                await resp.send(encoded_msg)
                 # Delete the message from the queue
                 message.delete()
+                email.send_notification_email(json.loads(encoded_msg)["email"])
             await asyncio.sleep(
                 int(config.SQS_POLLING_INTERVAL_S), loop=request.app.loop
             )
