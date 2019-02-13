@@ -1,5 +1,5 @@
-import { getIpfs } from "../ipfs/ipfsProvider"
-import { getKeyForRecord } from "../api/records"
+import { getIpfs } from "../ipfs/ipfsProvider";
+import { getKeyForRecord } from "../api/records";
 import { file } from "tmp-promise";
 import { IPFSFile } from "ipfs";
 import util from "util";
@@ -15,7 +15,7 @@ export async function downloadRecord(recordHash: string, recordId: string) : Pro
   try {
     const ipfs = await getIpfs();
     const files = await ipfs.files.get(recordHash);
-    if (files.length != 1) {
+    if (files.length !== 1) {
       Promise.reject(new Error(`More than one file found for hash: ${recordHash}`));
     }
     return downloadFile(files[0], recordId);
@@ -23,7 +23,7 @@ export async function downloadRecord(recordHash: string, recordId: string) : Pro
   catch (err) {
     return Promise.reject(err);
   }
-};
+}
 
 async function downloadFile(ipfsFile: IPFSFile, recordId: string): Promise<TmpFile> {
   if (!ipfsFile.content) {
@@ -42,7 +42,7 @@ async function downloadFile(ipfsFile: IPFSFile, recordId: string): Promise<TmpFi
   catch (err) {
     return Promise.reject(err);
   }
-};
+}
 
 async function decryptFile(encryptedContent: string, recordId: string): Promise<string> {
   const keyAndIv = await getKeyForRecord(recordId);
@@ -58,4 +58,4 @@ async function decryptFile(encryptedContent: string, recordId: string): Promise<
   );
   encCleanup();
   return decryptedContents.stdout;
-};
+}
