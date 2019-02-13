@@ -87,12 +87,8 @@ def update_patient_info() -> JsonResponse:
         return JsonResponse(message="Bad Request", status=400)
 
     patient_info = db.session.query(Patient).get(current_user.get_id())
-    new_patient_info = False
-    if patient_info is None:
-        patient_info = Patient(
-            user_id=current_user.get_id()
-        )
-        new_patient_info = True
+    if not patient_info:
+        return JsonResponse(message="User not found", status=404)
 
     data = request.get_json()
 
@@ -123,10 +119,7 @@ def update_patient_info() -> JsonResponse:
     if data.get("lastName"):
         patient_info.last_name = data["lastName"]
 
-    if new_patient_info:
-        db.session.add(patient_info)
-    else:
-        db.session.merge(patient_info)
+    db.session.merge(patient_info)
     db.session.commit()
 
     return JsonResponse(message="Success", status=200)

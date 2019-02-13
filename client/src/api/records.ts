@@ -18,7 +18,7 @@ type RecordServiceResponse = {
   permissioned_users: [{ id: string; email: string }];
 };
 
-export function normalizeRecord(resp: RecordServiceResponse): RecordItem {
+function normalizeRecord(resp: RecordServiceResponse): RecordItem {
   return {
     ...resp,
     created: new Date(resp.created),
