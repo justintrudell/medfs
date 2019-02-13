@@ -155,6 +155,7 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
         values: {
           permission: perm.permissionType,
           encryptedAesKey: encryptedKey,
+          // tslint:disable-next-line:object-literal-shorthand
           iv: iv
         }
       };

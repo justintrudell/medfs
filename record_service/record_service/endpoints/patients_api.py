@@ -1,4 +1,4 @@
-from flask import Blueprint, request, current_app
+from flask import Blueprint, request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
@@ -26,7 +26,9 @@ def add_patient() -> JsonResponse:
 
     patient_email = data["email"]
 
-    patient = db.session.query(User).filter(User.email == patient_email).one_or_none()
+    patient = db.session.query(User) \
+        .filter(User.email == patient_email) \
+        .one_or_none()
     if not patient:
         # TODO: add logic to send email to create account
         return JsonResponse(message="User not found.", status=404)
@@ -44,7 +46,10 @@ def add_patient() -> JsonResponse:
         return JsonResponse(message="success", status=200)
     except IntegrityError:
         # patient-doctor relationship already exists
-        return JsonResponse(message="Patient-Doctor exists already.", status=302)
+        return JsonResponse(
+            message="Patient-Doctor exists already.",
+            status=302,
+        )
 
 
 @patients_api.route("/get", methods=["GET"])
@@ -70,7 +75,7 @@ def get_all_patients() -> JsonResponse:
     return JsonResponse(data=data, status=200)
 
 
-@patients_api.route("/update", methods=["POST"])
+@patients_api.route("/update", methods=["POST"]) # noqa C901
 @login_required
 def update_patient_info() -> JsonResponse:
     doctor = db.session.query(Doctor).get(current_user.get_id())
@@ -87,7 +92,6 @@ def update_patient_info() -> JsonResponse:
         new_patient_info = True
 
     data = request.get_json()
-    data
 
     if data.get("primaryPhysician"):
         physician = db.session.query(Doctor).get(data["primaryPhysician"])
@@ -96,7 +100,9 @@ def update_patient_info() -> JsonResponse:
         patient_info.primary_physician = physician.id
 
     if data.get("dateOfBirth"):
-        patient_info.date_of_birth = datetime.strptime(data["dateOfBirth"], "%Y-%m-%d").date()
+        patient_info.date_of_birth = datetime \
+            .strptime(data["dateOfBirth"], "%Y-%m-%d") \
+            .date()
 
     if data.get("bloodType"):
         if not BloodType.has_value(data["bloodType"]):
@@ -159,7 +165,7 @@ def _get_patient_info(patient_id: str) -> Dict[str, str]:
 
     if patient is None:
         return {
-            "id": str(current_user.get_id()),  
+            "id": str(current_user.get_id()),
             "dateOfBirth": None,
             "bloodType": None,
             "sex": None,
@@ -170,7 +176,8 @@ def _get_patient_info(patient_id: str) -> Dict[str, str]:
     return {
         "id": str(current_user.get_id()),
         "dateOfBirth":
-            patient.date_of_birth.strftime("%Y-%m-%d") if patient.date_of_birth else None,
+            patient.date_of_birth.strftime("%Y-%m-%d")
+            if patient.date_of_birth else None,
         "bloodType": patient.blood_type.value if patient.blood_type else None,
         "sex": patient.sex.value if patient.sex else None,
         "firstName": patient.first_name,

@@ -30,34 +30,28 @@ export class SettingsPage extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    getLogin()
-      .then(result => {
-        if (!result || _.isEmpty(result)) {
-          throw new Error(ERR_UNKNOWN);
-        } else {
-          this.setState({ isLoading: false, error: undefined, user: result });
-          this.getInfo();
-        }
-      })
+    Promise.all([getLogin(), getPatientInfo()]).then((result) => {
+      if (!result[0] || _.isEmpty(result[0])) {
+        throw new Error(ERR_UNKNOWN);
+      } else {
+        this.setState({
+          isLoading: false,
+          error: undefined,
+          user: result[0] as UserInternal,
+          info: result[1] as PatientInfo,
+        });
+      }
+    })
       .catch((err: Error) => {
         this.setState({ isLoading: false, error: err });
       });
   }
 
-  getInfo() {
-    if (this.state.user === undefined) {
-      return;
-    }
-
-    if (this.state.user.isDoctor) {
-      // get doctor info
-      return;
-    }
-
-    getPatientInfo().then((info: PatientInfo) => {
+  getPatientInfo() {
+    getPatientInfo().then(info => {
       this.setState({ info });
-    }).catch((err: Error) => {
-      console.error(err);
+    }).catch(err => {
+      this.setState({ error: err });
     });
   }
 
@@ -121,7 +115,7 @@ export class SettingsPage extends React.Component<Props, State> {
   handleSubmit = () => {
     updatePatientInfo(this.state.info!).then(resp => {
       message.success(resp);
-      this.getInfo();
+      this.getPatientInfo();
     }).catch((err: Error) => {
       console.error(err);
       message.error("Something went wrong!");
@@ -162,19 +156,19 @@ export class SettingsPage extends React.Component<Props, State> {
           <DatePicker value={this.getDateOfBirth()} onChange={this.handleDOBChange} />
         </Form.Item>
         <Form.Item {...formItemLayout} label="Blood Type">
-          <Select id="blood" value={this.getBloodType()} key="bloodtype" placeholder="--" onChange={this.handleBloodTypeChange}>
+          <Select value={this.getBloodType()} placeholder="--" onChange={this.handleBloodTypeChange}>
             {Object.values(BloodType).map(key => {
               return (
-                <Select.Option value={key}>{key}</Select.Option>
+                <Select.Option key={key} value={key}>{key}</Select.Option>
               );
             })}
           </Select>
         </Form.Item>
         <Form.Item {...formItemLayout} label="Sex">
-          <Select id="sex" key="sex" value={this.getSex()} placeholder="--" onChange={this.handleSexChange}>
+          <Select value={this.getSex()} placeholder="--" onChange={this.handleSexChange}>
             {Object.values(Sex).map(key => {
               return (
-                <Select.Option value={key}>{key}</Select.Option>
+                <Select.Option key={key} value={key}>{key}</Select.Option>
               );
             })}
           </Select>

@@ -9,7 +9,10 @@ import { HistoryProps } from "../app";
 
 const { Content } = Layout;
 const logo = require("../../image/logo.png");
+
+// tslint:disable-next-line:variable-name
 const RadioButton = Radio.Button;
+// tslint:disable-next-line:variable-name
 const RadioGroup = Radio.Group;
 
 type State = {

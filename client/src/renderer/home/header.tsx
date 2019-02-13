@@ -99,7 +99,7 @@ export class MedFsHeader extends React.Component<
             checkedChildren="Prod"
             unCheckedChildren="Dev"
             onChange={this.handleEnvSwitch}
-            defaultChecked={process.env.MEDFS_ENVIRONMENT == "prod"}
+            defaultChecked={process.env.MEDFS_ENVIRONMENT === "prod"}
           />
         </Menu.Item>
       </Menu>
