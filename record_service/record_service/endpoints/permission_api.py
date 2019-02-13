@@ -24,7 +24,7 @@ def update_permissions(record_id: str) -> Tuple[str, int]:
                     "email": email of user being granted permission,
                     "values": {
                         "permission": permission to be granted (read, write),
-                        "encryptedAesKey": File's encryption key, encrypted with user's pub key,
+                        "encryptedAesKey": File enc key, encrypted w/ user's pub key,
                         "iv": IV used in AES (this doesn't need to be encrypted),
                     }
                 },
@@ -58,7 +58,7 @@ def get_permissions(record_id: str):
     acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
 
     if not acl_api.is_user_permissioned_for_write(
-        acl_client, str(current_user.get_id()), str(record_id),
+        acl_client, str(current_user.get_id()), str(record_id)
     ):
         return JsonResponse(
             message=f"User not allowed to view permissions.", status=401
@@ -72,9 +72,6 @@ def get_permissions(record_id: str):
             # remove self from list
             continue
         user = db.session.query(User).get(user_id)
-        data.append({
-            "userEmail": user.email,
-            "permissionType": permission,
-        })
+        data.append({"userEmail": user.email, "permissionType": permission})
 
     return JsonResponse(data=data, status=200)
