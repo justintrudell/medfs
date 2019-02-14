@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as _ from "lodash";
-import { Upload, Icon, Form, Input, Button, Select, message } from "antd";
+import { Card, Upload, Icon, Form, Input, Button, Select, message } from "antd";
 import { RcFile, UploadFile } from "antd/lib/upload/interface";
 import {
   Permission,
@@ -199,73 +199,83 @@ export class Uploads extends React.Component<TitleProps, UploadState> {
     return (
       <div>
         <Form onSubmit={this.handleSubmit}>
-          {this.state.permissions.map((permission, idx) => {
-            return (
-              <Input.Group key={idx} className="perimssion" compact>
-                <Input
-                  style={{ width: "55%", margin: "8px 0" }}
-                  type="text"
-                  placeholder="Email address"
-                  value={permission.userEmail}
-                  onChange={this.handleChange(
-                    idx,
-                    "userEmail",
-                    (elem: HTMLInputElement): string => {
-                      return elem.value;
-                    }
-                  )}
-                />
-                <Select
-                  style={{ width: "35%", margin: "8px 0" }}
-                  onChange={this.handleSelect(idx)}
-                  defaultValue={Object.keys(PermissionType)[0]}
-                >
-                  {Object.keys(PermissionType).map(permType => {
-                    return (
-                      <Select.Option key={permType} value={permType}>
-                        {permType}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-
-                <Button
-                  type="primary"
-                  onClick={this.removeUser(idx)}
-                  style={{ width: "10%", margin: "8px 0" }}
-                >
-                  <Icon type="minus" />
-                </Button>
-              </Input.Group>
-            );
-          })}
-
-          <Form.Item>
-            <div>
-              <Button type="primary" onClick={this.addUser}>
-                <Icon type="plus" />
-              </Button>
-            </div>
-          </Form.Item>
-
-          <Dragger
-            name="upload"
-            multiple={false}
-            beforeUpload={this.beforeUpload}
-            fileList={this.state.files}
-            style={{ padding: 8, margin: 8 }}
-            disabled={this.state.files.length > 0}
-            onRemove={this.removeFile}
+          <Card
+            title="Select a file to upload"
+            style={{ marginBottom: 24 }}
           >
-            <p className="ant-upload-drag-icon">
-              <Icon type="inbox" />
-            </p>
-            <p className="ant-upload-text">
-              Click or drag file to this area to upload
-            </p>
-          </Dragger>
+            <Dragger
+              name="upload"
+              multiple={false}
+              beforeUpload={this.beforeUpload}
+              fileList={this.state.files}
+              style={{ padding: 8, margin: 8 }}
+              disabled={this.state.files.length > 0}
+              onRemove={this.removeFile}
+            >
+              <p className="ant-upload-drag-icon">
+                <Icon type="inbox" />
+              </p>
+              <p className="ant-upload-text">
+                Drag a file here to upload, or click to browse
+              </p>
+            </Dragger>
+          </Card>
 
-          <Form.Item>
+          <Card title="Share">
+            {this.state.permissions.map((permission, idx) => {
+              return (
+                <Input.Group key={idx} className="perimssion" compact>
+                  <Input
+                    style={{ width: "55%", margin: "8px 0" }}
+                    type="text"
+                    placeholder="Email address"
+                    value={permission.userEmail}
+                    onChange={this.handleChange(
+                      idx,
+                      "userEmail",
+                      (elem: HTMLInputElement): string => {
+                        return elem.value;
+                      }
+                    )}
+                  />
+                  <Select
+                    style={{ width: "35%", margin: "8px 0"}}
+                    onChange={this.handleSelect(idx)}
+                    defaultValue={Object.keys(PermissionType)[0]}
+                  >
+                    {Object.keys(PermissionType).map( (permType) => {
+                      return (
+                        <Select.Option
+                          key={permType}
+                          value={permType}
+                          disabled={PermissionType[permType as keyof typeof PermissionType] == PermissionType.DISABLED}
+                        >
+                          {PermissionType[permType as keyof typeof PermissionType]}
+                        </Select.Option>
+                      );
+                    })}
+                  </Select>
+
+                  <Button
+                    type="primary"
+                    onClick={this.removeUser(idx)}
+                    style={{ width: "10%", margin: "8px 0" }}
+                  >
+                    <Icon type="delete" />
+                  </Button>
+                </Input.Group>
+              );
+            })}
+
+            <Form.Item>
+              <div>
+                <Button type="primary" onClick={this.addUser}>
+                  <Icon type="plus" />
+                </Button>
+              </div>
+            </Form.Item>
+          </Card>
+          <Form.Item style={{ marginTop: 24}}>
             <div>
               <Button type="primary" htmlType="submit">
                 <Icon type="upload" /> Upload
