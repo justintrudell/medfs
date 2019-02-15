@@ -134,7 +134,7 @@ def get_patient_info() -> JsonResponse:
         # doctors arent patients so they dont have a patient info
         return JsonResponse(message="Bad Request", status=400)
 
-    patient_info = _get_patient_info(current_user.get_id())
+    patient_info = _get_patient_info(str(current_user.get_id()))
     return JsonResponse(data=patient_info, status=200)
 
 
@@ -161,7 +161,8 @@ def _get_patient_info(patient_id: str) -> Dict[str, str]:
 
     if patient is None:
         return {
-            "id": str(current_user.get_id()),
+            "id": None,
+            "email": None,
             "dateOfBirth": None,
             "bloodType": None,
             "sex": None,
@@ -170,7 +171,8 @@ def _get_patient_info(patient_id: str) -> Dict[str, str]:
         }
 
     return {
-        "id": str(current_user.get_id()),
+        "id": patient_id,
+        "email": patient.email,
         "dateOfBirth":
             patient.date_of_birth.strftime("%Y-%m-%d")
             if patient.date_of_birth else None,

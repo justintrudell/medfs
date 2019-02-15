@@ -30,21 +30,19 @@ export class SettingsPage extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    Promise.all([getLogin(), getPatientInfo()]).then((result) => {
+    Promise.all([getLogin(), getPatientInfo()]).then(result => {
       if (!result[0] || _.isEmpty(result[0])) {
         throw new Error(ERR_UNKNOWN);
-      } else {
-        this.setState({
-          isLoading: false,
-          error: undefined,
-          user: result[0] as UserInternal,
-          info: result[1] as PatientInfo,
-        });
       }
-    })
-      .catch((err: Error) => {
-        this.setState({ isLoading: false, error: err });
+      this.setState({
+        isLoading: false,
+        error: undefined,
+        user: result[0] as UserInternal,
+        info: result[1] as PatientInfo,
       });
+    }).catch(err => {
+      this.setState({ isLoading: false, error: err });
+    });
   }
 
   getPatientInfo() {
@@ -64,22 +62,6 @@ export class SettingsPage extends React.Component<Props, State> {
       return moment(this.state.info.dateOfBirth);
     }
     return moment(new Date());
-  }
-
-  getFirstName() {
-    return this.state.info !== undefined ? this.state.info!.firstName : "";
-  }
-
-  getLastName() {
-    return this.state.info !== undefined ? this.state.info.lastName : "";
-  }
-
-  getBloodType() {
-    return this.state.info !== undefined ? this.state.info.bloodType : "";
-  }
-
-  getSex() {
-    return this.state.info !== undefined ? this.state.info.sex : "";
   }
 
   handleFirstNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,16 +129,16 @@ export class SettingsPage extends React.Component<Props, State> {
     return (
       <div>
         <Form.Item {...formItemLayout} label="First Name">
-          <Input placeholder="Vishal" value={this.getFirstName()} onChange={this.handleFirstNameChange} />
+          <Input placeholder="Vishal" value={this.state.info!.firstName} onChange={this.handleFirstNameChange} />
         </Form.Item>
         <Form.Item {...formItemLayout} label="Last Name">
-          <Input placeholder="Kuo" value={this.getLastName()} onChange={this.handleLastNameChange} />
+          <Input placeholder="Kuo" value={this.state.info!.lastName} onChange={this.handleLastNameChange} />
         </Form.Item>
         <Form.Item {...formItemLayout} label="Date of Birth" >
           <DatePicker value={this.getDateOfBirth()} onChange={this.handleDOBChange} />
         </Form.Item>
         <Form.Item {...formItemLayout} label="Blood Type">
-          <Select value={this.getBloodType()} placeholder="--" onChange={this.handleBloodTypeChange}>
+          <Select value={this.state.info!.bloodType} placeholder="--" onChange={this.handleBloodTypeChange}>
             {Object.values(BloodType).map(key => {
               return (
                 <Select.Option key={key} value={key}>{key}</Select.Option>
@@ -165,7 +147,7 @@ export class SettingsPage extends React.Component<Props, State> {
           </Select>
         </Form.Item>
         <Form.Item {...formItemLayout} label="Sex">
-          <Select value={this.getSex()} placeholder="--" onChange={this.handleSexChange}>
+          <Select value={this.state.info!.sex} placeholder="--" onChange={this.handleSexChange}>
             {Object.values(Sex).map(key => {
               return (
                 <Select.Option key={key} value={key}>{key}</Select.Option>
@@ -200,9 +182,10 @@ export class SettingsPage extends React.Component<Props, State> {
       <Card title="Your Settings">
         <Form>
           <Form.Item {...formItemLayout} label="E-mail">
-            <Input placeholder="me@medfs.com" value={this.state.user!.email} disabled={true} />
+            <Input placeholder="me@medfs.com" value={this.state.user && this.state.user.email} disabled={true} />
           </Form.Item>
-          {this.getPatientInfoForm()}
+
+          {this.state.user && this.state.info && this.getPatientInfoForm()}
         </Form>
       </Card>
     );

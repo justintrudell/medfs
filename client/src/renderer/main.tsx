@@ -52,8 +52,8 @@ export class Main extends React.Component<MainProps, MainState> {
           />
           <Route
             exact
-            path="/uploads"
-            render={() => <Uploads setPageTitle={this.props.setPageTitle} />}
+            path="/uploads/:autofill_email?"
+            render={({ match }) => <Uploads setPageTitle={this.props.setPageTitle} match={match} />}
           />
           <Route exact path="/settings" render={() => <SettingsPage />} />
           {this.props.isDoctor() && (

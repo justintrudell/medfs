@@ -65,7 +65,6 @@ def get_all_records_for_user() -> JsonResponse:
         for r in records
     ]
 
-    data = [d for d in data if d["id"] in permissioned_records]
     # Not the most performant but we're dealing with O(10) entries right now
     for d in data:
         permissioned_user_ids = [

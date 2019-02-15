@@ -62,28 +62,12 @@ export class PatientDetails extends React.Component<
     return "Patient Info";
   }
 
-  getDOB = (): string => {
+  getDOB = () => {
     const info = this.state.info;
     if (info !== undefined && info.dateOfBirth !== null) {
       return info.dateOfBirth.getFullYear() + "-" + (info.dateOfBirth.getMonth() + 1) + "-" + info.dateOfBirth.getDate();
     }
-    return "Unknown";
-  }
-
-  getBloodType = (): string => {
-    const info = this.state.info;
-    if (info !== undefined && info.bloodType !== null) {
-      return info.bloodType as string;
-    }
-    return "Unknown";
-  }
-
-  getSex = (): string => {
-    const info = this.state.info;
-    if (info !== undefined && info.sex !== null) {
-      return info.sex as string;
-    }
-    return "Unknown";
+    return;
   }
 
   tableColumns = (): Array<ColumnProps<RecordItem>> => {
@@ -159,7 +143,7 @@ export class PatientDetails extends React.Component<
         <Card
           title={this.getPageTitle()}
           extra={
-            <Link to="/uploads">
+            <Link to={`/uploads/${this.state.info && this.state.info.email}`}>
               <Button type="primary" icon="plus">
                 Add Document
             </Button>
@@ -168,13 +152,16 @@ export class PatientDetails extends React.Component<
         >
           <Row gutter={32}>
             <Col span={6}>
+              <Statistic title="Email" value={this.state.info && this.state.info.email} />
+            </Col>
+            <Col span={6}>
               <Statistic title="Date of Birth" value={this.getDOB()} />
             </Col>
             <Col span={6}>
-              <Statistic title="Blood Type" value={this.getBloodType()} />
+              <Statistic title="Blood Type" value={this.state.info && this.state.info.bloodType} />
             </Col>
             <Col span={6}>
-              <Statistic title="Sex" value={this.getSex()} />
+              <Statistic title="Sex" value={this.state.info && this.state.info.sex} />
             </Col>
           </Row>
 
