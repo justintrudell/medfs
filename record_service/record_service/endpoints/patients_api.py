@@ -15,6 +15,7 @@ from record_service.models.record import Record
 from record_service.utils.decorators import doctor_required
 from record_service.utils.responses import JsonResponse
 from record_service.external import acl_api
+from record_service.utils.exceptions import UserNotFoundError
 
 patients_api = Blueprint("patients_api", __name__, url_prefix="/patients")
 
@@ -134,7 +135,11 @@ def get_patient_info() -> JsonResponse:
         # doctors arent patients so they dont have a patient info
         return JsonResponse(message="Bad Request", status=400)
 
-    patient_info = _get_patient_info(current_user.get_id())
+    try:
+        patient_info = _get_patient_info(str(current_user.get_id()))
+    except UserNotFoundError as e:
+        return JsonResponse(message="Patient not found", status=404)
+
     return JsonResponse(data=patient_info, status=200)
 
 
@@ -149,7 +154,11 @@ def get_patient_info_as_doctor(patient_id: str) -> JsonResponse:
     if doctor_patient is None:
         return JsonResponse(message="Forbidden", status=403)
 
-    patient_info = _get_patient_info(patient_id)
+    try:
+        patient_info = _get_patient_info(patient_id)
+    except UserNotFoundError as e:
+        return JsonResponse(message="Patient not found", status=404)
+
     return JsonResponse(data=patient_info, status=200)
 
 
@@ -160,17 +169,11 @@ def _get_patient_info(patient_id: str) -> Dict[str, str]:
         .first()
 
     if patient is None:
-        return {
-            "id": str(current_user.get_id()),
-            "dateOfBirth": None,
-            "bloodType": None,
-            "sex": None,
-            "firstName": None,
-            "lastName": None,
-        }
+        raise UserNotFoundError(f"Patient {patient_id} does not exist.")
 
     return {
-        "id": str(current_user.get_id()),
+        "id": patient_id,
+        "email": patient.email,
         "dateOfBirth":
             patient.date_of_birth.strftime("%Y-%m-%d")
             if patient.date_of_birth else None,
