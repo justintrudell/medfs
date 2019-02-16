@@ -4,7 +4,7 @@ import { ERR_NOT_AUTHORIZED } from "../models/errors";
 import { file } from "tmp-promise";
 import util from "util";
 import fs from "fs";
-const exec = util.promisify(require("child_process").exec);
+const execFile = util.promisify(require("child_process").execFile);
 
 export interface LoginDetails {
   userId: string;
@@ -52,9 +52,10 @@ export function decryptPk(
     });
     await util.promisify(fs.writeFile)(passwordPath, password);
 
-    const decryptedPk = await exec(
-      `src/scripts/decrypt_pk.sh "${pkPath}" "${passwordPath}"`
-    );
+    const decryptedPk = await execFile("src/scripts/decrypt_pk.sh", [
+      pkPath,
+      passwordPath
+    ]);
 
     pkFire();
     passwordCleanup();

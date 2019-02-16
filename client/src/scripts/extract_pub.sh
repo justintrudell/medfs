@@ -1,3 +1,3 @@
 #!/bin/bash
 
-openssl rsa -outform PEM -pubout -passin file:$1
+openssl rsa -outform PEM -pubout -in $1 -passin file:$2
