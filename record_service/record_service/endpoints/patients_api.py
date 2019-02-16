@@ -136,7 +136,7 @@ def get_patient_info() -> JsonResponse:
         return JsonResponse(message="Bad Request", status=400)
 
     try:
-        patient_info = _get_patient_info(patient_id)
+        patient_info = _get_patient_info(str(current_user.get_id()))
     except UserNotFoundError as e:
         return JsonResponse(message="Patient not found", status=404)
 
