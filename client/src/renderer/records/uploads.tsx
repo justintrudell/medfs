@@ -256,7 +256,7 @@ export class Uploads extends React.Component<
             >
               {this.state.permissions.map((permission, idx) => {
                 return (
-                  <Input.Group key={idx} className="perimssion">
+                  <Input.Group key={idx} className="permission">
                     <Input
                       type="text"
                       placeholder="Email address"
