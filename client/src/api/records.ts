@@ -8,7 +8,7 @@ import { RecordItem, RecordDetails, RecordKey } from "../models/records";
 import { ERR_NOT_AUTHORIZED, ERR_NOT_LOGGED_IN } from "../models/errors";
 import * as crypto from "crypto";
 import { getLogin } from "../utils/loginUtils";
-const exec = util.promisify(require("child_process").exec);
+const execFile = util.promisify(require("child_process").execFile);
 
 type RecordServiceResponse = {
   id: string;
@@ -82,11 +82,12 @@ export function encryptFileAndUpload(
 ): recordService.RecordServiceResponse {
   return (async () => {
     const encFilePath = await tmpName();
-    await exec(
-      `src/scripts/encrypt_file.sh "${
-        file.path
-      }" "${encFilePath}" "${aesKey}" "${iv}"`
-    );
+    await execFile("src/scripts/encrypt_file.sh", [
+      file.path,
+      encFilePath,
+      aesKey,
+      iv
+    ]);
     const form = {
       permissions: JSON.stringify(permissions),
       extension,

@@ -5,7 +5,7 @@ import util from "util";
 import fs from "fs";
 import * as querystring from "querystring";
 import { ERR_NOT_AUTHORIZED } from "../models/errors";
-const exec = util.promisify(require("child_process").exec);
+const execFile = util.promisify(require("child_process").execFile);
 // Clean up files even if uncaught exceptions occur
 tmp.setGracefulCleanup();
 
@@ -19,22 +19,28 @@ export function createUser(
   isDoctor: boolean
 ): recordService.RecordServiceResponse {
   return (async () => {
-    const { path, cleanup } = await file({
+    const { path: pwPath, cleanup: pwCleanup } = await file({
       mode: 0o644,
       prefix: "medfstmp-"
     });
-    await util.promisify(fs.writeFile)(path, password);
-    const privKey = await exec(`src/scripts/gen_pk.sh "${path}"`);
-    // TODO: Figure out how to pipe privKey into stdin instead of echo
-    const pubKey = await exec(
-      `echo "${privKey.stdout}" | src/scripts/extract_pub.sh "${path}"`
-    );
-    cleanup();
+    await util.promisify(fs.writeFile)(pwPath, password);
+    const { path: privKeyPath, cleanup: privKeyCleanup } = await file({
+      mode: 0o644,
+      prefix: "medfstmp-"
+    });
+    await execFile("src/scripts/gen_pk.sh", [pwPath, privKeyPath]);
+    const pubKey = await execFile("src/scripts/extract_pub.sh", [
+      privKeyPath,
+      pwPath
+    ]);
+    const privKey = await util.promisify(fs.readFile)(privKeyPath);
+    pwCleanup();
+    privKeyCleanup();
     const data = {
       username,
       password,
       keyPair: {
-        private: privKey.stdout,
+        private: privKey.toString(),
         public: pubKey.stdout
       },
       isDoctor
