@@ -3,8 +3,7 @@ import { join } from "path";
 const penv = process.env;
 
 const PROD_CORE_HOST = "medfs.io";
-const PROD_MESSAGE_HOST =
-  "medfs-message-1212016706.us-east-1.elb.amazonaws.com";
+const PROD_MESSAGE_HOST = `message.${PROD_CORE_HOST}`;
 const DEV_HOST = "localhost";
 const RECORD_SERVICE_PORT = "5000";
 const MESSAGE_SERVICE_PORT = "5004";
@@ -24,6 +23,9 @@ function record_service_endpoint(): string {
 }
 
 function message_service_endpoint(): string {
+  if (penv.MEDFS_ENVIRONMENT === "prod") {
+    return `https://${service_host("message")}`;
+  }
   return `http://${service_host("message")}:${MESSAGE_SERVICE_PORT}`;
 }
 
