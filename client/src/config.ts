@@ -2,7 +2,7 @@ import { app, remote } from "electron";
 import { join } from "path";
 const penv = process.env;
 
-const PROD_CORE_HOST = "medfs-core-550121771.us-east-1.elb.amazonaws.com";
+const PROD_CORE_HOST = "medfs.io";
 const PROD_MESSAGE_HOST =
   "medfs-message-1212016706.us-east-1.elb.amazonaws.com";
 const DEV_HOST = "localhost";
@@ -17,6 +17,9 @@ function service_host(service: "core" | "message"): string {
 }
 
 function record_service_endpoint(): string {
+  if (penv.MEDFS_ENVIRONMENT === "prod") {
+    return `https://${service_host("core")}`;
+  }
   return `http://${service_host("core")}:${RECORD_SERVICE_PORT}`;
 }
 
