@@ -18,6 +18,7 @@ export type RecordListState = {
   permissionsModalVisible: boolean;
   currentRecord?: RecordItem;
   currentPermissions: Permission[];
+  loading: boolean;
 };
 
 export interface RecordProps {
@@ -32,18 +33,20 @@ export class Records extends React.Component<RecordProps, RecordListState> {
     this.state = {
       records: [],
       permissionsModalVisible: false,
-      currentPermissions: []
+      currentPermissions: [],
+      loading: true
     };
   }
 
   getAllRecords = () => {
     getAllForUser()
-      .then(records => this.setState({ records }))
+      .then(records => this.setState({ records, loading: false }))
       .catch((error: Error) => {
         if (error.message === ERR_NOT_AUTHORIZED) {
           this.props.updateIsLoggedIn(undefined);
         }
         console.error(error);
+        this.setState({ loading: false });
       });
   };
 
@@ -125,6 +128,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
           <Route exact path="/">
             <Card
               title="My Documents"
+              loading={this.state.loading}
               extra={
                 <Link to="/uploads">
                   <Button type="primary" icon="plus">
