@@ -5,6 +5,7 @@ import "antd/dist/antd.css";
 import { MedFsNotification } from "../../models/notifications";
 import { HistoryProps } from "../app";
 import * as _ from "lodash";
+import { NotificationPreview } from "./notification_preview";
 
 const { Header } = Layout;
 const logo = require("../../image/logo_white.png");
@@ -21,33 +22,12 @@ export class MedFsHeader extends React.Component<
   HeaderProps & HistoryProps,
   {}
 > {
-  getKey = (item: MedFsNotification): string => {
-    return item.recordId;
-  };
-
-  getName = (item: MedFsNotification): string => {
-    return item.name;
-  };
-
   notificationMenu() {
-    // TODO: do something with the private keys
-    const menuItems = (
-      <Menu style={{ borderRadius: "0px", textAlign: "center" }}>
-        {this.props.notifications.map(item => {
-          return (
-            <Menu.Item key={this.getKey(item)}>
-              <Link to={`/records/details/${this.getKey(item)}`}>
-                New file shared: {this.getName(item)}
-              </Link>
-            </Menu.Item>
-          );
-        })}
-      </Menu>
-    );
-
     return (
       <Dropdown
-        overlay={menuItems}
+        overlay={
+          <NotificationPreview notifications={this.props.notifications} />
+        }
         trigger={["click"]}
         onVisibleChange={this.props.clearNotifications}
       >

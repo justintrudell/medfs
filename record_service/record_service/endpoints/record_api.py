@@ -185,6 +185,7 @@ def upload_file():
                 "recordId": str(new_record.id),
                 "encryptedAesKey": values["encryptedAesKey"],
                 "iv": values["iv"],
+                "filename": data["filename"],
             }
         )
         queueing_api.send_message(user_uuid, msg)

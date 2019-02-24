@@ -27,7 +27,7 @@ type PatientDetailsProps = {
 export class PatientDetails extends React.Component<
   PatientDetailsProps,
   PatientDetailsState & RecordListState
-  > {
+> {
   constructor(props: PatientDetailsProps) {
     super(props);
 
@@ -35,21 +35,24 @@ export class PatientDetails extends React.Component<
       info: undefined,
       records: [],
       permissionsModalVisible: false,
-      currentPermissions: []
+      currentPermissions: [],
+      loading: false
     };
   }
 
   componentDidMount() {
     const patientId = this.props.match.params.patient_id;
 
-    Promise.all([getPatientInfo(patientId), getAllForPatient(patientId)]).then(results => {
-      this.setState({
-        info: results[0] as PatientInfo,
-        records: results[1] as RecordItem[],
+    Promise.all([getPatientInfo(patientId), getAllForPatient(patientId)])
+      .then(results => {
+        this.setState({
+          info: results[0] as PatientInfo,
+          records: results[1] as RecordItem[]
+        });
+      })
+      .catch(err => {
+        console.error(err);
       });
-    }).catch(err => {
-      console.error(err);
-    });
   }
 
   getPageTitle = (): string => {
@@ -60,15 +63,21 @@ export class PatientDetails extends React.Component<
       }
     }
     return "Patient Info";
-  }
+  };
 
   getDOB = () => {
     const info = this.state.info;
     if (info !== undefined && info.dateOfBirth !== null) {
-      return info.dateOfBirth.getFullYear() + "-" + (info.dateOfBirth.getMonth() + 1) + "-" + info.dateOfBirth.getDate();
+      return (
+        info.dateOfBirth.getFullYear() +
+        "-" +
+        (info.dateOfBirth.getMonth() + 1) +
+        "-" +
+        info.dateOfBirth.getDate()
+      );
     }
     return;
-  }
+  };
 
   tableColumns = (): Array<ColumnProps<RecordItem>> => {
     return [
@@ -146,22 +155,31 @@ export class PatientDetails extends React.Component<
             <Link to={`/uploads/${this.state.info && this.state.info.email}`}>
               <Button type="primary" icon="plus">
                 Add Document
-            </Button>
+              </Button>
             </Link>
           }
         >
           <Row gutter={32}>
             <Col span={6}>
-              <Statistic title="Email" value={this.state.info && this.state.info.email} />
+              <Statistic
+                title="Email"
+                value={this.state.info && this.state.info.email}
+              />
             </Col>
             <Col span={6}>
               <Statistic title="Date of Birth" value={this.getDOB()} />
             </Col>
             <Col span={6}>
-              <Statistic title="Blood Type" value={this.state.info && this.state.info.bloodType} />
+              <Statistic
+                title="Blood Type"
+                value={this.state.info && this.state.info.bloodType}
+              />
             </Col>
             <Col span={6}>
-              <Statistic title="Sex" value={this.state.info && this.state.info.sex} />
+              <Statistic
+                title="Sex"
+                value={this.state.info && this.state.info.sex}
+              />
             </Col>
           </Row>
 
@@ -171,7 +189,7 @@ export class PatientDetails extends React.Component<
             items={this.state.records}
             columns={this.tableColumns()}
             keyProp="id"
-            setPageTitle={() => { }}
+            setPageTitle={() => {}}
           />
         </Card>
 
