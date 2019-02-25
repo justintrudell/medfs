@@ -25,6 +25,7 @@ interface AppState {
   stream?: EventSource;
   pageTitle?: string;
   notifications: MedFsNotification[];
+  previewedNotifications: MedFsNotification[];
 }
 
 export interface HistoryProps {
@@ -43,7 +44,8 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
       userInternal: undefined,
       stream: undefined,
       pageTitle: undefined,
-      notifications: []
+      notifications: [],
+      previewedNotifications: []
     };
   }
 
@@ -67,7 +69,8 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
       this.setState({
         userInternal,
         stream: undefined,
-        notifications: []
+        notifications: [],
+        previewedNotifications: []
       });
 
       clearLogin().catch(err => console.error(err));
@@ -98,14 +101,18 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
   addNotification = (notification?: MedFsNotification): void => {
     if (notification) {
       this.setState(prevState => ({
+        previewedNotifications: [
+          ...prevState.previewedNotifications,
+          notification
+        ],
         notifications: [...prevState.notifications, notification]
       }));
     }
   };
 
   clearNotifications = (visible?: boolean): void => {
-    if (!visible && this.state.notifications.length > 0) {
-      this.setState({ notifications: [] });
+    if (!visible && this.state.previewedNotifications.length > 0) {
+      this.setState({ previewedNotifications: [] });
     }
   };
 
@@ -143,7 +150,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
         {this.isLoggedIn() && (
           <MedFsHeader
             history={this.props.history}
-            notifications={this.state.notifications}
+            notifications={this.state.previewedNotifications}
             pageTitle={this.state.pageTitle}
             clearNotifications={this.clearNotifications}
             isDoctor={this.isDoctor}
@@ -159,6 +166,7 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             setPageTitle={this.setPageTitle}
             stream={this.state.stream}
             isDoctor={this.isDoctor}
+            notifications={this.state.notifications}
           />
         </Content>
       </Layout>

@@ -10,7 +10,8 @@
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null",
     "console": "yarn build && node",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "rebuild": "rm -rf node_modules && yarn && electron-rebuild"
+    "rebuild": "rm -rf node_modules && yarn && electron-rebuild",
+    "kill-wp": "kill $(ps aux | grep 'webpack' | awk '{print $2}')"
   },
   "dependencies": {
     "@types/ipfs": "https://github.com/vishalkuo/types-ipfs",

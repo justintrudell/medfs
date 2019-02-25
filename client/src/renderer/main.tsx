@@ -9,13 +9,16 @@ import { Layout } from "antd";
 import { UserInternal } from "../models/users";
 import { SettingsPage } from "./home/settings_page";
 import { Patients } from "./patients/patients";
-import { PatientDetails} from "./patients/patient_details";
+import { PatientDetails } from "./patients/patient_details";
+import { NotificationsPage } from "./home/notifications_page";
+import { MedFsNotification } from "../models/notifications";
 const { Content } = Layout;
 
 interface MainProps extends RecordProps {
   isLoggedIn: isLoggedIn;
   stream?: EventSource;
   isDoctor: isDoctor;
+  notifications: MedFsNotification[];
 }
 
 interface MainState {
@@ -53,9 +56,18 @@ export class Main extends React.Component<MainProps, MainState> {
           <Route
             exact
             path="/uploads/:autofill_email?"
-            render={({ match }) => <Uploads setPageTitle={this.props.setPageTitle} match={match} />}
+            render={({ match }) => (
+              <Uploads setPageTitle={this.props.setPageTitle} match={match} />
+            )}
           />
           <Route exact path="/settings" render={() => <SettingsPage />} />
+          <Route
+            exact
+            path="/notifications"
+            render={() => (
+              <NotificationsPage notifications={this.props.notifications} />
+            )}
+          />
           {this.props.isDoctor() && (
             <Route
               exact
@@ -66,7 +78,9 @@ export class Main extends React.Component<MainProps, MainState> {
           {this.props.isDoctor() && (
             <Route
               path="/patients/:patient_id"
-              render={({ match }) => <PatientDetails {...this.props} match={match} />}
+              render={({ match }) => (
+                <PatientDetails {...this.props} match={match} />
+              )}
             />
           )}
           <Route

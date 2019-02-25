@@ -26,6 +26,7 @@ export class ListView<T> extends React.Component<ListViewProps<T>, {}> {
         rowKey={this.props.keyProp}
         columns={this.props.columns}
         dataSource={this.props.items}
+        pagination={{ pageSize: 7 }}
       />
     );
   }
