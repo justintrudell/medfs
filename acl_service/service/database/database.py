@@ -8,4 +8,4 @@ db_string = "postgresql://%s:%s@%s:%s/%s" % (
     environ.get("ACL_SVC_DB_PORT"),
     environ.get("ACL_SVC_DB_NAME"),
 )
-db = create_engine(db_string)
+db = create_engine(db_string, pool_pre_ping=True)

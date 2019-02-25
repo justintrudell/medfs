@@ -7,32 +7,26 @@ interface Props {
   notifications: MedFsNotification[];
 }
 
-export class NotificationPreview extends React.Component<Props, {}> {
+export class NotificationsPage extends React.Component<Props, {}> {
   renderItem = (item: MedFsNotification) => {
     return (
       <List.Item>
         {/* TODO: refactor this wording once we have more granular notifications*/}
+        {/* TODO: add datetime here*/}
         <Link to={`/records/details/${item.recordId}`}>
           {item.email} shared {item.filename} with you
         </Link>
       </List.Item>
     );
   };
-
   render() {
     return (
-      <div>
-        <Card
-          title="Notifications"
-          size="small"
-          style={{ width: 300, margin: 0, padding: 0 }}
-        >
-          <List
-            dataSource={this.props.notifications}
-            renderItem={this.renderItem}
-          />
-        </Card>
-      </div>
+      <Card title="Notifications">
+        <List
+          dataSource={this.props.notifications}
+          renderItem={this.renderItem}
+        />
+      </Card>
     );
   }
 }

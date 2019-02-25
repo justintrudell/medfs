@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { Layout, Icon, Badge, Menu, Dropdown, Switch } from "antd";
+import { Layout, Icon, Badge, Menu, Dropdown, Switch, Button } from "antd";
 import "antd/dist/antd.css";
 import { MedFsNotification } from "../../models/notifications";
 import { HistoryProps } from "../app";
@@ -26,7 +26,16 @@ export class MedFsHeader extends React.Component<
     return (
       <Dropdown
         overlay={
-          <NotificationPreview notifications={this.props.notifications} />
+          <Menu style={{ padding: 0 }}>
+            <Menu.Item style={{ padding: 0 }}>
+              <NotificationPreview notifications={this.props.notifications} />
+            </Menu.Item>
+            <Menu.Item>
+              <Link to={`/notifications`}>
+                <Button type="primary">See All</Button>
+              </Link>
+            </Menu.Item>
+          </Menu>
         }
         trigger={["click"]}
         onVisibleChange={this.props.clearNotifications}
