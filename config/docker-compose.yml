@@ -46,15 +46,6 @@ services:
     environment:
      - PYTHONUNBUFFERED=0  # Causes print statements to be logged
 
-  ipfs:
-    container_name: medfs_ipfs_1
-    restart: always
-    image: jbenet/go-ipfs:latest
-    ports:
-      - "4001:4001"
-      - "5001:5001"
-      - "8080:8080"
-
   acl_service:
     container_name: medfs_acl_service_1
     restart: always
