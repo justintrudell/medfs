@@ -130,6 +130,7 @@ def get_keys_for_emails():
 def get_notifications():
     notifications = db.session.query(Notification) \
         .filter_by(user_id=current_user.get_id()) \
+        .order_by(Notification.created_at.desc()) \
         .all()
 
     return JsonResponse(
