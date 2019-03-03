@@ -39,7 +39,8 @@ export class NotificationsPage extends React.Component<{}, State> {
           {/* TODO: refactor this wording once we have more granular notifications*/}
           {/* TODO: add datetime here*/}
           <Link to={`/records/details/${itemDetails.recordId}`}>
-            {itemDetails.email} shared {itemDetails.filename} with you
+            {itemDetails.email} shared {itemDetails.filename} with you at{" "}
+            {item.createdAt.toISOString()}
           </Link>
         </List.Item>
       );

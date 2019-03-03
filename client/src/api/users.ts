@@ -76,9 +76,10 @@ export function getNotifications(): Promise<StaticNotification[]> {
   return recordService.get(`/users/notifications`).then(resp => {
     if (resp.statusCode === 200) {
       return JSON.parse(resp.body).data.map(
-        (item: { notificationType: string }) => {
+        (item: { notificationType: string; createdAt: string }) => {
           return {
             ...item,
+            createdAt: new Date(item.createdAt),
             notificationType: item.notificationType as NotificationType
           };
         }

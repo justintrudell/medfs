@@ -21,4 +21,5 @@ export interface StaticNotification {
   notificationType: NotificationType;
   content: {};
   sender: string;
+  createdAt: Date;
 }
