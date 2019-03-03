@@ -1,4 +1,5 @@
 import uuid
+import json
 
 from record_service.database.database import db
 from record_service.models.base import Base
@@ -24,3 +25,13 @@ class Notification(Base):
     notification_type = db.Column(db.Enum(NotificationType))
     sender = db.Column(UUID(as_uuid=True), db.ForeignKey(User.id), nullable=True)
     content = db.Column(db.Text)
+
+    def to_dict(self):
+        return {
+            # reload JSON object for api responses
+            "content": json.loads(self.content),
+            "id": str(self.id),
+            "notificationType": self.notification_type.value,
+            "sender": str(self.sender),
+            "userId": str(self.user_id),
+        }
