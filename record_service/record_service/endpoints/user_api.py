@@ -7,12 +7,13 @@ from record_service.database.database import db
 from record_service.models.user import User
 from record_service.models.doctor import Doctor
 from record_service.models.patient import Patient
+from record_service.models.notifications import Notification
 from record_service.utils.exceptions import (
     UnencryptedKeyProvidedError,
     InvalidKeyFormatError,
     InvalidKeyPasswordError,
 )
-
+from record_service.utils.responses import JsonResponse
 
 user_api = Blueprint("user_api", __name__)
 
@@ -122,3 +123,17 @@ def get_keys_for_emails():
             return msg, 400
         keys[email] = user_obj.public_key
     return json.dumps(keys), 200
+
+
+@user_api.route("/users/notifications", methods=["GET"])
+@login_required
+def get_notifications():
+    notifications = db.session.query(Notification) \
+        .filter_by(user_id=current_user.get_id()) \
+        .order_by(Notification.created_at.desc()) \
+        .all()
+
+    return JsonResponse(
+        data=[notification.to_dict() for notification in notifications],
+        status=200,
+    )
