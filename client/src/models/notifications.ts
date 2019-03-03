@@ -7,3 +7,18 @@ export interface MedFsNotification {
   iv: string;
   filename: string;
 }
+
+export enum NotificationType {
+  CREATE = "CREATE",
+  UPDATE = "UPDATE",
+  REVOKE = "REVOKE",
+  ADD_USER = "ADD_USER"
+}
+
+export interface StaticNotification {
+  id: string;
+  userId: string;
+  notificationType: NotificationType;
+  content: {};
+  sender: string;
+}
