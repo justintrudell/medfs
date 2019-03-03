@@ -124,6 +124,7 @@ def get_keys_for_emails():
         keys[email] = user_obj.public_key
     return json.dumps(keys), 200
 
+
 @user_api.route("/users/notifications", methods=["GET"])
 @login_required
 def get_notifications():
