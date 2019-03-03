@@ -6,6 +6,7 @@ from record_service.models.base import Base
 from record_service.models.user import User
 from sqlalchemy.dialects.postgresql import UUID
 from enum import Enum
+from datetime import datetime
 
 
 class NotificationType(Enum):
@@ -25,11 +26,13 @@ class Notification(Base):
     notification_type = db.Column(db.Enum(NotificationType))
     sender = db.Column(UUID(as_uuid=True), db.ForeignKey(User.id), nullable=True)
     content = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
     def to_dict(self):
         return {
             # reload JSON object for api responses
             "content": json.loads(self.content),
+            "createdAt": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             "id": str(self.id),
             "notificationType": self.notification_type.value,
             "sender": str(self.sender),
