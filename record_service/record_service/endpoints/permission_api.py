@@ -52,6 +52,8 @@ def update_permissions(record_id: str) -> Tuple[str, int]:
             message="User not authorized to change permissions.", status=401
         )
 
+    current_user_email = db.session.query(User).get(current_user.get_id()).email
+
     perms_with_uuids = parse_uploaded_permissions(req_json["permissions"], db)
     for user_uuid, values in perms_with_uuids.items():
         item = db.session.query(RecordKey).get((record.id, user_uuid))
@@ -79,6 +81,7 @@ def update_permissions(record_id: str) -> Tuple[str, int]:
                 "encryptedAesKey": values["encryptedAesKey"],
                 "iv": values["iv"],
                 "filename": record.filename,
+                "senderEmail": current_user_email,
             }
         )
         db.session.add(
@@ -88,7 +91,7 @@ def update_permissions(record_id: str) -> Tuple[str, int]:
                 sender=current_user.get_id(),
                 content=json.dumps(
                     {
-                        "email": user.email,
+                        "email": current_user_email,
                         "recordId": record_id,
                         "filename": record.filename,
                     }

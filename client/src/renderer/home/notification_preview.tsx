@@ -13,7 +13,7 @@ export class NotificationPreview extends React.Component<Props, {}> {
       <List.Item>
         {/* TODO: refactor this wording once we have more granular notifications*/}
         <Link to={`/records/details/${item.recordId}`}>
-          {item.email} shared {item.filename} with you
+          {item.senderEmail} shared {item.filename} with you
         </Link>
       </List.Item>
     );
