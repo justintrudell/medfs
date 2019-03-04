@@ -27,6 +27,7 @@ interface UploadState {
   permissions: Permission[];
   files: RcFile[];
   errorMessage: string;
+  isUpdate: boolean;
 }
 
 export class Uploads extends React.Component<
@@ -47,7 +48,8 @@ export class Uploads extends React.Component<
         };
       }),
       files: [],
-      errorMessage: ""
+      errorMessage: "",
+      isUpdate: false
     };
   };
 
@@ -166,11 +168,10 @@ export class Uploads extends React.Component<
 
       // Record update
       if(!_.isEmpty(this.props.match.params.record_id)) {
+        this.setState({ isUpdate: true })
         const recordId = this.props.match.params.record_id!;
         getUsersForRecord(recordId).then((permissions: Permission[]) => {
-          console.log("STATE PERMS: " + this.state.permissions[0].permissionType);
-          console.log("MY PERMS: " + permissions[0].permissionType);
-          this.setState({permissions});
+          this.setState({ permissions });
         });
       }
     }
@@ -249,6 +250,9 @@ export class Uploads extends React.Component<
                       style={{ width: "33%", marginRight: "2%" }}
                       onChange={this.handleSelect(idx)}
                       placeholder = "Select Permission"
+                      // Only show a permission value if we're updating a file and prepopulating permissions
+                      // Otherwise, default value should be undefined so the placeholder text appears
+                      defaultValue = {this.state.isUpdate ? PermissionType[permission.permissionType] : undefined}
                     >
                       {Object.keys(PermissionType).map(permType => {
                         return (
