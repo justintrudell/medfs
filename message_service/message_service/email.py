@@ -7,15 +7,12 @@ log = logging.getLogger()
 
 
 def send_notification_email(to_address):
-    sender = "medFS <postmaster@sandbox411aefec7b00410eb571457f4ba216b6.mailgun.org>"
+    sender = "medFS <notifications@mail.medfs.io>"
     msg = (
         "Hello! You have received a new notification from medFS. "
         "Please login to view it."
     )
-    url = (
-        "https://api.mailgun.net/v3/sandbox411aefec7b00410eb571457f4ba216b6"
-        ".mailgun.org/messages"
-    )
+    url = "https://api.mailgun.net/v3/mail.medfs.io/messages"
     resp = requests.post(
         url,
         auth=("api", config.MAILGUN_API_KEY),
