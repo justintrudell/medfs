@@ -96,8 +96,8 @@ def update_permissions(record_id: str) -> Tuple[str, int]:
             )
         )
         queueing_api.send_message(user.id, msg)
-        db.session.commit()
 
+    db.session.commit()
     set_permissions(current_user.get_id(), record_id, perms_with_uuids, acl_client)
     return "Success", 200
 

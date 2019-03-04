@@ -51,8 +51,10 @@ export class PermissionsModal extends React.Component<
       });
       try {
         const emails = nonEmptyPerms.map(p => p.userEmail);
-        const pubKeys = await getKeys(emails);
-        const recordKey = await getKeyForRecord(this.props.record!.id);
+        const [pubKeys, recordKey] = await Promise.all([
+          getKeys(emails),
+          getKeyForRecord(this.props.record!.id)
+        ]);
         const permissionRequest = buildPermissionRequest(
           pubKeys,
           Buffer.from(recordKey.aesKey),
