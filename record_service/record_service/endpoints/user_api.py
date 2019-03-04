@@ -14,6 +14,7 @@ from record_service.utils.exceptions import (
     InvalidKeyPasswordError,
 )
 from record_service.utils.responses import JsonResponse
+from record_service.utils.email import send_notification_email
 
 user_api = Blueprint("user_api", __name__)
 
@@ -108,20 +109,32 @@ def update_user():
 @login_required
 def get_keys_for_emails():
     """Retrieve public keys for all clients with provided email addresses."""
-    extra_args = set(request.args.keys()) - {"emails"}
+    extra_args = set(request.args.keys()) - {"emails", "shouldEmail"}
     if extra_args:
         return f"Received unknown args {extra_args}", 400
     emails = request.args.getlist("emails")
+    should_email = request.args.get("shouldEmail", "false") == "true"
     keys = {}
+    acct_required_list = []
     for email in emails:
         user_obj = db.session.query(User).filter_by(email=email).one_or_none()
         if user_obj is None:
-            msg = (
-                f"The provided user with email {email} does not have an account, and "
-                "will need to create one before receiving a public key."
-            )
-            return msg, 400
-        keys[email] = user_obj.public_key
+            acct_required_list.append(email)
+        else:
+            keys[email] = user_obj.public_key
+
+    if acct_required_list:
+        acct_list = ", ".join(acct_required_list)
+        msg = f"The following users, {acct_list}, require an account."
+        if should_email:
+            msg += "They have been emailed to create one."
+            for email in acct_required_list:
+                send_notification_email(
+                    email,
+                    "A file has been shared with you in medfs! Sign up to get started.",
+                )
+        return msg, 400
+
     return json.dumps(keys), 200
 
 
