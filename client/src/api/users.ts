@@ -63,6 +63,9 @@ export function getKeys(emails: string[]): Promise<Map<string, string>> {
       if (response.statusCode === 401) {
         throw new Error(ERR_NOT_AUTHORIZED);
       }
+      if (response.statusCode === 400) {
+        throw new Error(response.body);
+      }
 
       throw new Error(`Unknown Error: ${response.body}`);
     });

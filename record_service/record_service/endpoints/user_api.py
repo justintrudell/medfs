@@ -7,7 +7,7 @@ from record_service.database.database import db
 from record_service.models.user import User
 from record_service.models.doctor import Doctor
 from record_service.models.patient import Patient
-from record_service.models.notifications import Notification
+from record_service.models.notification import Notification
 from record_service.utils.exceptions import (
     UnencryptedKeyProvidedError,
     InvalidKeyFormatError,
@@ -128,12 +128,13 @@ def get_keys_for_emails():
 @user_api.route("/users/notifications", methods=["GET"])
 @login_required
 def get_notifications():
-    notifications = db.session.query(Notification) \
-        .filter_by(user_id=current_user.get_id()) \
-        .order_by(Notification.created_at.desc()) \
+    notifications = (
+        db.session.query(Notification)
+        .filter_by(user_id=current_user.get_id())
+        .order_by(Notification.created_at.desc())
         .all()
+    )
 
     return JsonResponse(
-        data=[notification.to_dict() for notification in notifications],
-        status=200,
+        data=[notification.to_dict() for notification in notifications], status=200
     )

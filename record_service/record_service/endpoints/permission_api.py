@@ -1,3 +1,5 @@
+import json
+
 from flask import Blueprint, request
 from flask_login import login_required, current_user
 from typing import Tuple
@@ -5,8 +7,11 @@ from typing import Tuple
 import config
 from record_service.external import acl_api, queueing_api
 from record_service.models.record import Record
+from record_service.models.record_key import RecordKey
+from record_service.models.notification import Notification, NotificationType
 from record_service.models.user import User
 from record_service.database.database import db
+from record_service.utils.permissions import parse_uploaded_permissions, set_permissions
 from record_service.utils.responses import JsonResponse
 
 permission_api = Blueprint("permission_api", __name__, url_prefix="/permissions")
@@ -21,28 +26,79 @@ def update_permissions(record_id: str) -> Tuple[str, int]:
         "data": {
             "permissions": [
                 {
-                    "email": email of user being granted permission,
-                    "values": {
-                        "permission": permission to be granted (read, write),
-                        "encryptedAesKey": File enc key, encrypted w/ user's pub key,
-                        "iv": IV used in AES (this doesn't need to be encrypted),
+                    email: email of user being granted permission
+                    values: {
+                        permission: permission to be granted (read, write)
+                        encryptedAesKey: Encrypted file encryption key
+                        iv: IV used in AES (this doesn't need to be encrypted)
                     }
-                },
-                ...
+                }
             ]
         }
     }
-    That is, a map specifying a private key associated with a file, along with a map of
-    permissions, where key is the UUID of a user and value is the permission being
-    granted (note that a 'write' implies a 'read').
     """
     req_json = request.get_json(silent=True)
     if req_json is None:
         return "Invalid JSON was passed", 400
+    record = db.session.query(Record).get(record_id)
+    if record is None:
+        return "Record did not exist", 400
 
-    for user_uuid, permission in req_json["permissions"].items():
-        queueing_api.send_message(user_uuid)
+    acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
+    if not acl_api.is_user_permissioned_for_write(
+        acl_client, str(current_user.get_id()), record_id
+    ):
+        return JsonResponse(
+            message="User not authorized to change permissions.", status=401
+        )
 
+    perms_with_uuids = parse_uploaded_permissions(req_json["permissions"], db)
+    for user_uuid, values in perms_with_uuids.items():
+        item = db.session.query(RecordKey).get((record.id, user_uuid))
+        user = db.session.query(User).get(user_uuid)
+
+        # Store keys if we haven't done that yet
+        if item is None:
+            db.session.add(
+                RecordKey(
+                    record_id=record.id,
+                    user_id=user.id,
+                    encrypted_key=values["encryptedAesKey"],
+                    iv=values["iv"],
+                )
+            )
+            notification_type = NotificationType.CREATE
+        else:
+            notification_type = NotificationType.UPDATE
+
+        msg = json.dumps(
+            {
+                "type": "privateKey",
+                "email": user.email,
+                "recordId": record_id,
+                "encryptedAesKey": values["encryptedAesKey"],
+                "iv": values["iv"],
+                "filename": record.filename,
+            }
+        )
+        db.session.add(
+            Notification(
+                user_id=user.id,
+                notification_type=notification_type,
+                sender=current_user.get_id(),
+                content=json.dumps(
+                    {
+                        "email": user.email,
+                        "recordId": record_id,
+                        "filename": record.filename,
+                    }
+                ),
+            )
+        )
+        queueing_api.send_message(user.id, msg)
+
+    db.session.commit()
+    set_permissions(current_user.get_id(), record_id, perms_with_uuids, acl_client)
     return "Success", 200
 
 

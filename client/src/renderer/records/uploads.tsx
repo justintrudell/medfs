@@ -3,17 +3,14 @@ import { match } from "react-router";
 import * as _ from "lodash";
 import { Card, Upload, Icon, Form, Input, Button, Select, message } from "antd";
 import { RcFile, UploadFile } from "antd/lib/upload/interface";
-import {
-  Permission,
-  PermissionType,
-  PermissionRequest
-} from "../../models/permissions";
+import { Permission, PermissionType } from "../../models/permissions";
 import { TitleProps } from "../app";
 import { SelectValue } from "antd/lib/select";
 import { Error } from "../components/notifications/error";
 import { encryptFileAndUpload } from "../../api/records";
 import { getKeys } from "../../api/users";
 import { getLogin } from "../../utils/loginUtils";
+import { buildPermissionRequest } from "../../utils/recordUtils";
 import * as crypto from "crypto";
 
 interface MatchParams {
@@ -88,7 +85,7 @@ export class Uploads extends React.Component<
 
     //TODO: figure out why reduce isn't working
     const nonEmptyPerms = this.state.permissions.filter(perm => {
-      return !_.isEmpty(perm.userEmail) && perm.permissionType !== PermissionType.DISABLED;
+      return !_.isEmpty(perm.userEmail);
     });
 
     getLogin().then(userInternal => {
@@ -112,13 +109,7 @@ export class Uploads extends React.Component<
   handleFileUpload(keys: Map<string, string>, perms: Permission[]) {
     const aesKey = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16).toString("hex");
-
-    const permissionRequest = this.buildPermissionRequest(
-      keys,
-      aesKey,
-      iv,
-      perms
-    );
+    const permissionRequest = buildPermissionRequest(keys, aesKey, iv, perms);
 
     const file = this.state.files[0];
     const extension = file.name.substring(file.name.lastIndexOf(".") + 1);
@@ -142,34 +133,6 @@ export class Uploads extends React.Component<
       .catch(errorMessage => {
         this.setState({ errorMessage });
       });
-  }
-
-  buildPermissionRequest(
-    pubKeys: Map<string, string>,
-    aesKey: Buffer,
-    iv: string,
-    perms: Permission[]
-  ): PermissionRequest[] {
-    return perms.map(perm => {
-      const pubKey = pubKeys.get(perm.userEmail);
-      if (pubKey === undefined) {
-        // This should never happen
-        this.setState({
-          errorMessage: `No key exists for email ${perm.userEmail}`
-        });
-        throw Error;
-      }
-      const encryptedKey = crypto.publicEncrypt(pubKey, aesKey).toString("hex");
-      return {
-        email: perm.userEmail,
-        values: {
-          permission: perm.permissionType,
-          encryptedAesKey: encryptedKey,
-          // tslint:disable-next-line:object-literal-shorthand
-          iv: iv
-        }
-      };
-    });
   }
 
   beforeUpload = (file: RcFile): boolean => {
