@@ -1,5 +1,4 @@
 export enum PermissionType {
-  DISABLED = "Select Permission",
   READ = "READ",
   WRITE = "WRITE"
 }

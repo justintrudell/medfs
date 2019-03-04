@@ -60,6 +60,13 @@ export class Main extends React.Component<MainProps, MainState> {
               <Uploads setPageTitle={this.props.setPageTitle} match={match} />
             )}
           />
+          <Route
+            exact
+            path="/uploads/update/:record_id"
+            render={({ match }) => (
+              <Uploads setPageTitle={this.props.setPageTitle} match={match} />
+            )}
+          />
           <Route exact path="/settings" render={() => <SettingsPage />} />
           <Route
             exact

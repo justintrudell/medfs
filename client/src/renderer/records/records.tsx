@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Card } from "antd";
+import { Card, Divider } from "antd";
 import { getAllForUser } from "../../api/records";
 import { RecordItem } from "../../models/records";
 import { Switch, Route, Link } from "react-router-dom";
@@ -94,6 +94,8 @@ export class Records extends React.Component<RecordProps, RecordListState> {
             >
               Edit Permissions
             </a>
+            <Divider type="vertical" />
+            <Link to={`/uploads/update/${record.id}`}> Update File </Link>
           </span>
         )
       }

@@ -9,12 +9,14 @@ import { SelectValue } from "antd/lib/select";
 import { Error } from "../components/notifications/error";
 import { encryptFileAndUpload } from "../../api/records";
 import { getKeys } from "../../api/users";
+import { getUsersForRecord } from "../../api/permissions";
 import { getLogin } from "../../utils/loginUtils";
 import { buildPermissionRequest } from "../../utils/recordUtils";
 import * as crypto from "crypto";
 
 interface MatchParams {
-  autofill_email: string;
+  autofill_email?: string;
+  record_id?: string;
 }
 
 type UploadProps = {
@@ -151,23 +153,33 @@ export class Uploads extends React.Component<
   }
 
   componentWillMount() {
-    if (
-      this.props.match !== undefined &&
-      !_.isEmpty(this.props.match.params.autofill_email)
-    ) {
-      const permissions = this.state.permissions;
-      permissions[0] = {
-        userEmail: this.props.match.params.autofill_email,
-        permissionType: PermissionType.DISABLED
-      };
-      this.setState({ permissions });
+    if (this.props.match !== undefined) {
+      // Email autofill
+      if(!_.isEmpty(this.props.match.params.autofill_email)) {
+        const permissions = this.state.permissions;
+        permissions[0] = {
+          userEmail: this.props.match.params.autofill_email!,
+          permissionType: PermissionType.READ
+        };
+        this.setState({ permissions });
+      }
+
+      // Record update
+      if(!_.isEmpty(this.props.match.params.record_id)) {
+        const recordId = this.props.match.params.record_id!;
+        getUsersForRecord(recordId).then((permissions: Permission[]) => {
+          console.log("STATE PERMS: " + this.state.permissions[0].permissionType);
+          console.log("MY PERMS: " + permissions[0].permissionType);
+          this.setState({permissions});
+        });
+      }
     }
   }
 
   addUser = () => {
     this.setState({
       permissions: this.state.permissions.concat([
-        { userEmail: "", permissionType: PermissionType.DISABLED }
+        { userEmail: "", permissionType: PermissionType.READ }
       ])
     });
   };
@@ -236,18 +248,13 @@ export class Uploads extends React.Component<
                     <Select
                       style={{ width: "33%", marginRight: "2%" }}
                       onChange={this.handleSelect(idx)}
-                      defaultValue={Object.keys(PermissionType)[0]}
+                      placeholder = "Select Permission"
                     >
                       {Object.keys(PermissionType).map(permType => {
                         return (
                           <Select.Option
                             key={permType}
                             value={permType}
-                            disabled={
-                              PermissionType[
-                                permType as keyof typeof PermissionType
-                              ] === PermissionType.DISABLED
-                            }
                           >
                             {
                               PermissionType[

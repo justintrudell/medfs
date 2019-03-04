@@ -161,11 +161,6 @@ export class PermissionsModal extends React.Component<
                   onChange={this.handleSelectChange(idx)}
                 >
                   {Object.keys(PermissionType)
-                    .filter(v => {
-                      return (
-                        PermissionType[v as any] !== PermissionType.DISABLED
-                      );
-                    })
                     .map(permType => {
                       return (
                         <Select.Option key={permType} value={permType}>
