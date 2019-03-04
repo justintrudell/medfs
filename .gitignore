@@ -112,3 +112,5 @@ out/
 .vscode/
 
 secrets/
+
+*.swp

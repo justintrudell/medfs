@@ -38,10 +38,14 @@ export class NotificationsPage extends React.Component<{}, State> {
         <List.Item>
           {/* TODO: refactor this wording once we have more granular notifications*/}
           {/* TODO: add datetime here*/}
-          <Link to={`/records/details/${itemDetails.recordId}`}>
-            {itemDetails.email} shared {itemDetails.filename} with you at{" "}
-            {item.createdAt.toISOString()}
-          </Link>
+          <List.Item.Meta
+            title={
+              <Link to={`/records/details/${itemDetails.recordId}`}>
+                {itemDetails.email} shared {itemDetails.filename} with you
+              </Link>
+            }
+            description={`${item.createdAt.toLocaleDateString()} - ${item.createdAt.toLocaleTimeString()}`}
+          />
         </List.Item>
       );
     } else {
