@@ -50,9 +50,12 @@ export function createUser(
   })();
 }
 
-export function getKeys(emails: string[]): Promise<Map<string, string>> {
+export function getKeys(
+  emails: string[],
+  shouldEmail: boolean = false
+): Promise<Map<string, string>> {
   return recordService
-    .get(`/users/keys?${querystring.stringify({ emails })}`)
+    .get(`/users/keys?${querystring.stringify({ emails, shouldEmail })}`)
     .then(response => {
       if (response.statusCode === 200) {
         return new Map<string, string>(

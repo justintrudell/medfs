@@ -97,7 +97,7 @@ export class Uploads extends React.Component<
         });
 
         const emails = nonEmptyPerms.map(p => p.userEmail);
-        getKeys(emails)
+        getKeys(emails, true)
           .then(pubKeys => {
             this.handleFileUpload(pubKeys, nonEmptyPerms);
           })
