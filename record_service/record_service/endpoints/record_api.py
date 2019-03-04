@@ -169,7 +169,7 @@ def upload_file():
     db.session.add(new_record)
     db.session.commit()
 
-    current_user_email = db.session.query(User.email).get(current_user.get_id())
+    current_user_email = db.session.query(User).get(current_user.get_id()).email
 
     # Store keys locally then push them out to message service
     for user_uuid, values in perms_with_uuid.items():
@@ -191,6 +191,7 @@ def upload_file():
                 "encryptedAesKey": values["encryptedAesKey"],
                 "iv": values["iv"],
                 "filename": data["filename"],
+                "senderEmail": current_user_email,
             }
         )
         db.session.add(

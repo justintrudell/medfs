@@ -6,6 +6,7 @@ export interface MedFsNotification {
   encryptedAesKey: string;
   iv: string;
   filename: string;
+  senderEmail: string;
 }
 
 export enum NotificationType {
