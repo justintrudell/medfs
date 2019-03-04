@@ -3,6 +3,8 @@ import { getKeyForRecord } from "../api/records";
 import { file } from "tmp-promise";
 import { IPFSFile } from "ipfs";
 import util from "util";
+import { Permission, PermissionRequest } from "../models/permissions";
+import * as crypto from "crypto";
 const execFile = util.promisify(require("child_process").execFile);
 const writeFile = util.promisify(require("fs").writeFile);
 
@@ -27,6 +29,31 @@ export async function downloadRecord(
   } catch (err) {
     return Promise.reject(err);
   }
+}
+
+export function buildPermissionRequest(
+  pubKeys: Map<string, string>,
+  aesKey: Buffer,
+  iv: string,
+  perms: Permission[]
+): PermissionRequest[] {
+  return perms.map(perm => {
+    const pubKey = pubKeys.get(perm.userEmail);
+    if (pubKey === undefined) {
+      // This should never happen
+      throw Error(`No key exists for email ${perm.userEmail}`);
+    }
+    const encryptedKey = crypto.publicEncrypt(pubKey, aesKey).toString("hex");
+    return {
+      email: perm.userEmail,
+      values: {
+        permission: perm.permissionType,
+        encryptedAesKey: encryptedKey,
+        // tslint:disable-next-line:object-literal-shorthand
+        iv: iv
+      }
+    };
+  });
 }
 
 async function downloadFile(

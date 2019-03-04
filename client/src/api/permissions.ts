@@ -1,6 +1,10 @@
 import * as recordService from "./record_service";
 import { ERR_NOT_AUTHORIZED } from "../models/errors";
-import { Permission, PermissionType } from "../models/permissions";
+import {
+  Permission,
+  PermissionType,
+  PermissionRequest
+} from "../models/permissions";
 
 type PermissionServiceResponse = {
   userEmail: string;
@@ -28,4 +32,22 @@ export function getUsersForRecord(id: string): Promise<Permission[]> {
       }
       throw new Error(`Unknown error: ${response.body}`);
     });
+}
+
+export function updatePermissions(
+  permissionRequest: PermissionRequest[],
+  recordId: string
+): recordService.RecordServiceResponse {
+  const data = {
+    permissions: permissionRequest
+  };
+  return recordService.post(`/permissions/${recordId}`, data).then(response => {
+    if (response.statusCode === 200) {
+      return response;
+    }
+    if (response.statusCode === 401) {
+      throw new Error(ERR_NOT_AUTHORIZED);
+    }
+    throw new Error(`Unknown error: ${response.body}`);
+  });
 }

@@ -11,7 +11,7 @@ from record_service.external import acl_api, queueing_api
 from record_service.models.record import Record
 from record_service.models.record_key import RecordKey
 from record_service.models.user import User
-from record_service.models.notifications import Notification, NotificationType
+from record_service.models.notification import Notification, NotificationType
 
 from record_service.utils.responses import JsonResponse
 from record_service.utils.file_uploader import FileUploader, IpfsWriter
