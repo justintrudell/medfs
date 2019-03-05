@@ -114,3 +114,5 @@ out/
 secrets/
 
 *.swp
+lambda_deps/
+dbCleaner.zip
