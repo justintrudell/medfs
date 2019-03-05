@@ -28,6 +28,14 @@ class Notification(Base):
     content = db.Column(db.Text)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
+    def __init__(self, **kwargs):
+        kwargs["content"] = json.dumps(kwargs["content"])
+
+        if "created_at" not in kwargs:
+            kwargs["created_at"] = datetime.now()
+
+        super().__init__(**kwargs)
+
     def to_dict(self):
         return {
             # reload JSON object for api responses
@@ -38,3 +46,6 @@ class Notification(Base):
             "sender": str(self.sender),
             "userId": str(self.user_id),
         }
+
+    def to_json(self):
+        return json.dumps(self.to_dict())

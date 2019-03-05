@@ -1,5 +1,3 @@
-import json
-
 from flask import Blueprint, request
 from flask_login import login_required, current_user
 from typing import Tuple
@@ -73,32 +71,19 @@ def update_permissions(record_id: str) -> Tuple[str, int]:
         else:
             notification_type = NotificationType.UPDATE
 
-        msg = json.dumps(
-            {
-                "type": "privateKey",
-                "email": user.email,
-                "recordId": record_id,
-                "encryptedAesKey": values["encryptedAesKey"],
-                "iv": values["iv"],
-                "filename": record.filename,
-                "senderEmail": current_user_email,
-            }
+        notification = Notification(
+            content=dict(
+                email=user.email,
+                filename=record.filename,
+                recordId=str(record_id),
+                senderEmail=current_user_email,
+            ),
+            notification_type=notification_type,
+            sender=current_user.get_id(),
+            user_id=user.id,
         )
-        db.session.add(
-            Notification(
-                user_id=user.id,
-                notification_type=notification_type,
-                sender=current_user.get_id(),
-                content=json.dumps(
-                    {
-                        "email": current_user_email,
-                        "recordId": record_id,
-                        "filename": record.filename,
-                    }
-                ),
-            )
-        )
-        queueing_api.send_message(user.id, msg)
+        db.session.add(notification)
+        queueing_api.send_message(user.id, notification.to_json())
 
     db.session.commit()
     set_permissions(current_user.get_id(), record_id, perms_with_uuids, acl_client)

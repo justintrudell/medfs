@@ -2,13 +2,14 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { Card, List } from "antd";
 import {
-  StaticNotification,
-  NotificationType
+  MedFsNotification,
+  NotificationType,
+  CreateNotification
 } from "../../models/notifications";
 import { getNotifications } from "../../api/users";
 
 interface State {
-  notifications: StaticNotification[];
+  notifications: MedFsNotification[];
   loading: boolean;
 }
 
@@ -26,32 +27,24 @@ export class NotificationsPage extends React.Component<{}, State> {
       });
   };
 
-  renderItem = (item: StaticNotification) => {
+  renderItem = (item: MedFsNotification) => {
     // TODO: each notification type could be its own component
-    if (item.notificationType === NotificationType.CREATE) {
-      const itemDetails = item.content as {
-        recordId: string;
-        email: string;
-        filename: string;
-      };
-      return (
-        <List.Item>
-          {/* TODO: refactor this wording once we have more granular notifications*/}
-          {/* TODO: add datetime here*/}
-          <List.Item.Meta
-            title={
-              <Link to={`/records/details/${itemDetails.recordId}`}>
-                {itemDetails.email} shared {itemDetails.filename} with you
-              </Link>
-            }
-            description={`${item.createdAt.toLocaleDateString()} - ${item.createdAt.toLocaleTimeString()}`}
-          />
-        </List.Item>
-      );
-    } else {
-      return (
-        <List.Item>Unknown notification: {JSON.stringify(item)}</List.Item>
-      );
+    switch (item.notificationType) {
+      case NotificationType.CREATE: {
+        const n = item as CreateNotification;
+        return (
+          <List.Item>
+            <Link to={`/records/details/${n.content.recordId}`}>
+            {n.content.senderEmail} shared {n.content.filename} with you.
+            </Link>
+          </List.Item>
+        );
+      }
+      default: {
+        return (
+          <List.Item>Unknown notification: {JSON.stringify(item)}</List.Item>
+        );
+      }
     }
   };
   render() {

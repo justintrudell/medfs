@@ -5,7 +5,7 @@ import util from "util";
 import fs from "fs";
 import * as querystring from "querystring";
 import { ERR_NOT_AUTHORIZED } from "../models/errors";
-import { StaticNotification, NotificationType } from "../models/notifications";
+import { MedFsNotification, NotificationType } from "../models/notifications";
 const execFile = util.promisify(require("child_process").execFile);
 // Clean up files even if uncaught exceptions occur
 tmp.setGracefulCleanup();
@@ -78,18 +78,18 @@ export function testEndpoint(): recordService.RecordServiceResponse {
   return recordService.get(`/users/test`);
 }
 
-export function getNotifications(): Promise<StaticNotification[]> {
+export function coerceNotification(item: { notificationType: string; createdAt: string }): MedFsNotification {
+  return {
+    ...item,
+    createdAt: new Date(item.createdAt),
+    notificationType: item.notificationType as NotificationType
+  } as MedFsNotification;
+}
+
+export function getNotifications(): Promise<MedFsNotification[]> {
   return recordService.get(`/users/notifications`).then(resp => {
     if (resp.statusCode === 200) {
-      return JSON.parse(resp.body).data.map(
-        (item: { notificationType: string; createdAt: string }) => {
-          return {
-            ...item,
-            createdAt: new Date(item.createdAt),
-            notificationType: item.notificationType as NotificationType
-          };
-        }
-      );
+      return JSON.parse(resp.body).data.map(coerceNotification);
     }
 
     if (resp.statusCode === 401) {

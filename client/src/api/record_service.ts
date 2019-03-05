@@ -2,6 +2,7 @@ import * as requestMaster from "request";
 import { constants } from "../config";
 import { resolve } from "url";
 import { MedFsNotification } from "../models/notifications";
+import { coerceNotification } from "./users";
 const fileCookieStore = require("tough-cookie-file-store");
 const newEventSource = require("eventsource");
 
@@ -71,7 +72,7 @@ export function stream(
     eventSourceInitDict
   );
   evtSource.onmessage = (e: { data: string }) => {
-    notifyFunction(JSON.parse(e.data) as MedFsNotification);
+    notifyFunction(coerceNotification(JSON.parse(e.data)));
   };
   return evtSource;
 }

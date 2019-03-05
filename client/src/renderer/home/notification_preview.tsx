@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { Card, List } from "antd";
-import { MedFsNotification } from "../../models/notifications";
+import { MedFsNotification, CreateNotification, NotificationType } from "../../models/notifications";
 
 interface Props {
   notifications: MedFsNotification[];
@@ -9,14 +9,23 @@ interface Props {
 
 export class NotificationPreview extends React.Component<Props, {}> {
   renderItem = (item: MedFsNotification) => {
-    return (
-      <List.Item>
-        {/* TODO: refactor this wording once we have more granular notifications*/}
-        <Link to={`/records/details/${item.recordId}`}>
-          {item.senderEmail} shared {item.filename} with you
-        </Link>
-      </List.Item>
-    );
+    switch(item.notificationType) {
+      case NotificationType.CREATE: {
+        const n = item as CreateNotification;
+        return (
+          <List.Item>
+            <Link to={`/records/details/${n.content.recordId}`}>
+            {n.content.senderEmail} shared {n.content.filename} with you.
+            </Link>
+          </List.Item>
+        );
+      }
+      default: {
+        return (
+          <List.Item>Unknown notification: {JSON.stringify(item)}</List.Item>
+        );
+      }
+    }
   };
 
   render() {
