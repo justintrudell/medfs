@@ -28,6 +28,7 @@ from record_service.endpoints.record_key_api import record_key_api
 from record_service.endpoints.user_api import user_api
 from record_service.endpoints.patients_api import patients_api
 from record_service.endpoints.healthcheck import healthcheck
+from record_service.endpoints.utils_api import utils_api
 
 # External APIs
 from record_service.external import acl_api
@@ -59,6 +60,7 @@ apis = [
     user_api,
     patients_api,
     healthcheck,
+    utils_api,
 ]
 [app.register_blueprint(api) for api in apis]
 

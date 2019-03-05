@@ -25,3 +25,6 @@ IPFS_PORT = environ.get("IPFS_PORT")
 
 # Mailfun
 MAILGUN_API_KEY = environ.get("MAILGUN_API_KEY")
+
+# Slack auth
+SLACK_SIGNING_SECRET = environ.get("SLACK_SIGNING_SECRET")
