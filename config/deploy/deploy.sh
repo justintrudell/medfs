@@ -24,13 +24,25 @@ msg() {
         # --target-group-arn arn:aws:elasticloadbalancing:us-east-1:361641763854:targetgroup/medfs-message/06bc20ff6087f77b \
 }
 
+slack() {
+    echo "Logging to slack..."
+    HN=$(hostname)
+    SLACK_MSG="Deployment of $1 from $HN"
+
+    curl -XPOST -H "Content-type: application/json" \
+        --data "{\"text\": \"$SLACK_MSG\"}" \
+        https://hooks.slack.com/services/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
+}
+
 if [[ "$1" == "core" ]]; then 
+    slack "core"
     core
 elif [[ "$1" == "msg" ]] ; then
-    msg
+    slack "msg"
+    msg    
 else
+    slack "core and message"
     core
     msg
 fi
-
 
