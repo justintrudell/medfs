@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import { Card, Divider } from "antd";
 import { getAllForUser } from "../../api/records";
 import { RecordItem } from "../../models/records";
@@ -9,12 +10,16 @@ import { updateIsLoggedIn, setPageTitle } from "../app";
 import { Button } from "antd";
 import { PermissionsModal } from "../components/modals/permissions";
 import { ColumnProps } from "antd/lib/table";
-import { ERR_NOT_AUTHORIZED } from "../../models/errors";
-import { Permission } from "../../models/permissions";
+import { ERR_NOT_AUTHORIZED, ERR_UNKNOWN, ERR_NO_PERM_FOR_RECORD } from "../../models/errors";
+import { Permission, PermissionType } from "../../models/permissions";
 import { getUsersForRecord } from "../../api/permissions";
+import { getLogin } from "../../utils/loginUtils";
+import { UserInternal } from "../../models/users";
 
 export type RecordListState = {
+  user: UserInternal | undefined;
   records: RecordItem[];
+  canEditRecord: { [key: string]: boolean};
   permissionsModalVisible: boolean;
   currentRecord?: RecordItem;
   currentPermissions: Permission[];
@@ -31,7 +36,9 @@ export class Records extends React.Component<RecordProps, RecordListState> {
   constructor(props: RecordProps) {
     super(props);
     this.state = {
+      user: undefined,
       records: [],
+      canEditRecord: {},
       permissionsModalVisible: false,
       currentPermissions: [],
       loading: true
@@ -39,8 +46,39 @@ export class Records extends React.Component<RecordProps, RecordListState> {
   }
 
   getAllRecords = () => {
-    getAllForUser()
-      .then(records => this.setState({ records, loading: false }))
+    Promise.all([getLogin(), getAllForUser()])
+      .then(result => {
+        if (!result[0] || _.isEmpty(result[0])) {
+          throw new Error(ERR_UNKNOWN);
+        }
+
+        this.setState({
+          user: result[0] as UserInternal,
+          records: result[1] as RecordItem[],
+          loading: false
+        });
+
+        // Check which permissions we have write access for
+        this.state.records.forEach(record => {
+          getUsersForRecord(record.id)
+            .then(users => {
+              const myPerm = users.filter(user => user.userEmail === this.state.user!.email);
+              // Sanity check
+              if(myPerm.length != 1) {
+                throw new Error(ERR_NO_PERM_FOR_RECORD);
+              }
+              if(myPerm[0].permissionType === PermissionType.WRITE) {
+                this.state.canEditRecord[record.id] = true;
+              }
+              else {
+                this.state.canEditRecord[record.id] = false;
+              }
+            })
+            .catch(() => {
+              this.state.canEditRecord[record.id] = false;
+            });
+        });
+      })
       .catch((error: Error) => {
         if (error.message === ERR_NOT_AUTHORIZED) {
           this.props.updateIsLoggedIn(undefined);
@@ -48,6 +86,30 @@ export class Records extends React.Component<RecordProps, RecordListState> {
         console.error(error);
         this.setState({ loading: false });
       });
+    // getAllForUser()
+    //   .then(records => {
+    //     this.setState({ records, loading: false });
+
+    //     const perms = Promise.all(records.map(record => getUsersForRecord(record.id)));
+    //     getLogin().then(result => {
+    //       var userEmail = result!.email;
+    //       perms.then(allUsers => {
+    //         const permissions = allUsers.map(users => users.filter(user => user.userEmail == userEmail)[0].permissionType)
+    //         records.forEach((record, index) => {
+    //           if(permissions[index] == PermissionType.WRITE) {
+    //             this.state.canEditRecord[record.id] = true;
+    //           }
+    //         });
+    //       });
+    //     });
+    //   })
+    //   .catch((error: Error) => {
+    //     if (error.message === ERR_NOT_AUTHORIZED) {
+    //       this.props.updateIsLoggedIn(undefined);
+    //     }
+    //     console.error(error);
+    //     this.setState({ loading: false });
+    //   });
   };
 
   componentDidMount() {
@@ -84,7 +146,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
         title: "Actions",
         key: "action",
         render: (_, record) => (
-          <span>
+          <span style={{display: (this.state.canEditRecord[record.id]) ? "" : "none"}}>
             {/* TODO: add download link back once its functional */}
             {/* <a href="javascript:;">Download</a>
             <Divider type="vertical" /> */}
@@ -95,7 +157,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
               Edit Permissions
             </a>
             <Divider type="vertical" />
-            <Link to={`/uploads/update/${record.id}`}> Update File </Link>
+            <Link to={`/uploads/update/${record.id}`}> Update Record </Link>
           </span>
         )
       }
