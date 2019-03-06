@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Card } from "antd";
+import * as _ from "lodash";
+import { Card, Divider } from "antd";
 import { getAllForUser } from "../../api/records";
 import { RecordItem } from "../../models/records";
 import { Switch, Route, Link } from "react-router-dom";
@@ -15,6 +16,7 @@ import { getUsersForRecord } from "../../api/permissions";
 
 export type RecordListState = {
   records: RecordItem[];
+  canEditRecord: { [key: string]: boolean};
   permissionsModalVisible: boolean;
   currentRecord?: RecordItem;
   currentPermissions: Permission[];
@@ -32,6 +34,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
     super(props);
     this.state = {
       records: [],
+      canEditRecord: {},
       permissionsModalVisible: false,
       currentPermissions: [],
       loading: true
@@ -40,7 +43,31 @@ export class Records extends React.Component<RecordProps, RecordListState> {
 
   getAllRecords = () => {
     getAllForUser()
-      .then(records => this.setState({ records, loading: false }))
+      .then(records => {
+        this.setState({
+          records: records,
+          loading: false
+        });
+
+        var canEditRecord: { [key: string]: boolean} = {};
+
+        // Check which permissions we have write access for
+        const results = records.map(record => {
+          return getUsersForRecord(record.id)
+            // We can only view permissions if we have write permissions for this record
+            .then(users => {
+              canEditRecord[record.id] = true;
+            })
+            // Otherwise we get a 401
+            .catch(() => {
+              canEditRecord[record.id] = false;
+            });
+        });
+
+        Promise.all(results).then(result => {
+          this.setState({canEditRecord});
+        });
+      })
       .catch((error: Error) => {
         if (error.message === ERR_NOT_AUTHORIZED) {
           this.props.updateIsLoggedIn(undefined);
@@ -83,22 +110,37 @@ export class Records extends React.Component<RecordProps, RecordListState> {
       {
         title: "Actions",
         key: "action",
-        render: (_, record) => (
-          <span>
-            {/* TODO: add download link back once its functional */}
-            {/* <a href="javascript:;">Download</a>
-            <Divider type="vertical" /> */}
-            <a
-              href="javascript:;"
-              onClick={() => this.showPermissionsModal(record)}
-            >
-              Edit Permissions
-            </a>
-          </span>
-        )
+        render: this.renderActions
       }
     ];
   };
+
+  renderActions = (_: any, record: RecordItem) => {
+    if(this.state.canEditRecord[record.id]) {
+      return (
+        <span>
+        {/* TODO: add download link back once its functional */}
+        {/* <a href="javascript:;">Download</a>
+        <Divider type="vertical" /> */}
+          <a
+            href="javascript:;"
+            onClick={() => this.showPermissionsModal(record)}
+          >
+            Edit Permissions
+          </a>
+          <Divider type="vertical" />
+          <Link to={`/uploads/update/${record.id}`}> Update Record </Link>
+        </span>
+      );
+    }
+    return (
+      <span>
+      {/* TODO: add download link back once its functional */}
+      {/* <a href="javascript:;">Download</a>
+      <Divider type="vertical" /> */}
+      </span>
+    );
+  }
 
   showPermissionsModal = (record: RecordItem) => {
     getUsersForRecord(record.id)
