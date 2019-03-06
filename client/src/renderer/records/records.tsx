@@ -52,18 +52,20 @@ export class Records extends React.Component<RecordProps, RecordListState> {
         var canEditRecord: { [key: string]: boolean} = {};
 
         // Check which permissions we have write access for
-        records.forEach(record => {
-          getUsersForRecord(record.id)
+        const results = records.map(record => {
+          return getUsersForRecord(record.id)
             // We can only view permissions if we have write permissions for this record
             .then(users => {
               canEditRecord[record.id] = true;
-              this.setState({canEditRecord});
             })
             // Otherwise we get a 401
             .catch(() => {
               canEditRecord[record.id] = false;
-              this.setState({canEditRecord});
             });
+        });
+
+        Promise.all(results).then(result => {
+          this.setState({canEditRecord});
         });
       })
       .catch((error: Error) => {
