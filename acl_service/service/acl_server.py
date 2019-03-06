@@ -27,10 +27,18 @@ class AclServicer(acl_pb2_grpc.AclServicer):
 
     def _create_permissions_if_not_exist(self):
         with session_scope() as session:
-            if not session.query(Permission).filter(Permission.is_readonly == True).one_or_none(): # noqa
+            if (
+                not session.query(Permission)
+                .filter(Permission.is_readonly == True)
+                .one_or_none()
+            ):  # noqa
                 readonly_perm = Permission(is_readonly=True)
                 session.add(readonly_perm)
-            if not session.query(Permission).filter(Permission.is_readonly == False).one_or_none(): # noqa
+            if (
+                not session.query(Permission)
+                .filter(Permission.is_readonly == False)
+                .one_or_none()
+            ):  # noqa
                 readwrite_perm = Permission(is_readonly=False)
                 session.add(readwrite_perm)
 
@@ -109,7 +117,11 @@ class AclServicer(acl_pb2_grpc.AclServicer):
     def AddRecord(self, request, context):
         with session_scope() as session:
             # First check that the record we're trying to add doesn't exist
-            record = session.query(Acl).filter(Acl.record_id == UUID(request.record.id)).first()
+            record = (
+                session.query(Acl)
+                .filter(Acl.record_id == UUID(request.record.id))
+                .first()
+            )
             if record:
                 return acl_pb2.AddRecordResponse(result=False)
             write_perm = (
@@ -144,7 +156,8 @@ class AclServicer(acl_pb2_grpc.AclServicer):
                 new_record = listOfRecords.records.add()
                 new_record.record.id = str(record.record_id)
                 new_record.permission = (
-                    acl_pb2.RecordPermissionEntry.READ if perm.is_readonly
+                    acl_pb2.RecordPermissionEntry.READ
+                    if perm.is_readonly
                     else acl_pb2.RecordPermissionEntry.WRITE
                 )
 
@@ -163,11 +176,18 @@ class AclServicer(acl_pb2_grpc.AclServicer):
                 new_user = listOfUsers.users.add()
                 new_user.user.id = str(user.user_id)
                 new_user.permission = (
-                    acl_pb2.UserPermissionEntry.READ if perm.is_readonly
+                    acl_pb2.UserPermissionEntry.READ
+                    if perm.is_readonly
                     else acl_pb2.UserPermissionEntry.WRITE
                 )
 
         return listOfUsers
+
+    def CleanDb(self, request, context):
+        Base.metadata.drop_all(bind=db.engine)
+        Base.metadata.create_all(bind=db.engine)
+        self._create_permissions_if_not_exist()
+        return acl_pb2.Empty()
 
 
 @contextmanager

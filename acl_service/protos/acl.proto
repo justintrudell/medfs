@@ -7,6 +7,11 @@ service Acl {
     rpc AddRecord (AddRecordRequest) returns (AddRecordResponse) {}
     rpc GetAllRecordsForUser (GetRecordsRequest) returns (ListOfRecords) {}
     rpc GetAllUsersForRecord (GetUsersRequest) returns (ListOfUsers) {}
+    rpc CleanDb(Empty) returns (Empty) {}
+}
+
+message Empty {
+
 }
 
 message UserId {
