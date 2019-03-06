@@ -76,12 +76,10 @@ export class AddUserNotificationView extends NotificationBaseView<AddUserNotific
 
     
     return (
-      <div>
         <ButtonGroup>
           <Button type="primary" onClick={this.confirm}>Confirm</Button>
           <Button onClick={this.decline}>Decline</Button>
         </ButtonGroup>
-      </div>
     );
   }
 }
