@@ -1,12 +1,10 @@
 export interface MedFsNotification {
-  type: string;
-  recordId: string;
-  privateKey: string;
-  email: string;
-  encryptedAesKey: string;
-  iv: string;
-  filename: string;
-  senderEmail: string;
+  id: string;
+  userId: string;
+  notificationType: NotificationType;
+  content: {};
+  sender: string;
+  createdAt: Date;
 }
 
 export enum NotificationType {
@@ -16,11 +14,28 @@ export enum NotificationType {
   ADD_USER = "ADD_USER"
 }
 
-export interface StaticNotification {
-  id: string;
-  userId: string;
-  notificationType: NotificationType;
-  content: {};
-  sender: string;
-  createdAt: Date;
+export interface CreateNotification extends MedFsNotification {
+  content: {
+    email: string;
+    filename: string;
+    recordId: string;
+    senderEmail: string;
+  };
+}
+
+export interface UpdateNotification extends MedFsNotification {
+  content: {
+    email: string;
+    filename: string;
+    recordId: string;
+    senderEmail: string;
+  };
+}
+
+export interface RevokeNotification extends MedFsNotification {
+  // To-do
+}
+
+export interface AddUserNotification extends MedFsNotification {
+  // to-do
 }

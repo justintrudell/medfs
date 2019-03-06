@@ -183,32 +183,20 @@ def upload_file():
         )
 
         email = db.session.query(User).get(user_uuid).email
-        msg = json.dumps(
-            {
-                "type": "privateKey",
-                "email": email,
-                "recordId": str(new_record.id),
-                "encryptedAesKey": values["encryptedAesKey"],
-                "iv": values["iv"],
-                "filename": data["filename"],
-                "senderEmail": current_user_email,
-            }
+
+        notification = Notification(
+            content=dict(
+                email=email,
+                filename=data["filename"],
+                recordId=str(new_record.id),
+                senderEmail=current_user_email,
+            ),
+            notification_type=NotificationType.CREATE,
+            sender=current_user.get_id(),
+            user_id=user_uuid,
         )
-        db.session.add(
-            Notification(
-                user_id=user_uuid,
-                notification_type=NotificationType.CREATE,
-                sender=current_user.get_id(),
-                content=json.dumps(
-                    {
-                        "email": current_user_email,
-                        "recordId": str(new_record.id),
-                        "filename": data["filename"],
-                    }
-                ),
-            )
-        )
-        queueing_api.send_message(user_uuid, msg)
+        db.session.add(notification)
+        queueing_api.send_message(user_uuid, notification.to_json())
     db.session.commit()
 
     return str(new_record.id), 200

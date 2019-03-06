@@ -28,7 +28,7 @@ def send_message(uuid: str, message: str):
     queue_name = _create_queue_name(uuid)
     try:
         queue = sqs.get_queue_by_name(QueueName=queue_name)
-    except sqs.meta.client.exceptions.QueueDoesNotExist as e:
+    except sqs.meta.client.exceptions.QueueDoesNotExist:
         # Assume queue did not yet exist - create new queue
         queue = sqs.create_queue(
             QueueName=queue_name,
