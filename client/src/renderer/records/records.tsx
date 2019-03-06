@@ -10,14 +10,11 @@ import { updateIsLoggedIn, setPageTitle } from "../app";
 import { Button } from "antd";
 import { PermissionsModal } from "../components/modals/permissions";
 import { ColumnProps } from "antd/lib/table";
-import { ERR_NOT_AUTHORIZED, ERR_UNKNOWN } from "../../models/errors";
+import { ERR_NOT_AUTHORIZED } from "../../models/errors";
 import { Permission } from "../../models/permissions";
 import { getUsersForRecord } from "../../api/permissions";
-import { getLogin } from "../../utils/loginUtils";
-import { UserInternal } from "../../models/users";
 
 export type RecordListState = {
-  user: UserInternal | undefined;
   records: RecordItem[];
   canEditRecord: { [key: string]: boolean};
   permissionsModalVisible: boolean;
@@ -36,7 +33,6 @@ export class Records extends React.Component<RecordProps, RecordListState> {
   constructor(props: RecordProps) {
     super(props);
     this.state = {
-      user: undefined,
       records: [],
       canEditRecord: {},
       permissionsModalVisible: false,
@@ -46,22 +42,17 @@ export class Records extends React.Component<RecordProps, RecordListState> {
   }
 
   getAllRecords = () => {
-    Promise.all([getLogin(), getAllForUser()])
-      .then(result => {
-        if (!result[0] || _.isEmpty(result[0])) {
-          throw new Error(ERR_UNKNOWN);
-        }
-
+    getAllForUser()
+      .then(records => {
         this.setState({
-          user: result[0] as UserInternal,
-          records: result[1] as RecordItem[],
+          records: records,
           loading: false
         });
 
         var canEditRecord: { [key: string]: boolean} = {};
 
         // Check which permissions we have write access for
-        this.state.records.forEach(record => {
+        records.forEach(record => {
           getUsersForRecord(record.id)
             // We can only view permissions if we have write permissions for this record
             .then(users => {
