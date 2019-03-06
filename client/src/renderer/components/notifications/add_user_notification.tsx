@@ -1,17 +1,16 @@
 import * as React from "react";
 import { AddUserNotification } from "../../../models/notifications";
-import { NotificationBaseView } from "./notification_base";
+import { NotificationBaseView, NotificationBaseProps } from "./notification_base";
 import { Button, Icon } from "antd";
 import ButtonGroup from "antd/lib/button/button-group";
-import * as moment from "moment";
 import { Link } from "react-router-dom";
 import { respondToPatientRequest } from "../../../api/patients";
 
-type AddUserNotificationProps = {
+interface AddUserNotificationProps extends NotificationBaseProps {
   notification: AddUserNotification;
   isPreview: boolean;
-  reload(): void;
-};
+  reload?(): void;
+}
 
 
 export class AddUserNotificationView extends NotificationBaseView<AddUserNotificationProps, {}> {
@@ -22,7 +21,9 @@ export class AddUserNotificationView extends NotificationBaseView<AddUserNotific
   confirm = (): void => {
     const n = this.props.notification;
     respondToPatientRequest(n.content.doctorId, true, n.id).then(resp => {
-      this.props.reload();
+      if (this.props.reload !== undefined) {
+        this.props.reload();
+      }
     }).catch(err => {
       console.error(err);
     });
@@ -31,21 +32,16 @@ export class AddUserNotificationView extends NotificationBaseView<AddUserNotific
   decline = (): void => {
     const n = this.props.notification;
     respondToPatientRequest(n.content.doctorId, false, n.id).then(resp => {
-      this.props.reload();
+      if (this.props.reload !== undefined) {
+        this.props.reload();
+      }
     }).catch(err => {
       console.error(err);
     });
   }
 
-  getId(): string { return this.props.notification.id; }
-
-  getCreatedAtTime(): string {
-    return moment(this.props.notification.createdAt).format("LLL");
-  }
-
   getTitle(): string {
-    const n = this.props.notification;
-    return n.content.doctorEmail + " has added you as a patient.";
+    return `${this.props.notification.content.doctorEmail} has added you as a patient.`;
   }
 
   getContent(): JSX.Element {

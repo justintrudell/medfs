@@ -34,7 +34,7 @@ export class NotificationPreview extends React.Component<Props, {}> {
         <Card
           title="Notifications"
           size="small"
-          style={{ width: 300, margin: 0, padding: 0 }}
+          style={{ minWidth: 300, margin: 0, padding: 0 }}
         >
           <List
             dataSource={this.props.notifications}
