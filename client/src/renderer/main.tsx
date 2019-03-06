@@ -65,7 +65,7 @@ export class Main extends React.Component<MainProps, MainState> {
             exact
             path="/notifications"
             render={() => (
-              <NotificationsPage notifications={this.props.notifications} />
+              <NotificationsPage />
             )}
           />
           {this.props.isDoctor() && (

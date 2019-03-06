@@ -37,5 +37,10 @@ export interface RevokeNotification extends MedFsNotification {
 }
 
 export interface AddUserNotification extends MedFsNotification {
-  // to-do
+  content: {
+    doctorId: string;
+    doctorEmail: string;
+    accepted: boolean;
+    acked: boolean;
+  };
 }

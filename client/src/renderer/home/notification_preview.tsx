@@ -1,7 +1,9 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+
 import { Card, List } from "antd";
-import { MedFsNotification, CreateNotification, NotificationType } from "../../models/notifications";
+import { MedFsNotification, CreateNotification, NotificationType, AddUserNotification } from "../../models/notifications";
+import { CreateNotificationView } from "../components/notifications/create_notification";
+import { AddUserNotificationView } from "../components/notifications/add_user_notification";
 
 interface Props {
   notifications: MedFsNotification[];
@@ -12,13 +14,11 @@ export class NotificationPreview extends React.Component<Props, {}> {
     switch(item.notificationType) {
       case NotificationType.CREATE: {
         const n = item as CreateNotification;
-        return (
-          <List.Item>
-            <Link to={`/records/details/${n.content.recordId}`}>
-            {n.content.senderEmail} shared {n.content.filename} with you.
-            </Link>
-          </List.Item>
-        );
+        return <CreateNotificationView notification={n} />;
+      }
+      case NotificationType.ADD_USER: {
+        const n = item as AddUserNotification;
+        return <AddUserNotificationView notification={n} isPreview={true} />;
       }
       default: {
         return (
@@ -34,7 +34,7 @@ export class NotificationPreview extends React.Component<Props, {}> {
         <Card
           title="Notifications"
           size="small"
-          style={{ width: 300, margin: 0, padding: 0 }}
+          style={{ minWidth: 300, margin: 0, padding: 0 }}
         >
           <List
             dataSource={this.props.notifications}
