@@ -3,18 +3,20 @@ from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 from typing import Dict
+import json
 
 import config
 from record_service.database.database import db
-from record_service.models.user import User
-from record_service.models.patient_doctors import PatientDoctors
-from record_service.models.patient import Patient, BloodType, Sex
 from record_service.models.doctor import Doctor
+from record_service.models.notification import Notification, NotificationType
+from record_service.models.patient import Patient, BloodType, Sex
+from record_service.models.patient_doctors import PatientDoctors
 from record_service.models.record import Record
+from record_service.models.user import User
 
 from record_service.utils.decorators import doctor_required
 from record_service.utils.responses import JsonResponse
-from record_service.external import acl_api
+from record_service.external import acl_api, queueing_api
 from record_service.utils.exceptions import UserNotFoundError
 
 patients_api = Blueprint("patients_api", __name__, url_prefix="/patients")
@@ -37,15 +39,31 @@ def add_patient() -> JsonResponse:
         # TODO: add logic to send email to create account
         return JsonResponse(message="User not found.", status=404)
 
+    doctor = db.session.query(User).get(current_user.get_id())
+
     try:
         db.session.add(
             PatientDoctors(
                 patient_id=patient.id,
                 doctor_id=current_user.id,
-                # default to true for now until we implement feedback
-                accepted=True,
+                accepted=False,
             )
         )
+
+        notification = Notification(
+            user_id=patient.id,
+            sender=current_user.get_id(),
+            notification_type=NotificationType.ADD_USER,
+            content=dict(
+                doctorEmail=doctor.email,
+                doctorId=str(doctor.id),
+                accepted=False,
+                acked=False,
+            ),
+        )
+
+        db.session.add(notification)
+        queueing_api.send_message(str(patient.id), notification.to_json())
         db.session.commit()
         return JsonResponse(message="success", status=200)
     except IntegrityError:
@@ -242,3 +260,46 @@ def get_all_records_for_patient(patient_id: str) -> JsonResponse:
         ]
 
     return JsonResponse(data=data, status=200)
+
+
+@patients_api.route("/respond", methods=["POST"])
+@login_required
+def respond_to_add_patient_request() -> JsonResponse:
+    data = request.get_json()
+
+    if not all(k in data.keys() for k in ["doctorId", "accepted", "notificationId"]):
+        return JsonResponse(message="Bad Request", status=400)
+
+    patient_doctor = (
+        db.session.query(PatientDoctors).filter(
+            PatientDoctors.doctor_id == data["doctorId"],
+            PatientDoctors.patient_id == current_user.get_id(),
+        ).one_or_none()
+    )
+
+    if patient_doctor is None:
+        return JsonResponse(message="Request not found", status=404)
+
+    if patient_doctor.accepted:
+        return JsonResponse(message="already responded", status=302)
+
+    notification = db.session.query(Notification).get(data["notificationId"])
+    if notification is None:
+        return JsonResponse(message="Bad Request, notification not found", status=404)
+
+    if not data["accepted"]:
+        # delete the row because it makes life easier
+        db.session.delete(patient_doctor)
+    else:
+        patient_doctor.accepted = True
+
+    # update the notification to acknowledge that it has been responded to
+    content = notification.to_dict()["content"]
+    content["accepted"] = data["accepted"]
+    content["acked"] = True
+    notification.content = json.dumps(content)
+
+    # TODO send doctor a notification saying the request has been replied to
+
+    db.session.commit()
+    return JsonResponse(message="success", status=200)

@@ -69,7 +69,7 @@ export function getPatients(): Promise<DoctorPatientInfo[]> {
 
 export function getPatientInfo(patientId?: string): Promise<PatientInfo> {
   const url = patientId !== undefined ? "/patients/info/" + patientId : "/patients/info";
-  
+
   return recordService.get(url, { json: true }).then(response => {
     // 200, 400, 403
     if (response.statusCode === 200) {
@@ -82,7 +82,7 @@ export function getPatientInfo(patientId?: string): Promise<PatientInfo> {
     }
     throw new Error(`Unknown error: ${response.body}`);
   });
-} 
+}
 
 export function updatePatientInfo(info: PatientInfo): Promise<string> {
   const data = {
@@ -106,4 +106,26 @@ export function updatePatientInfo(info: PatientInfo): Promise<string> {
 
 export function getAllForPatient(patientId: string): Promise<RecordItem[]> {
   return getAllForUser(patientId);
+}
+
+export function respondToPatientRequest(
+  doctorId: string, accepted: boolean, notificationId: string): Promise<string> {
+  const data = {
+    doctorId,
+    accepted,
+    notificationId
+  };
+
+  return recordService.post("/patients/respond", data).then(response => {
+    if (response.statusCode === 200) {
+      return "Successfully added patient";
+    } else if (response.statusCode === 302) {
+      return "Already responded";
+    } else if (response.statusCode === 401) {
+      throw new Error(ERR_NOT_AUTHORIZED);
+    } else if (response.statusCode === 404) {
+      throw new Error(ERR_USER_NOT_FOUND);
+    }
+    throw new Error(`Unknown error: ${response.body}`);
+  });
 }
