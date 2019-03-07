@@ -125,7 +125,8 @@ export class Uploads extends React.Component<
     )
       .then(result => {
         if (result.statusCode === 200) {
-          message.info("Successfully uploaded file");
+          const successMessage = this.state.isUpdate ? "Successfully updated file" : "Successfully uploaded file";
+          message.info(successMessage);
           this.setState(this.getDefaultState());
         } else {
           this.setState({

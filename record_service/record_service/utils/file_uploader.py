@@ -71,6 +71,7 @@ class FileUploader:
 
     def upload(self, flask_file, filename: str) -> Record:
         path = self._save_temp_file(flask_file)
+        now = datetime.now()
         try:
             upload_response = self._fs_writer.write(path)
             current_app.logger.info(upload_response)

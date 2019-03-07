@@ -224,7 +224,6 @@ def update_record(record_id: str) -> JsonResponse:
     if "file" not in request.files:
         return "No file.", 400
 
-    print("Hello from update")
     data = request.form
     permissions_json = [json.loads(x) for x in data.getlist("permissions")][0]
 
@@ -243,13 +242,13 @@ def update_record(record_id: str) -> JsonResponse:
     set_permissions(current_user.get_id(), record_id, perms_with_uuid)
 
     # Update record
-    db.session.query(Record).update(new_record)
+    db.session.query(Record).filter(Record.id==record_id).update(new_record)
     db.session.commit()
 
     current_user_email = db.session.query(User).get(current_user.get_id()).email
 
     # Delete all old keys associated with the record
-    db.session.query(RecordKey).filter(RecordKey.id==record_id).delete()
+    db.session.query(RecordKey).filter(RecordKey.record_id==record_id).delete()
     
     # Store keys locally then push them out to message service
     for user_uuid, values in perms_with_uuid.items():
@@ -279,4 +278,4 @@ def update_record(record_id: str) -> JsonResponse:
         queueing_api.send_message(user_uuid, notification.to_json())
     db.session.commit()
 
-    return str(new_record.id), 200
+    return "Update successful!", 200
