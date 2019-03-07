@@ -116,13 +116,12 @@ export class Uploads extends React.Component<
     const permissionRequest = buildPermissionRequest(keys, aesKey, iv, perms);
 
     const file = this.state.files[0];
-    const extension = file.name.substring(file.name.lastIndexOf(".") + 1);
     encryptFileAndUpload(
       permissionRequest,
       aesKey.toString("hex"),
       iv,
-      extension,
-      file
+      file,
+      this.state.isUpdate ? this.props.match!.params.record_id : undefined
     )
       .then(result => {
         if (result.statusCode === 200) {

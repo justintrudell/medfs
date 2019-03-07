@@ -18,6 +18,7 @@ from record_service.utils.file_uploader import FileUploader, IpfsWriter
 from record_service.utils.permissions import (
     parse_uploaded_permissions,
     create_acl_permissions,
+    set_permissions,
 )
 
 
@@ -108,7 +109,7 @@ def _validate_form_request(
 ):
     if permissions_json is None:
         return False, "Invalid JSON was passed for permissions"
-    if {"extension", "permissions", "filename"} - set(form.keys()):
+    if {"permissions", "filename"} - set(form.keys()):
         return False, "Missing top level data"
 
     # Check if no permissions were specified
@@ -132,7 +133,6 @@ def upload_file():
     - file: encrypted record, set by multipart
     - data:
       - filename: Original name of the file
-      - extension: file extension (i.e. .pdf files = "pdf")
       - permissions: [
           {
               email: email of user being granted permission
@@ -158,7 +158,7 @@ def upload_file():
 
     # Upload the file to IPFS
     new_record = UPLOADER.upload(
-        request.files["file"], data["filename"], data["extension"]
+        request.files["file"], data["filename"]
     )
     new_record.creator_id = current_user.get_id()
 
@@ -192,6 +192,86 @@ def upload_file():
                 senderEmail=current_user_email,
             ),
             notification_type=NotificationType.CREATE,
+            sender=current_user.get_id(),
+            user_id=user_uuid,
+        )
+        db.session.add(notification)
+        queueing_api.send_message(user_uuid, notification.to_json())
+    db.session.commit()
+
+    return str(new_record.id), 200
+
+@record_api.route("/records/update/<string:record_id>", methods=["POST"])
+@login_required
+def update_record(record_id: str) -> JsonResponse:
+    """Upload file to distributed file store.
+
+    Expects client to pass the following:
+    - file: encrypted record, set by multipart
+    - data:
+      - filename: Original name of the file
+      - permissions: [
+          {
+              email: email of user being granted permission
+              values: {
+                  permission: permission to be granted (read, write)
+                  encryptedAesKey: File's encryption key, encrypted with user's pub key
+                  iv: IV used in AES (this doesn't need to be encrypted)
+              }
+          }
+      ]
+    """
+    if "file" not in request.files:
+        return "No file.", 400
+
+    print("Hello from update")
+    data = request.form
+    permissions_json = [json.loads(x) for x in data.getlist("permissions")][0]
+
+    valid, msg = _validate_form_request(data, permissions_json)
+    if not valid:
+        return msg, 400
+
+    perms_with_uuid = parse_uploaded_permissions(permissions_json, db)
+
+    # Upload the file to IPFS
+    new_record = UPLOADER.update(
+        request.files["file"], data["filename"], record_id
+    )
+
+    # Update permissions in the ACL service
+    set_permissions(current_user.get_id(), record_id, perms_with_uuid)
+
+    # Update record
+    db.session.query(Record).update(new_record)
+    db.session.commit()
+
+    current_user_email = db.session.query(User).get(current_user.get_id()).email
+
+    # Delete all old keys associated with the record
+    db.session.query(RecordKey).filter(RecordKey.id==record_id).delete()
+    
+    # Store keys locally then push them out to message service
+    for user_uuid, values in perms_with_uuid.items():
+        db.session.add(
+            RecordKey(
+                record_id=record_id,
+                user_id=user_uuid,
+                encrypted_key=values["encryptedAesKey"],
+                iv=values["iv"],
+            )
+        )
+
+        email = db.session.query(User).get(user_uuid).email
+
+        notification = Notification(
+            content=dict(
+                email=email,
+                filename=data["filename"],
+                recordId=str(record_id),
+                senderEmail=current_user_email,
+            ),
+            notification_type=NotificationType.UPDATE_RECORD,
             sender=current_user.get_id(),
             user_id=user_uuid,
         )

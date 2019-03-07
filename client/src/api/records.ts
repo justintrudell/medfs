@@ -77,8 +77,8 @@ export function encryptFileAndUpload(
   permissions: PermissionRequest[],
   aesKey: string,
   iv: string,
-  extension: string,
-  file: File
+  file: File,
+  record_id?: string
 ): recordService.RecordServiceResponse {
   return (async () => {
     const encFilePath = await tmpName();
@@ -90,11 +90,10 @@ export function encryptFileAndUpload(
     ]);
     const form = {
       permissions: JSON.stringify(permissions),
-      extension,
       file: fs.createReadStream(encFilePath),
       filename: file.name
     };
-    return recordService.post("/records", form, {}, "formData");
+    return record_id ? recordService.post("/records/update/" + record_id, form, {}, "formData") : recordService.post("/records", form, {}, "formData");
   })();
 }
 

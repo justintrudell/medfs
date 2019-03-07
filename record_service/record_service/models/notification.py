@@ -11,7 +11,8 @@ from datetime import datetime
 
 class NotificationType(Enum):
     CREATE = "CREATE"
-    UPDATE = "UPDATE"
+    UPDATE_PERMISSIONS = "UPDATE_PERMISSIONS"
+    UPDATE_RECORD = "UPDATE_RECORD"
     REVOKE = "REVOKE"
     ADD_USER = "ADD_USER"
 
