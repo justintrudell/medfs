@@ -26,7 +26,6 @@ export class NotificationPreview extends React.Component<Props, {}> {
         return <UpdateNotificationView notification={n} />;
       }
       default: {
-        console.log(item.notificationType);
         return (
           <List.Item>Unknown notification: {JSON.stringify(item)}</List.Item>
         );
