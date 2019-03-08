@@ -116,17 +116,17 @@ export class Uploads extends React.Component<
     const permissionRequest = buildPermissionRequest(keys, aesKey, iv, perms);
 
     const file = this.state.files[0];
-    const extension = file.name.substring(file.name.lastIndexOf(".") + 1);
     encryptFileAndUpload(
       permissionRequest,
       aesKey.toString("hex"),
       iv,
-      extension,
-      file
+      file,
+      this.state.isUpdate ? this.props.match!.params.record_id : undefined
     )
       .then(result => {
         if (result.statusCode === 200) {
-          message.info("Successfully uploaded file");
+          const successMessage = this.state.isUpdate ? "Successfully updated file" : "Successfully uploaded file";
+          message.info(successMessage);
           this.setState(this.getDefaultState());
         } else {
           this.setState({
@@ -252,7 +252,7 @@ export class Uploads extends React.Component<
                       placeholder = "Select Permission"
                       // Only show a permission value if we're updating a file and prepopulating permissions
                       // Otherwise, default value should be undefined so the placeholder text appears
-                      defaultValue = {this.state.isUpdate ? PermissionType[permission.permissionType] : undefined}
+                      value = {this.state.isUpdate ? PermissionType[permission.permissionType] : undefined}
                     >
                       {Object.keys(PermissionType).map(permType => {
                         return (

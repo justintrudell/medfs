@@ -4,11 +4,13 @@ import {
   MedFsNotification,
   NotificationType,
   CreateNotification,
-  AddUserNotification
+  AddUserNotification,
+  UpdateNotification
 } from "../../models/notifications";
 import { getNotifications } from "../../api/users";
 import { CreateNotificationView } from "../components/notifications/create_notification";
 import { AddUserNotificationView } from "../components/notifications/add_user_notification";
+import { UpdateNotificationView } from "../components/notifications/update_notification";
 
 interface State {
   notifications: MedFsNotification[];
@@ -50,6 +52,9 @@ export class NotificationsPage extends React.Component<{}, State> {
           isPreview={false}
           reload={this.loadNotifications}
         />;
+      }
+      case NotificationType.UPDATE: {
+        return <UpdateNotificationView notification={item as UpdateNotification} />;
       }
       default: {
         return (

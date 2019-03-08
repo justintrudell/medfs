@@ -58,7 +58,18 @@ class FileUploader:
             tmp_f.flush()
             return self.upload(flask_filename, tmp_f.name, ext)
 
-    def upload(self, flask_file, filename: str, ext: str) -> Record:
+    def update(self, flask_file, filename: str, record_id: str):
+        path = self._save_temp_file(flask_file)
+        try:
+            upload_response = self._fs_writer.write(path)
+            current_app.logger.info(upload_response)
+        except Exception as e:
+            raise UploadError(str(e))
+
+        return {"filename": filename, "record_hash": upload_response["Hash"]}
+
+
+    def upload(self, flask_file, filename: str) -> Record:
         path = self._save_temp_file(flask_file)
         now = datetime.now()
         try:
