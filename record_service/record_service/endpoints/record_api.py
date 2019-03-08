@@ -249,7 +249,7 @@ def update_record(record_id: str) -> JsonResponse:
 
     # Delete all old keys associated with the record
     db.session.query(RecordKey).filter(RecordKey.record_id==record_id).delete()
-    
+
     # Store keys locally then push them out to message service
     for user_uuid, values in perms_with_uuid.items():
         db.session.add(
