@@ -69,7 +69,7 @@ def update_permissions(record_id: str) -> Tuple[str, int]:
             )
             notification_type = NotificationType.CREATE
         else:
-            notification_type = NotificationType.UPDATE_PERMISSIONS
+            notification_type = NotificationType.UPDATE
 
         notification = Notification(
             content=dict(

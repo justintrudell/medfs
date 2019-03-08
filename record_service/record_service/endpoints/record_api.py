@@ -270,7 +270,7 @@ def update_record(record_id: str) -> JsonResponse:
                 recordId=str(record_id),
                 senderEmail=current_user_email,
             ),
-            notification_type=NotificationType.UPDATE_RECORD,
+            notification_type=NotificationType.UPDATE,
             sender=current_user.get_id(),
             user_id=user_uuid,
         )
