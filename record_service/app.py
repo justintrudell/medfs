@@ -62,7 +62,7 @@ apis = [
     healthcheck,
     utils_api,
 ]
-[app.register_blueprint(api) for api in apis]
+[app.register_blueprint(api) for api in apis]  # type: ignore
 
 db.init_app(app)
 login_manager.init_app(app)

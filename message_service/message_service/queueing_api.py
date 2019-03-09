@@ -14,6 +14,6 @@ def receive_messages(uuid: str) -> List[Any]:
     queue_name = _create_queue_name(uuid)
     try:
         queue = sqs.get_queue_by_name(QueueName=queue_name)
-    except sqs.meta.client.exceptions.QueueDoesNotExist as e:
+    except sqs.meta.client.exceptions.QueueDoesNotExist:
         return []
     return queue.receive_messages()

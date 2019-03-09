@@ -68,7 +68,6 @@ class FileUploader:
 
         return {"filename": filename, "record_hash": upload_response["Hash"]}
 
-
     def upload(self, flask_file, filename: str) -> Record:
         path = self._save_temp_file(flask_file)
         now = datetime.now()

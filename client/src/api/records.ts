@@ -78,7 +78,7 @@ export function encryptFileAndUpload(
   aesKey: string,
   iv: string,
   file: File,
-  record_id?: string
+  recordId?: string
 ): recordService.RecordServiceResponse {
   return (async () => {
     const encFilePath = await tmpName();
@@ -93,7 +93,7 @@ export function encryptFileAndUpload(
       file: fs.createReadStream(encFilePath),
       filename: file.name
     };
-    return record_id ? recordService.post("/records/update/" + record_id, form, {}, "formData") : recordService.post("/records", form, {}, "formData");
+    return recordId ? recordService.post("/records/update/" + recordId, form, {}, "formData") : recordService.post("/records", form, {}, "formData");
   })();
 }
 

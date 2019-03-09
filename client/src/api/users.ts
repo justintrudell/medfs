@@ -52,7 +52,7 @@ export function createUser(
 
 export function getKeys(
   emails: string[],
-  shouldEmail: boolean = false
+  shouldEmail = false
 ): Promise<Map<string, string>> {
   return recordService
     .get(`/users/keys?${querystring.stringify({ emails, shouldEmail })}`)
