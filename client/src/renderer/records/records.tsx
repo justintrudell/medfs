@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as _ from "lodash";
-import { Card, Divider } from "antd";
+import { Card, Divider, Icon } from "antd";
 import { getAllForUser } from "../../api/records";
 import { RecordItem } from "../../models/records";
 import { Switch, Route, Link } from "react-router-dom";
@@ -16,7 +16,7 @@ import { getUsersForRecord } from "../../api/permissions";
 
 export type RecordListState = {
   records: RecordItem[];
-  canEditRecord: { [key: string]: boolean};
+  canEditRecord: { [key: string]: boolean };
   permissionsModalVisible: boolean;
   currentRecord?: RecordItem;
   currentPermissions: Permission[];
@@ -32,14 +32,18 @@ export interface RecordProps {
 export class Records extends React.Component<RecordProps, RecordListState> {
   constructor(props: RecordProps) {
     super(props);
-    this.state = {
+    this.state = this.getInitialState();
+  }
+
+  getInitialState = () => {
+    return {
       records: [],
       canEditRecord: {},
       permissionsModalVisible: false,
       currentPermissions: [],
       loading: true
     };
-  }
+  };
 
   getAllRecords = () => {
     getAllForUser()
@@ -49,23 +53,25 @@ export class Records extends React.Component<RecordProps, RecordListState> {
           loading: false
         });
 
-        const canEditRecord: { [key: string]: boolean} = {};
+        const canEditRecord: { [key: string]: boolean } = {};
 
         // Check which permissions we have write access for
         const results = records.map(record => {
-          return getUsersForRecord(record.id)
-            // We can only view permissions if we have write permissions for this record
-            .then(users => {
-              canEditRecord[record.id] = true;
-            })
-            // Otherwise we get a 401
-            .catch(() => {
-              canEditRecord[record.id] = false;
-            });
+          return (
+            getUsersForRecord(record.id)
+              // We can only view permissions if we have write permissions for this record
+              .then(users => {
+                canEditRecord[record.id] = true;
+              })
+              // Otherwise we get a 401
+              .catch(() => {
+                canEditRecord[record.id] = false;
+              })
+          );
         });
 
         Promise.all(results).then(result => {
-          this.setState({canEditRecord});
+          this.setState({ canEditRecord });
         });
       })
       .catch((error: Error) => {
@@ -116,11 +122,11 @@ export class Records extends React.Component<RecordProps, RecordListState> {
   };
 
   renderActions = (_: string, record: RecordItem) => {
-    if(this.state.canEditRecord[record.id]) {
+    if (this.state.canEditRecord[record.id]) {
       return (
         <span>
-        {/* TODO: add download link back once its functional */}
-        {/* <a href="javascript:;">Download</a>
+          {/* TODO: add download link back once its functional */}
+          {/* <a href="javascript:;">Download</a>
         <Divider type="vertical" /> */}
           <a
             href="javascript:;"
@@ -135,12 +141,12 @@ export class Records extends React.Component<RecordProps, RecordListState> {
     }
     return (
       <span>
-      {/* TODO: add download link back once its functional */}
-      {/* <a href="javascript:;">Download</a>
+        {/* TODO: add download link back once its functional */}
+        {/* <a href="javascript:;">Download</a>
       <Divider type="vertical" /> */}
       </span>
     );
-  }
+  };
 
   showPermissionsModal = (record: RecordItem) => {
     getUsersForRecord(record.id)
@@ -163,13 +169,28 @@ export class Records extends React.Component<RecordProps, RecordListState> {
     });
   };
 
+  handleRefresh = (): void => {
+    this.setState(this.getInitialState());
+    this.getAllRecords();
+  };
+
   render() {
     return (
       <div>
         <Switch>
           <Route exact path="/">
             <Card
-              title="My Documents"
+              title={
+                <div>
+                  My Documents
+                  <Icon
+                    style={{ padding: 10 }}
+                    type="sync"
+                    onClick={this.handleRefresh}
+                    spin={this.state.loading}
+                  />
+                </div>
+              }
               loading={this.state.loading}
               extra={
                 <Link to="/uploads">
