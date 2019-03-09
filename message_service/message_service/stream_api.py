@@ -48,7 +48,7 @@ async def stream(request):
                 await resp.send(encoded_msg)
                 # Delete the message from the queue
                 message.delete()
-                email_addr = json.loads(encoded_msg)["email"]
+                email_addr = json.loads(encoded_msg)["content"]["email"]
                 # Perform some basic email validation
                 if re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email_addr):
                     email.send_notification_email(email_addr)
