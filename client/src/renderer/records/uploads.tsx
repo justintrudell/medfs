@@ -225,6 +225,10 @@ export class Uploads extends React.Component<
               style={{ marginBottom: 0 }}
             >
               {this.state.permissions.map((permission, idx) => {
+                const selectedValue: {value?: string} = {};
+                if (this.state.isUpdate) {
+                  selectedValue["value"] = this.state.permissions[idx].permissionType;
+                }
                 return (
                   <Input.Group key={idx} className="permission">
                     <Input
@@ -247,7 +251,7 @@ export class Uploads extends React.Component<
                       placeholder = "Select Permission"
                       // Only show a permission value if we're updating a file and prepopulating permissions
                       // Otherwise, default value should be undefined so the placeholder text appears
-                      value = {this.state.isUpdate ? this.state.permissions[idx].permissionType : undefined}
+                      {...selectedValue}
                     >
                       {Object.keys(PermissionType).map(permType => {
                         return (
