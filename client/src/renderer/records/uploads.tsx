@@ -231,7 +231,6 @@ export class Uploads extends React.Component<
               style={{ marginBottom: 0 }}
             >
               {this.state.permissions.map((permission, idx) => {
-                console.log(permission.permissionType.toString() === "WRITE");
                 return (
                   <Input.Group key={idx} className="permission">
                     <Input
