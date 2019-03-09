@@ -151,10 +151,6 @@ export class Uploads extends React.Component<
   };
 
   componentDidMount() {
-    this.props.setPageTitle("Upload");
-  }
-
-  componentWillMount() {
     if (this.props.match !== undefined) {
       // Email autofill
       if(!_.isEmpty(this.props.match.params.autofill_email)) {
@@ -168,10 +164,9 @@ export class Uploads extends React.Component<
 
       // Record update
       if(!_.isEmpty(this.props.match.params.record_id)) {
-        this.setState({ isUpdate: true })
         const recordId = this.props.match.params.record_id!;
         getUsersForRecord(recordId).then((permissions: Permission[]) => {
-          this.setState({ permissions });
+          this.setState({ permissions, isUpdate: true });
         });
       }
     }
@@ -209,7 +204,6 @@ export class Uploads extends React.Component<
         sm: { span: 16, offset: 4 }
       }
     };
-
     return (
       <div>
         <Card title="Upload Document">
@@ -246,13 +240,14 @@ export class Uploads extends React.Component<
                         }
                       )}
                     />
+
                     <Select
                       style={{ width: "33%", marginRight: "2%" }}
                       onChange={this.handleSelect(idx)}
                       placeholder = "Select Permission"
                       // Only show a permission value if we're updating a file and prepopulating permissions
                       // Otherwise, default value should be undefined so the placeholder text appears
-                      defaultValue = {this.state.isUpdate ? permission.permissionType.toString() : undefined}
+                      value = {this.state.isUpdate ? this.state.permissions[idx].permissionType : undefined}
                     >
                       {Object.keys(PermissionType).map(permType => {
                         return (
