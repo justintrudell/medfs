@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { ListView } from "../components/lists/listView";
-import { Card, Button, Modal, Form, Input, message } from "antd";
+import { Card, Button, Modal, Form, Input, message, Icon } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import { DoctorPatientInfo } from "../../models/patients";
 import { addPatient, getPatients } from "../../api/patients";
@@ -22,13 +22,17 @@ export class Patients extends React.Component<
 > {
   constructor(props: PatientListProps) {
     super(props);
-    this.state = {
+    this.state = this.getDefaultState();
+  }
+
+  getDefaultState = () => {
+    return {
       patients: [],
       addPatientsModalVisible: false,
       newPatient: "",
       loading: true
     };
-  }
+  };
 
   getPatients() {
     getPatients()
@@ -116,12 +120,27 @@ export class Patients extends React.Component<
     });
   };
 
+  handleRefresh = () => {
+    this.setState(this.getDefaultState());
+    this.getPatients();
+  };
+
   render() {
     return (
       <div>
         <Card
           loading={this.state.loading}
-          title="My Patients"
+          title={
+            <div>
+              My Patients
+              <Icon
+                style={{ padding: 10 }}
+                type="sync"
+                onClick={this.handleRefresh}
+                spin={this.state.loading}
+              />
+            </div>
+          }
           extra={
             <Button
               type="primary"
