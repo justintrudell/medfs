@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { ListView } from "../components/lists/listView";
-import { Card, Button, Modal, Form, Input, message, } from "antd";
+import { Card, Button, Modal, Form, Input, message } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import { DoctorPatientInfo } from "../../models/patients";
 import { addPatient, getPatients } from "../../api/patients";
@@ -11,6 +11,7 @@ type PatientListState = {
   patients: DoctorPatientInfo[];
   addPatientsModalVisible: boolean;
   newPatient: string;
+  loading: boolean;
 };
 
 type PatientListProps = {};
@@ -18,25 +19,30 @@ type PatientListProps = {};
 export class Patients extends React.Component<
   PatientListProps,
   PatientListState
-  > {
+> {
   constructor(props: PatientListProps) {
     super(props);
     this.state = {
       patients: [],
       addPatientsModalVisible: false,
-      newPatient: ""
+      newPatient: "",
+      loading: true
     };
   }
 
   getPatients() {
-    getPatients().then(patients => {
-      this.setState({
-        patients
+    getPatients()
+      .then(patients => {
+        this.setState({
+          patients,
+          loading: false
+        });
+      })
+      .catch(errorMessage => {
+        console.error(errorMessage);
+        message.error("Could not get patients");
+        this.setState({ loading: false });
       });
-    }).catch(errorMessage => {
-      console.error(errorMessage);
-      message.error("Could not get patients");
-    });
   }
 
   componentDidMount() {
@@ -51,7 +57,8 @@ export class Patients extends React.Component<
         render: (_, patient) => (
           <Link to={`/patients/${patient.id}`}> {patient.email} </Link>
         ),
-        sorter: (a: DoctorPatientInfo, b: DoctorPatientInfo) => a.email.localeCompare(b.email)
+        sorter: (a: DoctorPatientInfo, b: DoctorPatientInfo) =>
+          a.email.localeCompare(b.email)
       },
       {
         title: "Date Added",
@@ -80,21 +87,25 @@ export class Patients extends React.Component<
       newPatient: ""
     });
     this.hideAddPatientsModal();
-  }
+  };
 
   handleOk = (): void => {
-    if (this.state.newPatient !== undefined && !_.isEmpty(this.state.newPatient)) {
-      addPatient(this.state.newPatient).then(m => {
-        this.resetView();
-        this.getPatients();
-        message.success(m);
-      }).catch(errorMessage => {
-        console.error(errorMessage);
-        this.resetView();
-        message.error("Something went wrong");
-      });
-    }
-    else {
+    if (
+      this.state.newPatient !== undefined &&
+      !_.isEmpty(this.state.newPatient)
+    ) {
+      addPatient(this.state.newPatient)
+        .then(m => {
+          this.resetView();
+          this.getPatients();
+          message.success(m);
+        })
+        .catch(errorMessage => {
+          console.error(errorMessage);
+          this.resetView();
+          message.error("Something went wrong");
+        });
+    } else {
       this.resetView();
     }
   };
@@ -109,6 +120,7 @@ export class Patients extends React.Component<
     return (
       <div>
         <Card
+          loading={this.state.loading}
           title="My Patients"
           extra={
             <Button
