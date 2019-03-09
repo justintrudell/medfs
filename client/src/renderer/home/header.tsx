@@ -116,7 +116,14 @@ export class MedFsHeader extends React.Component<
 
   patientsMenuItem() {
     if (!this.props.isDoctor()) {
-      return;
+      return (
+        <Menu.Item key="doctors">
+          {/* TODO CHANGE THIS ONCE WE MAKE THE PATIENT VIEW */}
+          <Link to="/doctors">
+            <span className="nav-text">Doctors</span>
+          </Link>
+        </Menu.Item>
+      );
     }
 
     return (

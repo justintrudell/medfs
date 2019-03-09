@@ -1,5 +1,10 @@
 import * as recordService from "./record_service";
-import { DoctorPatientInfo, PatientInfo, BloodType, Sex } from "../models/patients";
+import {
+  DoctorPatientInfo,
+  PatientInfo,
+  BloodType,
+  Sex
+} from "../models/patients";
 import { ERR_NOT_AUTHORIZED, ERR_USER_NOT_FOUND } from "../models/errors";
 import { RecordItem } from "../models/records";
 import { getAllForUser } from "./records";
@@ -20,7 +25,9 @@ export interface PatientInfoResponse {
   sex: string;
 }
 
-function coerceDoctorPatientInfo(response: DoctorPatientInfoResponse): DoctorPatientInfo {
+function coerceDoctorPatientInfo(
+  response: DoctorPatientInfoResponse
+): DoctorPatientInfo {
   return {
     ...response,
     dateAdded: new Date(response.dateAdded)
@@ -30,7 +37,8 @@ function coerceDoctorPatientInfo(response: DoctorPatientInfoResponse): DoctorPat
 function coercePatientInfo(response: PatientInfoResponse): PatientInfo {
   return {
     ...response,
-    dateOfBirth: response.dateOfBirth !== null ? new Date(response.dateOfBirth) : null,
+    dateOfBirth:
+      response.dateOfBirth !== null ? new Date(response.dateOfBirth) : null,
     bloodType: response.bloodType as BloodType,
     sex: response.sex as Sex
   };
@@ -68,7 +76,8 @@ export function getPatients(): Promise<DoctorPatientInfo[]> {
 }
 
 export function getPatientInfo(patientId?: string): Promise<PatientInfo> {
-  const url = patientId !== undefined ? "/patients/info/" + patientId : "/patients/info";
+  const url =
+    patientId !== undefined ? "/patients/info/" + patientId : "/patients/info";
 
   return recordService.get(url, { json: true }).then(response => {
     // 200, 400, 403
@@ -89,11 +98,16 @@ export function updatePatientInfo(info: PatientInfo): Promise<string> {
     ...info,
     dateOfBirth: "",
     bloodType: info.bloodType as string,
-    sex: info.sex as string,
+    sex: info.sex as string
   };
 
   if (info.dateOfBirth !== null) {
-    data.dateOfBirth = info.dateOfBirth!.getFullYear() + "-" + (info.dateOfBirth!.getMonth() + 1) + "-" + info.dateOfBirth!.getDate();
+    data.dateOfBirth =
+      info.dateOfBirth!.getFullYear() +
+      "-" +
+      (info.dateOfBirth!.getMonth() + 1) +
+      "-" +
+      info.dateOfBirth!.getDate();
   }
 
   return recordService.post("/patients/update", data).then(response => {
@@ -109,7 +123,10 @@ export function getAllForPatient(patientId: string): Promise<RecordItem[]> {
 }
 
 export function respondToPatientRequest(
-  doctorId: string, accepted: boolean, notificationId: string): Promise<string> {
+  doctorId: string,
+  accepted: boolean,
+  notificationId: string
+): Promise<string> {
   const data = {
     doctorId,
     accepted,
@@ -127,5 +144,20 @@ export function respondToPatientRequest(
       throw new Error(ERR_USER_NOT_FOUND);
     }
     throw new Error(`Unknown error: ${response.body}`);
+  });
+}
+
+export function getDoctors(): Promise<DoctorPatientInfo[]> {
+  return recordService.get("/doctors/get", { json: true }).then(response => {
+    if (response.statusCode === 200) {
+      const doctors = response.body.data as DoctorPatientInfo[];
+      console.log(doctors);
+      return doctors;
+    }
+    if (response.statusCode === 401) {
+      throw new Error(ERR_NOT_AUTHORIZED);
+    }
+    console.log(response.body);
+    throw new Error(`Unknown error: ${response.toJSON()}`);
   });
 }

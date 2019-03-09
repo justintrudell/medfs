@@ -12,6 +12,7 @@ import { Patients } from "./patients/patients";
 import { PatientDetails } from "./patients/patient_details";
 import { NotificationsPage } from "./home/notifications_page";
 import { MedFsNotification } from "../models/notifications";
+import { DoctorsPage } from "./doctors/doctors_page";
 const { Content } = Layout;
 
 interface MainProps extends RecordProps {
@@ -71,10 +72,11 @@ export class Main extends React.Component<MainProps, MainState> {
           <Route
             exact
             path="/notifications"
-            render={() => (
-              <NotificationsPage />
-            )}
+            render={() => <NotificationsPage />}
           />
+          {!this.props.isDoctor() && (
+            <Route exact path="/doctors" render={() => <DoctorsPage />} />
+          )}
           {this.props.isDoctor() && (
             <Route
               exact
