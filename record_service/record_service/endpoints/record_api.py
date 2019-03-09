@@ -201,6 +201,7 @@ def upload_file():
 
     return str(new_record.id), 200
 
+
 @record_api.route("/records/update/<string:record_id>", methods=["POST"])
 @login_required
 def update_record(record_id: str) -> JsonResponse:
@@ -242,13 +243,13 @@ def update_record(record_id: str) -> JsonResponse:
     set_permissions(current_user.get_id(), record_id, perms_with_uuid)
 
     # Update record
-    db.session.query(Record).filter(Record.id==record_id).update(new_record)
+    db.session.query(Record).filter(Record.id == record_id).update(new_record)
     db.session.commit()
 
     current_user_email = db.session.query(User).get(current_user.get_id()).email
 
     # Delete all old keys associated with the record
-    db.session.query(RecordKey).filter(RecordKey.record_id==record_id).delete()
+    db.session.query(RecordKey).filter(RecordKey.record_id == record_id).delete()
 
     # Store keys locally then push them out to message service
     for user_uuid, values in perms_with_uuid.items():

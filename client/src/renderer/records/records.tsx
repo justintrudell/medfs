@@ -45,11 +45,11 @@ export class Records extends React.Component<RecordProps, RecordListState> {
     getAllForUser()
       .then(records => {
         this.setState({
-          records: records,
+          records,
           loading: false
         });
 
-        var canEditRecord: { [key: string]: boolean} = {};
+        const canEditRecord: { [key: string]: boolean} = {};
 
         // Check which permissions we have write access for
         const results = records.map(record => {
@@ -115,7 +115,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
     ];
   };
 
-  renderActions = (_: any, record: RecordItem) => {
+  renderActions = (_: string, record: RecordItem) => {
     if(this.state.canEditRecord[record.id]) {
       return (
         <span>

@@ -155,7 +155,7 @@ def get_patient_info() -> JsonResponse:
 
     try:
         patient_info = _get_patient_info(str(current_user.get_id()))
-    except UserNotFoundError as e:
+    except UserNotFoundError:
         return JsonResponse(message="Patient not found", status=404)
 
     return JsonResponse(data=patient_info, status=200)
@@ -174,7 +174,7 @@ def get_patient_info_as_doctor(patient_id: str) -> JsonResponse:
 
     try:
         patient_info = _get_patient_info(patient_id)
-    except UserNotFoundError as e:
+    except UserNotFoundError:
         return JsonResponse(message="Patient not found", status=404)
 
     return JsonResponse(data=patient_info, status=200)

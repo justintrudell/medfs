@@ -1,0 +1,220 @@
+{
+	"info": {
+		"_postman_id": "9e3cd04e-90a2-4ee3-bc6f-e0c6e2559f05",
+		"name": "medfs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"a\",\n\t\"password\": \"a\",\n\t\"remember_me\": true\n}"
+				},
+				"url": {
+					"raw": "{{record_service_prod}}/login",
+					"host": [
+						"{{record_service_prod}}"
+					],
+					"path": [
+						"login"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "a",
+							"disabled": true
+						},
+						{
+							"key": "password",
+							"value": "a",
+							"disabled": true
+						}
+					]
+				},
+				"description": "Logging in as \"a\""
+			},
+			"response": []
+		},
+		{
+			"name": "Verify login",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{record_service_prod}}/users/test",
+					"host": [
+						"{{record_service_prod}}"
+					],
+					"path": [
+						"users",
+						"test"
+					]
+				},
+				"description": "Verifies login"
+			},
+			"response": []
+		},
+		{
+			"name": "Get records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{record_service_prod}}/records",
+					"host": [
+						"{{record_service_prod}}"
+					],
+					"path": [
+						"records"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add record",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "filename",
+							"value": "report.pdf",
+							"type": "text"
+						},
+						{
+							"key": "extension",
+							"value": "pdf",
+							"type": "text"
+						},
+						{
+							"key": "permissions",
+							"value": "[{\"email\": \"a\", \"values\": {\"permission\": \"WRITE\", \"encryptedAesKey\": \"abcde\", \"iv\": \"aaa\"}}}]",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{record_service_prod}}/records",
+					"host": [
+						"{{record_service_prod}}"
+					],
+					"path": [
+						"records"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{record_service_prod}}/logout",
+					"host": [
+						"{{record_service_prod}}"
+					],
+					"path": [
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Message service healthcheck",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{message_service_prod}}/healthcheck",
+					"host": [
+						"{{message_service_prod}}"
+					],
+					"path": [
+						"healthcheck"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "53a675a7-59af-4845-bba9-a68d8dbf9606",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "427ac1a9-3de4-4c6f-a712-a07d0fe3fae9",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "34004719-e2b9-46a2-9195-ec423d52a58f",
+			"key": "record_service_local",
+			"value": "0.0.0.0:5000",
+			"type": "string"
+		},
+		{
+			"id": "475d62bb-5963-4a3b-a4d8-6c2b847a913b",
+			"key": "record_service_prod",
+			"value": "https://medfs.io",
+			"type": "string"
+		},
+		{
+			"id": "f8affced-2d6f-4169-a43a-4623bcb6131b",
+			"key": "message_service_prod",
+			"value": "https://message.medfs.io",
+			"type": "string"
+		}
+	]
+}
