@@ -37,7 +37,7 @@ export class PatientDetails extends React.Component<
       canEditRecord: {},
       permissionsModalVisible: false,
       currentPermissions: [],
-      loading: false
+      loading: true
     };
   }
 
@@ -48,11 +48,13 @@ export class PatientDetails extends React.Component<
       .then(results => {
         this.setState({
           info: results[0] as PatientInfo,
-          records: results[1] as RecordItem[]
+          records: results[1] as RecordItem[],
+          loading: false
         });
       })
       .catch(err => {
         console.error(err);
+        this.setState({ loading: false });
       });
   }
 
@@ -151,6 +153,7 @@ export class PatientDetails extends React.Component<
     return (
       <div>
         <Card
+          loading={this.state.loading}
           title={this.getPageTitle()}
           extra={
             <Link to={`/uploads/${this.state.info && this.state.info.email}`}>

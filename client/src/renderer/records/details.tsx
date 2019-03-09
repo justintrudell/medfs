@@ -25,6 +25,7 @@ interface DetailProps {
 interface DetailState {
   recordDetails?: RecordDetails;
   downloadMessages: string[];
+  loading: boolean;
 }
 
 export class DetailView extends React.Component<DetailProps, DetailState> {
@@ -32,7 +33,8 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
     super(props);
 
     this.state = {
-      downloadMessages: []
+      downloadMessages: [],
+      loading: false
     };
   }
 
@@ -42,10 +44,11 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
         if (this.props.pageTitle !== recordDetails.filename) {
           this.props.setPageTitle(recordDetails.filename);
         }
-        this.setState({ recordDetails });
+        this.setState({ recordDetails, loading: false });
       })
       .catch(error => {
         console.error(error);
+        this.setState({ loading: false });
       });
   }
 
@@ -81,16 +84,18 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
 
     return (async () => {
       try {
-        const tmpFile = await downloadRecord(this.state.recordDetails!.hash, this.state.recordDetails!.id);
+        const tmpFile = await downloadRecord(
+          this.state.recordDetails!.hash,
+          this.state.recordDetails!.id
+        );
         const pathToSaveTo = join(
-          (isDownload) ? constants.DOWNLOAD_PATH : dirname(tmpFile.path),
-          ((isDownload) ? "" : "medfstmp-") + this.state.recordDetails!.filename
+          isDownload ? constants.DOWNLOAD_PATH : dirname(tmpFile.path),
+          (isDownload ? "" : "medfstmp-") + this.state.recordDetails!.filename
         );
         await copyFile(tmpFile.path, pathToSaveTo);
         tmpFile.cleanup();
         return pathToSaveTo;
-      }
-      catch (err) {
+      } catch (err) {
         return Promise.reject(err);
       }
     })();
@@ -125,7 +130,10 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
     ];
 
     return (
-      <Card title={this.state.recordDetails.filename}>
+      <Card
+        title={this.state.recordDetails.filename}
+        loading={this.state.loading}
+      >
         <Table columns={columns} dataSource={pKeys} pagination={false} />
         <Button
           style={{ marginTop: 24 }}

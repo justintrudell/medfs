@@ -28,6 +28,7 @@ interface UploadState {
   files: RcFile[];
   errorMessage: string;
   isUpdate: boolean;
+  loading: boolean;
 }
 
 export class Uploads extends React.Component<
@@ -49,7 +50,8 @@ export class Uploads extends React.Component<
       }),
       files: [],
       errorMessage: "",
-      isUpdate: false
+      isUpdate: false,
+      loading: true
     };
   };
 
@@ -125,9 +127,11 @@ export class Uploads extends React.Component<
     )
       .then(result => {
         if (result.statusCode === 200) {
-          const successMessage = this.state.isUpdate ? "Successfully updated file" : "Successfully uploaded file";
+          const successMessage = this.state.isUpdate
+            ? "Successfully updated file"
+            : "Successfully uploaded file";
           message.info(successMessage);
-          this.setState(this.getDefaultState());
+          this.setState({ ...this.getDefaultState(), loading: false });
         } else {
           this.setState({
             errorMessage: `Something went wrong: ${result.body.toString()}`
@@ -135,7 +139,7 @@ export class Uploads extends React.Component<
         }
       })
       .catch(errorMessage => {
-        this.setState({ errorMessage });
+        this.setState({ errorMessage, loading: false });
       });
   }
 
@@ -153,21 +157,28 @@ export class Uploads extends React.Component<
   componentDidMount() {
     if (this.props.match !== undefined) {
       // Email autofill
-      if(!_.isEmpty(this.props.match.params.autofill_email)) {
+      if (!_.isEmpty(this.props.match.params.autofill_email)) {
         const permissions = this.state.permissions;
         permissions[0] = {
           userEmail: this.props.match.params.autofill_email!,
           permissionType: PermissionType.READ
         };
-        this.setState({ permissions });
+        this.setState({ permissions, loading: false });
       }
 
       // Record update
-      if(!_.isEmpty(this.props.match.params.record_id)) {
+      else if (!_.isEmpty(this.props.match.params.record_id)) {
         const recordId = this.props.match.params.record_id!;
-        getUsersForRecord(recordId).then((permissions: Permission[]) => {
-          this.setState({ permissions, isUpdate: true });
-        });
+        getUsersForRecord(recordId)
+          .then((permissions: Permission[]) => {
+            this.setState({ permissions, isUpdate: true, loading: false });
+          })
+          .catch((err: Error) => {
+            console.error(err);
+            this.setState({ loading: false });
+          });
+      } else {
+        this.setState({ loading: false });
       }
     }
   }
@@ -206,7 +217,7 @@ export class Uploads extends React.Component<
     };
     return (
       <div>
-        <Card title="Upload Document">
+        <Card title="Upload Document" loading={this.state.loading}>
           <Form onSubmit={this.handleSubmit}>
             <Form.Item {...formItemLayout} label="Select a Document">
               <Upload
@@ -225,9 +236,11 @@ export class Uploads extends React.Component<
               style={{ marginBottom: 0 }}
             >
               {this.state.permissions.map((permission, idx) => {
-                const selectedValue: {value?: string} = {};
+                const selectedValue: { value?: string } = {};
                 if (this.state.isUpdate) {
-                  selectedValue["value"] = this.state.permissions[idx].permissionType;
+                  selectedValue["value"] = this.state.permissions[
+                    idx
+                  ].permissionType;
                 }
                 return (
                   <Input.Group key={idx} className="permission">
@@ -248,17 +261,14 @@ export class Uploads extends React.Component<
                     <Select
                       style={{ width: "33%", marginRight: "2%" }}
                       onChange={this.handleSelect(idx)}
-                      placeholder = "Select Permission"
+                      placeholder="Select Permission"
                       // Only show a permission value if we're updating a file and prepopulating permissions
                       // Otherwise, default value should be undefined so the placeholder text appears
                       {...selectedValue}
                     >
                       {Object.keys(PermissionType).map(permType => {
                         return (
-                          <Select.Option
-                            key={permType}
-                            value={permType}
-                          >
+                          <Select.Option key={permType} value={permType}>
                             {
                               PermissionType[
                                 permType as keyof typeof PermissionType
