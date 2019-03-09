@@ -182,6 +182,9 @@ def upload_file():
             )
         )
 
+        if user_uuid == current_user.get_id():
+            continue
+
         email = db.session.query(User).get(user_uuid).email
 
         notification = Notification(
@@ -261,6 +264,9 @@ def update_record(record_id: str) -> JsonResponse:
                 iv=values["iv"],
             )
         )
+
+        if user_uuid == current_user.get_id():
+            continue
 
         email = db.session.query(User).get(user_uuid).email
 
