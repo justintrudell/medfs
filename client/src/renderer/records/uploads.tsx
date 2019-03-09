@@ -252,7 +252,7 @@ export class Uploads extends React.Component<
                       placeholder = "Select Permission"
                       // Only show a permission value if we're updating a file and prepopulating permissions
                       // Otherwise, default value should be undefined so the placeholder text appears
-                      value = {this.state.isUpdate ? PermissionType[permission.permissionType] : undefined}
+                      defaultValue = {this.state.isUpdate ? permission.permissionType.toString() : undefined}
                     >
                       {Object.keys(PermissionType).map(permType => {
                         return (

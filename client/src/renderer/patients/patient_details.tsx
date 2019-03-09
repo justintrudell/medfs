@@ -34,6 +34,7 @@ export class PatientDetails extends React.Component<
     this.state = {
       info: undefined,
       records: [],
+      canEditRecord: {},
       permissionsModalVisible: false,
       currentPermissions: [],
       loading: false
