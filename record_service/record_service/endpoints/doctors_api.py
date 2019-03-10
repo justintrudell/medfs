@@ -17,15 +17,12 @@ doctors_api = Blueprint("doctors_api", __name__, url_prefix="/doctors")
 @patient_required
 def get_all_doctors() -> JsonResponse:
     doctors = (
-        db.session.query(
-            *PatientDoctors.__table__.columns, User.email, PatientDoctors.date_added
-        )
+        db.session.query(*PatientDoctors.__table__.columns, User.email)
         .join(User, User.id == PatientDoctors.doctor_id)
         .filter(PatientDoctors.patient_id == current_user.get_id())
         .filter(PatientDoctors.accepted == True)
         .all()
     )
-    print(doctors)
     data = [
         {
             "id": str(doctor.doctor_id),

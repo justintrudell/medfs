@@ -3,7 +3,7 @@ import { ListView } from "../components/lists/listView";
 import { Card, message, Icon } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import { DoctorPatientInfo } from "../../models/patients";
-import { getDoctors } from "../../api/patients";
+import { getDoctors } from "../../api/doctors";
 import * as _ from "lodash";
 
 type State = {

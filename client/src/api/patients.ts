@@ -146,18 +146,3 @@ export function respondToPatientRequest(
     throw new Error(`Unknown error: ${response.body}`);
   });
 }
-
-export function getDoctors(): Promise<DoctorPatientInfo[]> {
-  return recordService.get("/doctors/get", { json: true }).then(response => {
-    if (response.statusCode === 200) {
-      const doctors = response.body.data as DoctorPatientInfo[];
-      console.log(doctors);
-      return doctors;
-    }
-    if (response.statusCode === 401) {
-      throw new Error(ERR_NOT_AUTHORIZED);
-    }
-    console.log(response.body);
-    throw new Error(`Unknown error: ${response.toJSON()}`);
-  });
-}
