@@ -3,9 +3,12 @@ import hashlib
 import logging
 
 from flask import Blueprint, request, jsonify
+from sqlalchemy import text as sqltext, exc
+
 from record_service.database.database import db
 from record_service.models.base import Base
 from record_service.utils.responses import JsonResponse
+from record_service.utils.sql_scripts import dump_script
 from record_service.external import acl_api, acl_pb2
 import config
 
@@ -35,10 +38,19 @@ def clean_acl_srv():
     return "cleaned acl-srv db"
 
 
+def populate_db():
+    try:
+        db.engine.execute(sqltext(dump_script).execution_options(autocommit=True))
+        return "populated db"
+    except exc.IntegrityError as e:
+        return "db was already populated"
+
+
 commands = {
     "clean-rec": [clean_record_srv],
     "clean-acl": [clean_acl_srv],
     "clean": [clean_record_srv, clean_acl_srv],
+    "populate": [populate_db],
 }
 
 

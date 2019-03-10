@@ -29,7 +29,7 @@ black_args = (
         "--include",
         "\.py$",
         "--exclude",
-        "env|venv|experimental|pb2.*\.py|node_modules",
+        "env|venv|experimental|pb2.*\.py|node_modules|sql_scripts.py",
         "--check",
     ]
 )
@@ -50,7 +50,7 @@ ret = subprocess.run(
     + DIRS_TO_CHECK
     + [
         "--exclude",
-        "env,venv,experimental,*pb2*.py,alembic,node_modules",
+        "env,venv,experimental,*pb2*.py,alembic,node_modules,sql_scripts.py",
         "--config",
         "config/setup.cfg",
     ]
