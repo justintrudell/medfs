@@ -3,7 +3,6 @@ from datetime import datetime
 from flask import current_app
 from werkzeug import secure_filename
 import ipfsapi
-import tempfile
 import os
 from uuid import uuid4
 from config import IPFS_HOST, IPFS_PORT
@@ -50,13 +49,6 @@ class FileUploader:
         path = os.path.join("/tmp", filename)
         flask_file.save(path)
         return path
-
-    def upload_bytes(self, flask_filename: str, data: bytes, ext: str) -> Record:
-        """Helper to upload bytes rather than a file."""
-        with tempfile.NamedTemporaryFile() as tmp_f:
-            tmp_f.write(data)
-            tmp_f.flush()
-            return self.upload(flask_filename, tmp_f.name, ext)
 
     def update(self, flask_file, filename: str, record_id: str):
         path = self._save_temp_file(flask_file)
