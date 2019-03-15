@@ -78,6 +78,11 @@ def add_patient() -> JsonResponse:
 @login_required
 @doctor_required
 def get_all_patients() -> JsonResponse:
+    acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
+    common_records = acl_api.find_common_records(
+        acl_client, str(current_user.get_id())
+    )
+    print(common_records)
     patients = (
         db.session.query(*PatientDoctors.__table__.columns, User.email)
         .join(User, User.id == PatientDoctors.patient_id)

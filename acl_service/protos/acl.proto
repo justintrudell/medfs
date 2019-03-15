@@ -8,6 +8,9 @@ service Acl {
     rpc GetAllRecordsForUser (GetRecordsRequest) returns (ListOfRecords) {}
     rpc GetAllUsersForRecord (GetUsersRequest) returns (ListOfUsers) {}
     rpc CleanDb(Empty) returns (Empty) {}
+    // Returns a list of records for which both the user in the request and the users in the 
+    // response are permissioned to view/edit (agnostic for now).
+    rpc FindCommonRecords(FindCommonRecordsRequest) returns (FindCommonRecordsResponse) {}
 }
 
 message Empty {
@@ -80,4 +83,14 @@ message GetUsersRequest {
 
 message ListOfUsers {
     repeated UserPermissionEntry users = 1;
+}
+
+message FindCommonRecordsRequest {
+    // The user to find common records with
+    UserId user = 1;
+}
+
+message FindCommonRecordsResponse {
+    // record ids for which at least one other user is permissioned to view
+    ListOfRecords commonRecords = 1;
 }

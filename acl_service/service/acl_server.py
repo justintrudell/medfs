@@ -189,6 +189,25 @@ class AclServicer(acl_pb2_grpc.AclServicer):
         self._create_permissions_if_not_exist()
         return acl_pb2.Empty()
 
+    def FindCommonRecords(self, request, context):
+        user_id = request.user.id
+        sql = f"""
+            SELECT DISTINCT(record_id) FROM acl 
+            WHERE record_id IN (
+                SELECT record_id FROM acl 
+                WHERE user_id = '{user_id}'
+            ) AND user_id  != '{user_id}';
+        """
+        result = []
+        with session_scope() as session:
+            result = session.execute(sql).all()
+
+        list_of_records = acl_pb2.ListOfRecords()
+        for record in result:
+            new_record = list_of_records.records.add()
+            new_record.record.id = str(record.record_id)
+        return result
+
 
 @contextmanager
 def session_scope():
