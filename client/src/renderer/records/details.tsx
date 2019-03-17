@@ -4,11 +4,10 @@ import { get } from "../../api/records";
 import { RecordDetails } from "../../models/records";
 import * as _ from "lodash";
 import { downloadRecord } from "../../utils/recordUtils";
-import { constants } from "../../config";
 import { join, dirname } from "path";
 import { setPageTitle } from "../app";
 import { Button, Table, Alert, Card } from "antd";
-import { shell } from "electron";
+import { shell, remote } from "electron";
 import util from "util";
 const copyFile = util.promisify(require("fs").copyFile);
 
@@ -55,7 +54,9 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
   openTmpFile = () => {
     this.saveCopyOfTmpFile(false)
       .then(filePath => {
-        shell.openItem(filePath);
+        if (filePath) {
+          shell.openItem(filePath);
+        }
       })
       .catch(err => {
         this.setState({ downloadMessages: [err.message] });
@@ -65,12 +66,14 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
   saveRecordToDownloads = () => {
     this.saveCopyOfTmpFile(true)
       .then(filePath => {
-        this.setState(prevState => ({
-          downloadMessages: [
-            ...prevState.downloadMessages,
-            `Downloaded to ${filePath}`
-          ]
-        }));
+        if (filePath) {
+          this.setState(prevState => ({
+            downloadMessages: [
+              ...prevState.downloadMessages,
+              `Downloaded to ${filePath}`
+            ]
+          }));
+        }
       })
       .catch(err => {
         this.setState({ downloadMessages: [err.message] });
@@ -82,16 +85,30 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       return Promise.reject(new Error("No record details"));
     }
 
+    let chosenDownloadPath;
+    if (isDownload) {
+      chosenDownloadPath = remote.dialog.showSaveDialog(
+        remote.getCurrentWindow(),
+        {
+          defaultPath: this.state.recordDetails!.filename
+        }
+      );
+      // Undefined if user cancelled the dialog
+      if (chosenDownloadPath === undefined) {
+        return Promise.resolve("");
+      }
+    }
+
     return (async () => {
       try {
         const tmpFile = await downloadRecord(
           this.state.recordDetails!.hash,
           this.state.recordDetails!.id
         );
-        const pathToSaveTo = join(
-          isDownload ? constants.DOWNLOAD_PATH : dirname(tmpFile.path),
-          (isDownload ? "" : "medfstmp-") + this.state.recordDetails!.filename
-        );
+        const pathToSaveTo = isDownload
+          ? chosenDownloadPath
+          : join(dirname(tmpFile.path), this.state.recordDetails!.filename);
+
         await copyFile(tmpFile.path, pathToSaveTo);
         tmpFile.cleanup();
         return pathToSaveTo;
