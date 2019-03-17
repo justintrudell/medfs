@@ -4,9 +4,11 @@ from uuid import UUID
 from contextlib import contextmanager
 
 from database.database import db
+from database.sql_scripts import dump_script
 from database.models.base import Base
 from database.models.acl import Acl
 from database.models.permission import Permission
+from sqlalchemy import text as sqltext, exc
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import InvalidRequestError
 
@@ -187,6 +189,14 @@ class AclServicer(acl_pb2_grpc.AclServicer):
         Base.metadata.drop_all(bind=db.engine)
         Base.metadata.create_all(bind=db.engine)
         self._create_permissions_if_not_exist()
+        return acl_pb2.Empty()
+
+    def PopulateDb(self, request, context):
+        try:
+            db.engine.execute(sqltext(dump_script).execution_options(autocommit=True))
+        except exc.IntegrityError as e:
+            # DB was likely already populated
+            pass
         return acl_pb2.Empty()
 
 
