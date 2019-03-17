@@ -57,7 +57,7 @@ export class PermissionsModal extends React.Component<
         ]);
         const permissionRequest = buildPermissionRequest(
           pubKeys,
-          Buffer.from(recordKey.aesKey),
+          Buffer.from(recordKey.aesKey, "hex"),
           recordKey.iv,
           nonEmptyPerms
         );
@@ -160,14 +160,13 @@ export class PermissionsModal extends React.Component<
                   defaultValue={permission.permissionType}
                   onChange={this.handleSelectChange(idx)}
                 >
-                  {Object.keys(PermissionType)
-                    .map(permType => {
-                      return (
-                        <Select.Option key={permType} value={permType}>
-                          {permType}
-                        </Select.Option>
-                      );
-                    })}
+                  {Object.keys(PermissionType).map(permType => {
+                    return (
+                      <Select.Option key={permType} value={permType}>
+                        {permType === "READ" ? "View" : "Edit"}
+                      </Select.Option>
+                    );
+                  })}
                 </Select>
 
                 <Button

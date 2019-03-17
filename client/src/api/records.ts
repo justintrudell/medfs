@@ -26,7 +26,7 @@ function normalizeRecord(resp: RecordServiceResponse): RecordItem {
   };
 }
 
-function decryptAesKey(aesKey: string): Promise<string> {
+function decryptAesKey(encryptedAesKey: string): Promise<string> {
   return new Promise((resolve, reject) =>
     getLogin().then(userInternal => {
       if (!_.isEmpty(userInternal)) {
@@ -34,7 +34,7 @@ function decryptAesKey(aesKey: string): Promise<string> {
           crypto
             .privateDecrypt(
               userInternal!.privateKey,
-              Buffer.from(aesKey, "hex")
+              Buffer.from(encryptedAesKey, "hex")
             )
             .toString("hex")
         );
@@ -93,7 +93,9 @@ export function encryptFileAndUpload(
       file: fs.createReadStream(encFilePath),
       filename: file.name
     };
-    return recordId ? recordService.post("/records/update/" + recordId, form, {}, "formData") : recordService.post("/records", form, {}, "formData");
+    return recordId
+      ? recordService.post("/records/update/" + recordId, form, {}, "formData")
+      : recordService.post("/records", form, {}, "formData");
   })();
 }
 

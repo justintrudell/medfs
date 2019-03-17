@@ -269,11 +269,7 @@ export class Uploads extends React.Component<
                       {Object.keys(PermissionType).map(permType => {
                         return (
                           <Select.Option key={permType} value={permType}>
-                            {
-                              PermissionType[
-                                permType as keyof typeof PermissionType
-                              ]
-                            }
+                            {permType === "READ" ? "View" : "Edit"}
                           </Select.Option>
                         );
                       })}
