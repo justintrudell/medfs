@@ -57,7 +57,7 @@ export class PermissionsModal extends React.Component<
         ]);
         const permissionRequest = buildPermissionRequest(
           pubKeys,
-          Buffer.from(recordKey.aesKey),
+          Buffer.from(recordKey.aesKey, "hex"),
           recordKey.iv,
           nonEmptyPerms
         );
