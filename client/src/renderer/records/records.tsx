@@ -84,7 +84,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
   };
 
   componentDidMount() {
-    this.getAllRecords();
+    this.handleRefresh();
   }
 
   tableColumns = (): Array<ColumnProps<RecordItem>> => {
