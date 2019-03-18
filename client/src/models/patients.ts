@@ -2,6 +2,7 @@ export interface DoctorPatientInfo {
   id: string;
   email: string;
   dateAdded: Date;
+  lastUpdate: Date | null;
 }
 
 export interface PatientInfo {
@@ -22,10 +23,10 @@ export enum BloodType {
   abNeg = "AB-",
   abPos = "AB+",
   oNeg = "O-",
-  oPos = "O+",
+  oPos = "O+"
 }
 
 export enum Sex {
   male = "Male",
-  female = "Female",
+  female = "Female"
 }

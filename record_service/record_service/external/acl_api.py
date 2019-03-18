@@ -1,5 +1,5 @@
 import grpc
-from typing import Dict
+from typing import Dict, List
 import uuid
 
 from record_service.external import acl_pb2, acl_pb2_grpc as acl_func
@@ -84,12 +84,18 @@ def get_records_for_user(client: acl_func.AclStub, user_uuid: str) -> Dict[str, 
 
 
 def get_users_for_record(
-    client: acl_func.AclStub,
-    record_uuid: str,
+    client: acl_func.AclStub, record_uuid: str
 ) -> acl_pb2.ListOfUsers:
     req = acl_pb2.GetUsersRequest(record=_record_id(record_uuid))
     response = client.GetAllUsersForRecord(req)
     return [(entry.user.id, _user_perm_to_string(entry)) for entry in response.users]
+
+
+def find_common_records(
+    client: acl_func.AclStub, user_uuid: str
+) -> acl_pb2.FindCommonRecordsResponse:
+    req = acl_pb2.FindCommonRecordsRequest(user=acl_pb2.UserId(id=user_uuid))
+    return client.FindCommonRecords(req)
 
 
 def _user_id(user_uuid: str) -> acl_pb2.UserId:
@@ -113,9 +119,9 @@ def _str_to_user_perm(perm_str: str) -> acl_pb2.UserPermissionEntry:
 
 
 def _user_perm_to_string(perm_entry: acl_pb2.UserPermissionEntry) -> str:
-        if perm_entry.permission == acl_pb2.UserPermissionEntry.READ:
-            return "READ"
-        elif perm_entry.permission == acl_pb2.UserPermissionEntry.WRITE:
-            return "WRITE"
-        else:
-            return "UNKNOWN"
+    if perm_entry.permission == acl_pb2.UserPermissionEntry.READ:
+        return "READ"
+    elif perm_entry.permission == acl_pb2.UserPermissionEntry.WRITE:
+        return "WRITE"
+    else:
+        return "UNKNOWN"

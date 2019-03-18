@@ -157,9 +157,7 @@ def upload_file():
     perms_with_uuid = parse_uploaded_permissions(permissions_json, db)
 
     # Upload the file to IPFS
-    new_record = UPLOADER.upload(
-        request.files["file"], data["filename"]
-    )
+    new_record = UPLOADER.upload(request.files["file"], data["filename"])
     new_record.creator_id = current_user.get_id()
 
     # Update permissions in the ACL service
@@ -238,9 +236,7 @@ def update_record(record_id: str) -> JsonResponse:
     perms_with_uuid = parse_uploaded_permissions(permissions_json, db)
 
     # Upload the file to IPFS
-    new_record = UPLOADER.update(
-        request.files["file"], data["filename"], record_id
-    )
+    new_record = UPLOADER.update(request.files["file"], data["filename"], record_id)
 
     # Update permissions in the ACL service
     set_permissions(current_user.get_id(), record_id, perms_with_uuid)

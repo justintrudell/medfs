@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
 from datetime import datetime
 from typing import Dict
 import json
@@ -32,9 +33,7 @@ def add_patient() -> JsonResponse:
 
     patient_email = data["email"]
 
-    patient = db.session.query(User) \
-        .filter(User.email == patient_email) \
-        .one_or_none()
+    patient = db.session.query(User).filter(User.email == patient_email).one_or_none()
     if not patient:
         # TODO: add logic to send email to create account
         return JsonResponse(message="User not found.", status=404)
@@ -44,9 +43,7 @@ def add_patient() -> JsonResponse:
     try:
         db.session.add(
             PatientDoctors(
-                patient_id=patient.id,
-                doctor_id=current_user.id,
-                accepted=False,
+                patient_id=patient.id, doctor_id=current_user.id, accepted=False
             )
         )
 
@@ -68,16 +65,16 @@ def add_patient() -> JsonResponse:
         return JsonResponse(message="success", status=200)
     except IntegrityError:
         # patient-doctor relationship already exists
-        return JsonResponse(
-            message="Patient-Doctor exists already.",
-            status=302,
-        )
+        return JsonResponse(message="Patient-Doctor exists already.", status=302)
 
 
 @patients_api.route("/get", methods=["GET"])
 @login_required
 @doctor_required
 def get_all_patients() -> JsonResponse:
+    acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
+    common_records = acl_api.find_common_records(acl_client, str(current_user.get_id()))
+
     patients = (
         db.session.query(*PatientDoctors.__table__.columns, User.email)
         .join(User, User.id == PatientDoctors.patient_id)
@@ -85,19 +82,32 @@ def get_all_patients() -> JsonResponse:
         .filter(PatientDoctors.accepted == True)  # noqa E712
         .all()
     )
-    data = [
-        {
-            "id": str(patient.patient_id),
-            "email": patient.email,
-            "dateAdded": patient.date_added.isoformat(),
-        }
-        for patient in patients
-    ]
+
+    data = []
+    for patient in patients:
+        key = str(patient.patient_id)
+        last_update= None
+        if key in common_records.records:
+            common_recs = [r.record.id for r in common_records.records[key].records]
+            last_update = (
+                db.session.query(func.max(Record.created))
+                .filter(Record.id.in_(common_recs))
+                .scalar()
+            ).isoformat()
+
+        data.append(
+            {
+                "id": str(patient.patient_id),
+                "email": patient.email,
+                "dateAdded": patient.date_added.isoformat(),
+                "lastUpdate": last_update,
+            }
+        )
 
     return JsonResponse(data=data, status=200)
 
 
-@patients_api.route("/update", methods=["POST"]) # noqa C901
+@patients_api.route("/update", methods=["POST"])  # noqa C901
 @login_required
 def update_patient_info() -> JsonResponse:
     doctor = db.session.query(Doctor).get(current_user.get_id())
@@ -118,9 +128,9 @@ def update_patient_info() -> JsonResponse:
         patient_info.primary_physician = physician.id
 
     if data.get("dateOfBirth"):
-        patient_info.date_of_birth = datetime \
-            .strptime(data["dateOfBirth"], "%Y-%m-%d") \
-            .date()
+        patient_info.date_of_birth = datetime.strptime(
+            data["dateOfBirth"], "%Y-%m-%d"
+        ).date()
 
     if data.get("bloodType"):
         if not BloodType.has_value(data["bloodType"]):
@@ -165,10 +175,14 @@ def get_patient_info() -> JsonResponse:
 @login_required
 @doctor_required
 def get_patient_info_as_doctor(patient_id: str) -> JsonResponse:
-    doctor_patient = db.session.query(PatientDoctors) \
-        .filter(PatientDoctors.patient_id == patient_id,
-                PatientDoctors.doctor_id == current_user.get_id()) \
+    doctor_patient = (
+        db.session.query(PatientDoctors)
+        .filter(
+            PatientDoctors.patient_id == patient_id,
+            PatientDoctors.doctor_id == current_user.get_id(),
+        )
         .one_or_none()
+    )
     if doctor_patient is None:
         return JsonResponse(message="Forbidden", status=403)
 
@@ -181,10 +195,12 @@ def get_patient_info_as_doctor(patient_id: str) -> JsonResponse:
 
 
 def _get_patient_info(patient_id: str) -> Dict[str, str]:
-    patient = db.session.query(User.email, *Patient.__table__.columns) \
-        .join(Patient, User.id == Patient.user_id) \
-        .filter(Patient.user_id == patient_id) \
+    patient = (
+        db.session.query(User.email, *Patient.__table__.columns)
+        .join(Patient, User.id == Patient.user_id)
+        .filter(Patient.user_id == patient_id)
         .first()
+    )
 
     if patient is None:
         raise UserNotFoundError(f"Patient {patient_id} does not exist.")
@@ -192,9 +208,9 @@ def _get_patient_info(patient_id: str) -> Dict[str, str]:
     return {
         "id": patient_id,
         "email": patient.email,
-        "dateOfBirth":
-            patient.date_of_birth.strftime("%Y-%m-%d")
-            if patient.date_of_birth else None,
+        "dateOfBirth": patient.date_of_birth.strftime("%Y-%m-%d")
+        if patient.date_of_birth
+        else None,
         "bloodType": patient.blood_type.value if patient.blood_type else None,
         "sex": patient.sex.value if patient.sex else None,
         "firstName": patient.first_name,
@@ -208,10 +224,14 @@ def _get_patient_info(patient_id: str) -> Dict[str, str]:
 def get_all_records_for_patient(patient_id: str) -> JsonResponse:
     # lil' smoke check to make sure the patient is associated with doctor
     # should be handled by ACL service but it's fine
-    doctor_patient = db.session.query(PatientDoctors) \
-        .filter(PatientDoctors.patient_id == patient_id,
-                PatientDoctors.doctor_id == current_user.get_id()) \
+    doctor_patient = (
+        db.session.query(PatientDoctors)
+        .filter(
+            PatientDoctors.patient_id == patient_id,
+            PatientDoctors.doctor_id == current_user.get_id(),
+        )
         .one_or_none()
+    )
     if doctor_patient is None:
         return JsonResponse(message="Forbidden", status=403)
 
@@ -228,11 +248,7 @@ def get_all_records_for_patient(patient_id: str) -> JsonResponse:
         set(doctor_records.keys()).intersection(set(patient_records.keys()))
     )
 
-    records = (
-        db.session.query(Record)
-        .filter(Record.id.in_(record_intersection))
-        .all()
-    )
+    records = db.session.query(Record).filter(Record.id.in_(record_intersection)).all()
 
     if records is None:
         return JsonResponse(message="No records found.", data=[], status=204)
@@ -271,10 +287,12 @@ def respond_to_add_patient_request() -> JsonResponse:
         return JsonResponse(message="Bad Request", status=400)
 
     patient_doctor = (
-        db.session.query(PatientDoctors).filter(
+        db.session.query(PatientDoctors)
+        .filter(
             PatientDoctors.doctor_id == data["doctorId"],
             PatientDoctors.patient_id == current_user.get_id(),
-        ).one_or_none()
+        )
+        .one_or_none()
     )
 
     if patient_doctor is None:

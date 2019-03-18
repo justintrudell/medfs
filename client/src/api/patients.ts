@@ -13,6 +13,7 @@ type DoctorPatientInfoResponse = {
   id: string;
   email: string;
   dateAdded: string;
+  lastUpdate: string | null;
 };
 
 export interface PatientInfoResponse {
@@ -30,7 +31,8 @@ function coerceDoctorPatientInfo(
 ): DoctorPatientInfo {
   return {
     ...response,
-    dateAdded: new Date(response.dateAdded)
+    dateAdded: new Date(response.dateAdded),
+    lastUpdate: response.lastUpdate ? new Date(response.lastUpdate) : null
   };
 }
 
