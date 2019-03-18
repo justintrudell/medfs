@@ -65,6 +65,18 @@ export class Patients extends React.Component<
           a.email.localeCompare(b.email)
       },
       {
+        title: "Last Updated",
+        key: "last_updated",
+        render: (_, patient) =>
+          patient.lastUpdate ? patient.lastUpdate.toLocaleString("en-US") : "-",
+        sorter: (a: DoctorPatientInfo, b: DoctorPatientInfo) => {
+          if (a.lastUpdate && b.lastUpdate) {
+            return a.lastUpdate.getTime() - b.lastUpdate.getTime();
+          }
+          return a.email.localeCompare(b.email);
+        }
+      },
+      {
         title: "Date Added",
         key: "date_added",
         render: (_, patient) => patient.dateAdded.toLocaleString("en-US"),

@@ -1,5 +1,5 @@
 import grpc
-from typing import Dict
+from typing import Dict, List
 import uuid
 
 from record_service.external import acl_pb2, acl_pb2_grpc as acl_func
@@ -93,8 +93,9 @@ def get_users_for_record(
 
 def find_common_records(
     client: acl_func.AclStub, user_uuid: str
-) -> acl_pb2.ListOfRecords:
-    pass
+) -> acl_pb2.FindCommonRecordsResponse:
+    req = acl_pb2.FindCommonRecordsRequest(user=acl_pb2.UserId(id=user_uuid))
+    return client.FindCommonRecords(req)
 
 
 def _user_id(user_uuid: str) -> acl_pb2.UserId:

@@ -192,7 +192,7 @@ class AclServicer(acl_pb2_grpc.AclServicer):
     def FindCommonRecords(self, request, context):
         user_id = request.user.id
         sql = f"""
-            SELECT DISTINCT(record_id) FROM acl 
+            SELECT record_id, user_id FROM acl
             WHERE record_id IN (
                 SELECT record_id FROM acl 
                 WHERE user_id = '{user_id}'
@@ -200,13 +200,17 @@ class AclServicer(acl_pb2_grpc.AclServicer):
         """
         result = []
         with session_scope() as session:
-            result = session.execute(sql).all()
+            result = session.execute(sql).fetchall()
 
-        list_of_records = acl_pb2.ListOfRecords()
-        for record in result:
-            new_record = list_of_records.records.add()
-            new_record.record.id = str(record.record_id)
-        return result
+        ret_m = {}
+        for r in result:
+            key = str(r.user_id)
+            if key not in ret_m:
+                ret_m[key] = acl_pb2.ListOfRecords()
+            new_record = ret_m[key].records.add()
+            new_record.record.id = str(r.record_id)
+
+        return acl_pb2.FindCommonRecordsResponse(records=ret_m)
 
 
 @contextmanager

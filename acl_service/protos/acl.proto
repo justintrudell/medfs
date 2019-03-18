@@ -91,6 +91,6 @@ message FindCommonRecordsRequest {
 }
 
 message FindCommonRecordsResponse {
-    // record ids for which at least one other user is permissioned to view
-    ListOfRecords commonRecords = 1;
+    // Mapping of user id -> List of records
+    map<string, ListOfRecords> records = 1;
 }
