@@ -8,6 +8,7 @@ service Acl {
     rpc GetAllRecordsForUser (GetRecordsRequest) returns (ListOfRecords) {}
     rpc GetAllUsersForRecord (GetUsersRequest) returns (ListOfUsers) {}
     rpc CleanDb(Empty) returns (Empty) {}
+    rpc PopulateDb(Empty) returns (Empty) {}
     // Returns a list of records for which both the user in the request and the users in the 
     // response are permissioned to view/edit (agnostic for now).
     rpc FindCommonRecords(FindCommonRecordsRequest) returns (FindCommonRecordsResponse) {}

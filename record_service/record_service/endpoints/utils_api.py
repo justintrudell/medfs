@@ -38,19 +38,28 @@ def clean_acl_srv():
     return "cleaned acl-srv db"
 
 
-def populate_db():
+def populate_rec_db():
     try:
         db.engine.execute(sqltext(dump_script).execution_options(autocommit=True))
-        return "populated db"
+        return "populated record-srv db"
     except exc.IntegrityError as e:
         return "db was already populated"
+
+
+def populate_acl_db():
+    acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
+    req = acl_pb2.Empty()
+    acl_client.PopulateDb(req)
+    return "populated acl-srv db"
 
 
 commands = {
     "clean-rec": [clean_record_srv],
     "clean-acl": [clean_acl_srv],
     "clean": [clean_record_srv, clean_acl_srv],
-    "populate": [populate_db],
+    "populate-rec": [populate_rec_db],
+    "populate-acl": [populate_acl_db],
+    "populate": [populate_rec_db, populate_acl_db],
 }
 
 
