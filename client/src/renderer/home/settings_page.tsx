@@ -29,16 +29,21 @@ export class SettingsPage extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    Promise.all([getLogin(), getPatientInfo()])
-      .then(result => {
-        if (!result[0] || _.isEmpty(result[0])) {
+    getLogin()
+      .then(login => {
+        if (!login || _.isEmpty(login)) {
           throw new Error(ERR_UNKNOWN);
         }
         this.setState({
           isLoading: false,
           error: undefined,
-          user: result[0] as UserInternal,
-          info: result[1] as PatientInfo
+          user: login
+        });
+        return getPatientInfo();
+      })
+      .then(patient => {
+        this.setState({
+          info: patient
         });
       })
       .catch(err => {
