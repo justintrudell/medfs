@@ -291,7 +291,7 @@ def delete_record(record_id: str) -> JsonResponse:
     if not acl_api.is_user_permissioned_for_write(
         acl_client, str(current_user.get_id()), record_id
     ):
-        return "Access denied", 401
+        return JsonResponse(message="Access denied.", status=401)
 
     # Delete records and keys associated with the id
     # Note that we need to delete from RecordKey first so we don't violate
@@ -303,4 +303,4 @@ def delete_record(record_id: str) -> JsonResponse:
     # Delete acl records associated with the id
     acl_api.set_permissions(acl_client, current_user.get_id(), record_id, {})
 
-    return "Deletion successful!", 200
+    return JsonResponse(message="Deletion successful!", status=200)
