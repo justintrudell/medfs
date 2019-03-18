@@ -163,7 +163,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
         <Button
           style={{ marginTop: 24, marginLeft: 12 }}
           type="primary"
-          icon="download"
+          icon="select"
           onClick={this.openTmpFile}
         >
           Preview
