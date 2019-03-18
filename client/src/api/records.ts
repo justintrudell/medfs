@@ -119,3 +119,15 @@ export function getKeyForRecord(record: string): Promise<RecordKey> {
     throw new Error(`Unknown Error: ${response.body}`);
   });
 }
+
+export function deleteRecord(record: string): Promise<void> {
+  return recordService.del(`/records/${record}`).then(response => {
+    if (response.statusCode === 200) {
+      return;
+    }
+    if (response.statusCode === 401) {
+      throw new Error(ERR_NOT_AUTHORIZED);
+    }
+    throw new Error(`Unknown Error: ${response.body}`);
+  });
+}

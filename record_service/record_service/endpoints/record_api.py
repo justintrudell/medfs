@@ -282,3 +282,25 @@ def update_record(record_id: str) -> JsonResponse:
     db.session.commit()
 
     return "Update successful!", 200
+
+@record_api.route("/records/<string:record_id>", methods=["DELETE"])
+@login_required
+def delete_record(record_id: str) -> JsonResponse:
+    # Query acl to check if user has write access to file
+    acl_client = acl_api.build_client(config.ACL_URL, config.ACL_PORT)
+    if not acl_api.is_user_permissioned_for_write(
+        acl_client, str(current_user.get_id()), record_id
+    ):
+        return JsonResponse(message="Access denied.", status=401)
+
+    # Delete records and keys associated with the id
+    # Note that we need to delete from RecordKey first so we don't violate
+    # foreign key constraints
+    db.session.query(RecordKey).filter(RecordKey.record_id == record_id).delete()
+    db.session.query(Record).filter(Record.id == record_id).delete()
+    db.session.commit()
+
+    # Delete acl records associated with the id
+    acl_api.set_permissions(acl_client, current_user.get_id(), record_id, {})
+
+    return JsonResponse(message="Deletion successful!", status=200)
