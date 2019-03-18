@@ -86,10 +86,10 @@ def get_all_patients() -> JsonResponse:
     data = []
     for patient in patients:
         key = str(patient.patient_id)
-        lastUpdate = None
+        last_update= None
         if key in common_records.records:
             common_recs = [r.record.id for r in common_records.records[key].records]
-            lastUpdate = (
+            last_update = (
                 db.session.query(func.max(Record.created))
                 .filter(Record.id.in_(common_recs))
                 .scalar()
@@ -100,7 +100,7 @@ def get_all_patients() -> JsonResponse:
                 "id": str(patient.patient_id),
                 "email": patient.email,
                 "dateAdded": patient.date_added.isoformat(),
-                "lastUpdate": lastUpdate,
+                "lastUpdate": last_update,
             }
         )
 
