@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as _ from "lodash";
 import { Card, Divider, Icon } from "antd";
-import { getAllForUser } from "../../api/records";
+import { getAllForUser, deleteRecord } from "../../api/records";
 import { RecordItem } from "../../models/records";
 import { Switch, Route, Link } from "react-router-dom";
 import { DetailView } from "./details";
@@ -13,6 +13,7 @@ import { ColumnProps } from "antd/lib/table";
 import { ERR_NOT_AUTHORIZED } from "../../models/errors";
 import { Permission } from "../../models/permissions";
 import { getUsersForRecord } from "../../api/permissions";
+import { remote } from "electron"
 
 export type RecordListState = {
   records: RecordItem[];
@@ -136,6 +137,13 @@ export class Records extends React.Component<RecordProps, RecordListState> {
           </a>
           <Divider type="vertical" />
           <Link to={`/uploads/update/${record.id}`}> Update Record </Link>
+          <Divider type="vertical" />
+          <a
+            href="javascript:;"
+            onClick={() => this.deleteRecord(record)}
+          >
+            Delete Record
+          </a>
         </span>
       );
     }
@@ -160,6 +168,23 @@ export class Records extends React.Component<RecordProps, RecordListState> {
       .catch((error: Error) => {
         console.log(error);
       });
+  };
+
+  deleteRecord = (record: RecordItem) => {
+    let options  = {
+      buttons: ["Yes", "No"],
+      message: `Are you sure you want to delete ${record.name}?`
+    }
+    let response = remote.dialog.showMessageBox(options);
+    if(response == 0) {
+      deleteRecord(record.id)
+      .then(() => {
+        this.handleRefresh();
+      })
+      .catch((error: Error) => {
+        console.error(error);
+      });
+    }
   };
 
   hidePermissionsModal = (): void => {

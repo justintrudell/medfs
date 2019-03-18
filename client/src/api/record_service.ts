@@ -52,6 +52,23 @@ export function post(
   });
 }
 
+export function del(endpoint: string, options: {} = {}): RecordServiceResponse {
+  return new Promise((pResolve, pReject) => {
+    const fullPath = resolve(constants.record_service_endpoint(), endpoint);
+    const requestOptions = {
+      ...options,
+      url: fullPath.toString()
+    };
+    request.delete(requestOptions, (error, response, _body) => {
+      if (error) {
+        pReject(error);
+        return;
+      }
+      pResolve(response);
+    });
+  });
+}
+
 export function stream(
   endpoint: string,
   uuid: string,
