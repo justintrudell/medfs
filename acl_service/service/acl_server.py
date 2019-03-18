@@ -4,7 +4,7 @@ from uuid import UUID
 from contextlib import contextmanager
 
 from database.database import db
-from database.sql_scripts import dump_script
+from database.sql_scripts import populate_permissions_vals
 from database.models.base import Base
 from database.models.acl import Acl
 from database.models.permission import Permission
@@ -188,15 +188,34 @@ class AclServicer(acl_pb2_grpc.AclServicer):
     def CleanDb(self, request, context):
         Base.metadata.drop_all(bind=db.engine)
         Base.metadata.create_all(bind=db.engine)
-        self._create_permissions_if_not_exist()
         return acl_pb2.Empty()
 
     def PopulateDb(self, request, context):
-        try:
-            db.engine.execute(sqltext(dump_script).execution_options(autocommit=True))
-        except exc.IntegrityError as e:
-            # DB was likely already populated
-            pass
+        with session_scope() as session:
+            try:
+                self._create_permissions_if_not_exist()
+                readonly_perm = (
+                    session.query(Permission)
+                    .filter(Permission.is_readonly == True)  # noqa
+                    .one_or_none()
+                )
+                write_perm = (
+                    session.query(Permission)
+                    .filter(Permission.is_readonly == False)
+                    .one_or_none()
+                )  # noqa
+                for user_id, record_id, is_readonly in populate_permissions_vals:
+                    perm_id = readonly_perm.id if is_readonly else write_perm.id
+                    session.add(
+                        Acl(
+                            user_id=UUID(user_id),
+                            record_id=UUID(record_id),
+                            permission_id=perm_id,
+                        )
+                    )
+            except exc.IntegrityError as e:
+                # Assume DB was already populated
+                pass
         return acl_pb2.Empty()
 
 
