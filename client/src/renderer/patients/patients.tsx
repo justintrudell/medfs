@@ -70,11 +70,12 @@ export class Patients extends React.Component<
         render: (_, patient) =>
           patient.lastUpdate ? patient.lastUpdate.toLocaleString("en-US") : "-",
         sorter: (a: DoctorPatientInfo, b: DoctorPatientInfo) => {
-          if (a.lastUpdate && b.lastUpdate) {
-            return a.lastUpdate.getTime() - b.lastUpdate.getTime();
-          }
-          return a.email.localeCompare(b.email);
-        }
+          const aTime = a.lastUpdate ? a.lastUpdate.getTime() : 0;
+          const bTime = b.lastUpdate ? b.lastUpdate.getTime() : 0;
+
+          return aTime - bTime;
+        },
+        defaultSortOrder: "descend"
       },
       {
         title: "Date Added",
