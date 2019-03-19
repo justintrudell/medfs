@@ -13,7 +13,7 @@ import { ColumnProps } from "antd/lib/table";
 import { ERR_NOT_AUTHORIZED } from "../../models/errors";
 import { Permission } from "../../models/permissions";
 import { getUsersForRecord } from "../../api/permissions";
-import { remote } from "electron"
+import { remote } from "electron";
 
 export type RecordListState = {
   records: RecordItem[];
@@ -28,6 +28,7 @@ export interface RecordProps {
   updateIsLoggedIn: updateIsLoggedIn;
   setPageTitle: setPageTitle;
   pageTitle?: string;
+  userEmail: string | null;
 }
 
 export class Records extends React.Component<RecordProps, RecordListState> {
@@ -138,10 +139,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
           <Divider type="vertical" />
           <Link to={`/uploads/update/${record.id}`}> Update Record </Link>
           <Divider type="vertical" />
-          <a
-            href="javascript:;"
-            onClick={() => this.deleteRecord(record)}
-          >
+          <a href="javascript:;" onClick={() => this.deleteRecord(record)}>
             Delete Record
           </a>
         </span>
@@ -171,19 +169,19 @@ export class Records extends React.Component<RecordProps, RecordListState> {
   };
 
   deleteRecord = (record: RecordItem) => {
-    let options  = {
+    let options = {
       buttons: ["Yes", "No"],
       message: `Are you sure you want to delete ${record.name}?`
-    }
+    };
     let response = remote.dialog.showMessageBox(options);
-    if(response == 0) {
+    if (response == 0) {
       deleteRecord(record.id)
-      .then(() => {
-        this.handleRefresh();
-      })
-      .catch((error: Error) => {
-        console.error(error);
-      });
+        .then(() => {
+          this.handleRefresh();
+        })
+        .catch((error: Error) => {
+          console.error(error);
+        });
     }
   };
 
@@ -204,35 +202,38 @@ export class Records extends React.Component<RecordProps, RecordListState> {
       <div>
         <Switch>
           <Route exact path="/">
-            <Card
-              title={
-                <div>
-                  My Documents
-                  <Icon
-                    style={{ padding: 10 }}
-                    type="sync"
-                    onClick={this.handleRefresh}
-                    spin={this.state.loading}
-                  />
-                </div>
-              }
-              loading={this.state.loading}
-              extra={
-                <Link to="/uploads">
-                  <Button type="primary" icon="plus">
-                    Add Document
-                  </Button>
-                </Link>
-              }
-            >
-              <ListView
-                items={this.state.records}
-                columns={this.tableColumns()}
-                keyProp="id"
-                pageTitle={this.props.pageTitle}
-                setPageTitle={this.props.setPageTitle}
-              />
-            </Card>
+            <div>
+              {this.props.userEmail && <h3>{`${this.props.userEmail}`}</h3>}
+              <Card
+                title={
+                  <div>
+                    My Documents
+                    <Icon
+                      style={{ padding: 10 }}
+                      type="sync"
+                      onClick={this.handleRefresh}
+                      spin={this.state.loading}
+                    />
+                  </div>
+                }
+                loading={this.state.loading}
+                extra={
+                  <Link to="/uploads">
+                    <Button type="primary" icon="plus">
+                      Add Document
+                    </Button>
+                  </Link>
+                }
+              >
+                <ListView
+                  items={this.state.records}
+                  columns={this.tableColumns()}
+                  keyProp="id"
+                  pageTitle={this.props.pageTitle}
+                  setPageTitle={this.props.setPageTitle}
+                />
+              </Card>
+            </div>
           </Route>
 
           <Route

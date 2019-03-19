@@ -20,6 +20,7 @@ interface MainProps extends RecordProps {
   stream?: EventSource;
   isDoctor: isDoctor;
   notifications: MedFsNotification[];
+  userEmail: string | null;
 }
 
 interface MainState {
