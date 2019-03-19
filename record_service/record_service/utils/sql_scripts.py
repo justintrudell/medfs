@@ -244,7 +244,7 @@ INSERT INTO "public"."doctors" ("user_id") VALUES ('5db0b4c2-2260-41d2-8230-9a4b
 ('a14281d5-bd8b-4856-9489-67a4d56a305a'),
 ('ba44c2e0-4b70-4d2a-8798-caa5895434a2');
 
-INSERT INTO "public"."patients" ("user_id", "primary_physician", "date_of_birth", "blood_type", "sex", "first_name", "last_name") VALUES ('07b0696e-41cd-4dac-b373-4d81d8b9667b', NULL, NULL, NULL, NULL, NULL, NULL),
+INSERT INTO "public"."patients" ("user_id", "primary_physician", "date_of_birth", "blood_type", "sex", "first_name", "last_name") VALUES ('07b0696e-41cd-4dac-b373-4d81d8b9667b', NULL, '1979-03-02', 'o_pos', 'male', 'Jega', 'Patel'),
 ('42bc901c-d3ab-411b-8eaf-69ce01cc3b2c', NULL, '1962-04-01', 'o_neg', 'female', 'Jane', 'Matthews'),
 ('f6bc7939-deb1-4bc9-b77b-aa5dc9e98209', NULL, '1981-03-10', 'ab_pos', 'male', 'John', 'Marleau');
 
