@@ -34,7 +34,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
 
     this.state = {
       downloadMessages: [],
-      loading: false,
+      loading: true,
       downloading: false
     };
   }
