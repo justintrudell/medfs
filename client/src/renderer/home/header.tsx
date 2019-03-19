@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { Layout, Icon, Badge, Menu, Dropdown, Switch, Button } from "antd";
+import { Layout, Icon, Badge, Menu, Dropdown, Button } from "antd";
 import "antd/dist/antd.css";
 import { MedFsNotification } from "../../models/notifications";
 import { HistoryProps } from "../app";
@@ -58,12 +58,6 @@ export class MedFsHeader extends React.Component<
     );
   }
 
-  handleEnvSwitch = (checked: boolean): void => {
-    process.env.MEDFS_ENVIRONMENT = checked ? "prod" : "dev";
-    // Force a logout when changing environment
-    this.props.logout();
-  };
-
   settingsMenu() {
     const menuItems = (
       <Menu
@@ -82,14 +76,6 @@ export class MedFsHeader extends React.Component<
           >
             <span className="nav-text">Logout</span>
           </div>
-        </Menu.Item>
-        <Menu.Item key="environment">
-          <Switch
-            checkedChildren="Prod"
-            unCheckedChildren="Dev"
-            onChange={this.handleEnvSwitch}
-            defaultChecked={process.env.MEDFS_ENVIRONMENT === "prod"}
-          />
         </Menu.Item>
       </Menu>
     );
