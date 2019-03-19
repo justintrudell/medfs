@@ -60,6 +60,12 @@ commands = {
     "populate-rec": [populate_rec_db],
     "populate-acl": [populate_acl_db],
     "populate": [populate_rec_db, populate_acl_db],
+    "clean-populate": [
+        clean_record_srv,
+        clean_acl_srv,
+        populate_rec_db,
+        populate_acl_db,
+    ],
 }
 
 
