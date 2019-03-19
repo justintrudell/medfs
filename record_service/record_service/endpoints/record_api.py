@@ -283,6 +283,7 @@ def update_record(record_id: str) -> JsonResponse:
 
     return "Update successful!", 200
 
+
 @record_api.route("/records/<string:record_id>", methods=["DELETE"])
 @login_required
 def delete_record(record_id: str) -> JsonResponse:
