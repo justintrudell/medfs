@@ -155,6 +155,9 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             clearNotifications={this.clearNotifications}
             isDoctor={this.isDoctor}
             logout={this.handleLogout}
+            userEmail={
+              this.state.userInternal ? this.state.userInternal.email : null
+            }
           />
         )}
         <Content style={{ paddingTop: this.isLoggedIn() ? "0" : "30px" }}>

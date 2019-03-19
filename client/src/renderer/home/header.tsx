@@ -16,6 +16,7 @@ interface HeaderProps {
   clearNotifications: (visible?: boolean) => void;
   isDoctor: () => boolean;
   logout: () => void;
+  userEmail: string | null;
 }
 
 export class MedFsHeader extends React.Component<
@@ -194,6 +195,18 @@ export class MedFsHeader extends React.Component<
         >
           {this.notificationMenu()}
         </div>
+        {this.props.userEmail && (
+          <div
+            style={{
+              display: "inline-block",
+              float: "right",
+              margin: "0 4px 0 0",
+              paddingRight: "8px"
+            }}
+          >
+            <p style={{ color: "white" }}>{this.props.userEmail}</p>
+          </div>
+        )}
       </Header>
     );
   }
