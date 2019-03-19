@@ -13,7 +13,7 @@ import { ColumnProps } from "antd/lib/table";
 import { ERR_NOT_AUTHORIZED } from "../../models/errors";
 import { Permission } from "../../models/permissions";
 import { getUsersForRecord } from "../../api/permissions";
-import { remote } from "electron"
+import { remote } from "electron";
 
 export type RecordListState = {
   records: RecordItem[];
@@ -138,10 +138,7 @@ export class Records extends React.Component<RecordProps, RecordListState> {
           <Divider type="vertical" />
           <Link to={`/uploads/update/${record.id}`}> Update Record </Link>
           <Divider type="vertical" />
-          <a
-            href="javascript:;"
-            onClick={() => this.deleteRecord(record)}
-          >
+          <a href="javascript:;" onClick={() => this.deleteRecord(record)}>
             Delete Record
           </a>
         </span>
@@ -171,19 +168,19 @@ export class Records extends React.Component<RecordProps, RecordListState> {
   };
 
   deleteRecord = (record: RecordItem) => {
-    let options  = {
+    let options = {
       buttons: ["Yes", "No"],
       message: `Are you sure you want to delete ${record.name}?`
-    }
+    };
     let response = remote.dialog.showMessageBox(options);
-    if(response == 0) {
+    if (response == 0) {
       deleteRecord(record.id)
-      .then(() => {
-        this.handleRefresh();
-      })
-      .catch((error: Error) => {
-        console.error(error);
-      });
+        .then(() => {
+          this.handleRefresh();
+        })
+        .catch((error: Error) => {
+          console.error(error);
+        });
     }
   };
 
