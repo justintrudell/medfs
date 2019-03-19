@@ -6,7 +6,7 @@ import * as _ from "lodash";
 import { downloadRecord } from "../../utils/recordUtils";
 import { join, dirname } from "path";
 import { setPageTitle } from "../app";
-import { Button, Table, Alert, Card, Spin } from "antd";
+import { Button, Table, Alert, Card, Spin, Empty } from "antd";
 import { shell, remote } from "electron";
 import util from "util";
 const copyFile = util.promisify(require("fs").copyFile);
@@ -26,6 +26,7 @@ interface DetailState {
   downloadMessages: string[];
   loading: boolean;
   downloading: boolean;
+  error: boolean;
 }
 
 export class DetailView extends React.Component<DetailProps, DetailState> {
@@ -35,7 +36,8 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
     this.state = {
       downloadMessages: [],
       loading: true,
-      downloading: false
+      downloading: false,
+      error: false
     };
   }
 
@@ -49,7 +51,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
       })
       .catch(error => {
         console.error(error);
-        this.setState({ loading: false });
+        this.setState({ loading: false, error: true });
       });
   }
 
@@ -124,9 +126,18 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
   };
 
   getToRender = (): JSX.Element => {
+    if (this.state.error) {
+      return (
+        <Card>
+          <Empty description={"This record wasn't found!"} />
+        </Card>
+      );
+    }
+
     if (!this.state.recordDetails || _.isEmpty(this.state.recordDetails)) {
       return <div />;
     }
+
     const pKeys = _.map(
       this.state.recordDetails,
       (value, key): { key: string; attribute: string; value: string } => {
@@ -182,7 +193,6 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
             </Button>
           </React.Fragment>
         )}
-
         {this.state.downloadMessages.map((message, idx) => {
           return (
             <Alert
@@ -194,6 +204,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
             />
           );
         })}
+        )}
       </Card>
     );
   };
