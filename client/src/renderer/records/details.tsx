@@ -6,7 +6,7 @@ import * as _ from "lodash";
 import { downloadRecord } from "../../utils/recordUtils";
 import { join, dirname } from "path";
 import { setPageTitle } from "../app";
-import { Button, Table, Alert, Card } from "antd";
+import { Button, Table, Alert, Card, Spin } from "antd";
 import { shell, remote } from "electron";
 import util from "util";
 const copyFile = util.promisify(require("fs").copyFile);
@@ -25,6 +25,7 @@ interface DetailState {
   recordDetails?: RecordDetails;
   downloadMessages: string[];
   loading: boolean;
+  downloading: boolean;
 }
 
 export class DetailView extends React.Component<DetailProps, DetailState> {
@@ -33,7 +34,8 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
 
     this.state = {
       downloadMessages: [],
-      loading: false
+      loading: true,
+      downloading: false
     };
   }
 
@@ -98,6 +100,7 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
         return Promise.resolve("");
       }
     }
+    this.setState({ downloading: true });
 
     return (async () => {
       try {
@@ -111,8 +114,10 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
 
         await copyFile(tmpFile.path, pathToSaveTo);
         tmpFile.cleanup();
+        this.setState({ downloading: false });
         return pathToSaveTo;
       } catch (err) {
+        this.setState({ downloading: false });
         return Promise.reject(err);
       }
     })();
@@ -152,22 +157,32 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
         loading={this.state.loading}
       >
         <Table columns={columns} dataSource={pKeys} pagination={false} />
-        <Button
-          style={{ marginTop: 24 }}
-          type="primary"
-          icon="download"
-          onClick={this.saveRecordToDownloads}
-        >
-          Download
-        </Button>
-        <Button
-          style={{ marginTop: 24, marginLeft: 12 }}
-          type="primary"
-          icon="select"
-          onClick={this.openTmpFile}
-        >
-          Preview
-        </Button>
+        {this.state.downloading && (
+          <div style={{ paddingTop: 24 }}>
+            <Spin />
+          </div>
+        )}
+        {!this.state.downloading && (
+          <React.Fragment>
+            <Button
+              style={{ marginTop: 24 }}
+              type="primary"
+              icon="download"
+              onClick={this.saveRecordToDownloads}
+            >
+              Download
+            </Button>
+            <Button
+              style={{ marginTop: 24, marginLeft: 12 }}
+              type="primary"
+              icon="select"
+              onClick={this.openTmpFile}
+            >
+              Preview
+            </Button>
+          </React.Fragment>
+        )}
+
         {this.state.downloadMessages.map((message, idx) => {
           return (
             <Alert
