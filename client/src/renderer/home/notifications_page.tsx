@@ -69,6 +69,7 @@ export class NotificationsPage extends React.Component<{}, State> {
         <List
           dataSource={this.state.notifications}
           renderItem={this.renderItem}
+          pagination={{pageSize: 7}}
         />
       </Card>
     );
