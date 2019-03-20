@@ -170,9 +170,6 @@ class AppInner extends React.Component<RouteComponentProps<{}>, AppState> {
             stream={this.state.stream}
             isDoctor={this.isDoctor}
             notifications={this.state.notifications}
-            userEmail={
-              this.state.userInternal ? this.state.userInternal.email : null
-            }
           />
         </Content>
       </Layout>

@@ -204,7 +204,6 @@ export class DetailView extends React.Component<DetailProps, DetailState> {
             />
           );
         })}
-        )}
       </Card>
     );
   };
